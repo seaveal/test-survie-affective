@@ -124,8 +124,19 @@ export interface Roadmap {
   pasNumeroTrois: string
   chapitresLivreCibles: number[] // pour les lecteurs
   exerciceCorporel: string
-  ctaPrincipal: { texte: string; url: string }
-  ctaSecondaire: { texte: string; url: string }
+}
+
+// CTA composés dynamiquement selon statutLivre (cf. docs/PROFILS_RESULTATS_TEXTES.md §CTA)
+
+export interface CtaLien {
+  texte: string
+  url: string
+}
+
+export interface CtaParStatut {
+  amorce: string // bloc d'amorce (texte introductif au-dessus des CTA)
+  ctaPrincipal: CtaLien
+  ctaSecondaire: CtaLien
 }
 
 // CONSTANTES

@@ -1,0 +1,11 @@
+# Permettre l'embed iframe depuis Circle (et n'importe quel host pour la V1)
+# Note : pour restreindre, remplacer "ALLOWALL" par
+# "ALLOW-FROM https://cyrillenovou.circle.so" ou utiliser
+# Content-Security-Policy: frame-ancestors 'self' https://cyrillenovou.circle.so
+/*
+  X-Frame-Options: ALLOWALL
+  Content-Security-Policy: frame-ancestors *
+
+# Cache long pour les assets immuables (hash dans le nom de fichier)
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

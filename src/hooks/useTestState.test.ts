@@ -43,7 +43,7 @@ describe('useTestState — Phase 7', () => {
     expect(result.current.reponses.contexte.statutLivre).toBe('lu_complet')
   })
 
-  it('après les 30 réponses, etape = "resultat" + Resultat exposé', () => {
+  it('après les 30 réponses, etape = "capture" + Resultat calculé (sprint 2 : interception capture email avant resultat)', () => {
     const { result } = renderHook(() => useTestState())
     act(() => result.current.commencer())
     for (let i = 0; i < 20; i++) act(() => result.current.repondreTypage('A'))
@@ -53,7 +53,7 @@ describe('useTestState — Phase 7', () => {
     act(() => result.current.repondreContexte('celibat_long'))
     act(() => result.current.repondreContexte('fonctionnel'))
     act(() => result.current.repondreContexte('incertain'))
-    expect(result.current.etape).toBe('resultat')
+    expect(result.current.etape).toBe('capture')
     expect(result.current.resultat).not.toBeNull()
     expect(result.current.resultat?.intensite).toBe('modere')
     expect(['mendiant', 'sauveur', 'controleur', 'fantome']).toContain(

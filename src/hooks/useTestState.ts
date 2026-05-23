@@ -10,8 +10,14 @@ import type {
   SituationActuelle,
   StatutLivre,
 } from '../domain/types'
+import {
+  buildPayload,
+  submitTestComplete,
+  type CaptureValues,
+  type TestCompleteResponse,
+} from '../api/client'
 
-export type Etape = 'welcome' | 'questions' | 'resultat'
+export type Etape = 'welcome' | 'questions' | 'capture' | 'resultat'
 
 interface UseTestState {
   etape: Etape
@@ -19,12 +25,16 @@ interface UseTestState {
   questionCourante: Question
   reponses: Reponses
   resultat: Resultat | null
+  envoiEnCours: boolean
+  envoiReussi: boolean
+  apiResponse: TestCompleteResponse | null
   commencer: () => void
   retour: () => void
   recommencer: () => void
   repondreTypage: (optionId: string) => void
   repondreIntensite: (valeur: 1 | 2 | 3 | 4 | 5) => void
   repondreContexte: (valeur: string) => void
+  soumettreCapture: (capture: CaptureValues) => Promise<void>
 }
 
 const reponsesVides: Reponses = {
@@ -55,6 +65,9 @@ export function useTestState(): UseTestState {
     contexte: { ...reponsesVides.contexte },
   }))
   const [resultat, setResultat] = useState<Resultat | null>(null)
+  const [envoiEnCours, setEnvoiEnCours] = useState(false)
+  const [envoiReussi, setEnvoiReussi] = useState(false)
+  const [apiResponse, setApiResponse] = useState<TestCompleteResponse | null>(null)
 
   const questionCourante = questions[indexCourant]
 
@@ -67,6 +80,9 @@ export function useTestState(): UseTestState {
     setEtape('welcome')
     setIndexCourant(0)
     setResultat(null)
+    setEnvoiEnCours(false)
+    setEnvoiReussi(false)
+    setApiResponse(null)
     setReponses({
       typage: {},
       intensite: {},
@@ -78,22 +94,24 @@ export function useTestState(): UseTestState {
     setIndexCourant((i) => Math.max(0, i - 1))
   }, [])
 
-  const finaliser = useCallback((nouvellesReponses: Reponses) => {
+  // Quand la derniere question est repondue, on calcule le resultat
+  // puis on passe par l'etape 'capture' (et non plus directement 'resultat').
+  const calculerEtCapture = useCallback((nouvellesReponses: Reponses) => {
     const r = composerResultat(nouvellesReponses, questionsTypage)
     setResultat(r)
-    setEtape('resultat')
+    setEtape('capture')
   }, [])
 
   const avancerOuFinaliser = useCallback(
     (nouvelles: Reponses) => {
       const next = indexCourant + 1
       if (next >= questions.length) {
-        finaliser(nouvelles)
+        calculerEtCapture(nouvelles)
       } else {
         setIndexCourant(next)
       }
     },
-    [indexCourant, finaliser],
+    [indexCourant, calculerEtCapture],
   )
 
   const repondreTypage = useCallback(
@@ -129,16 +147,48 @@ export function useTestState(): UseTestState {
       const q = questions[indexCourant]
       if (q.type !== 'contexte') return
       const champ = q.champCible as keyof Reponses['contexte']
-      // Sécurité : on ne sait pas typer dynamiquement, mais les valeurs sémantiques
-      // viennent des options qui sont elles-mêmes typées dans les données.
       const nouvelles: Reponses = {
         ...reponses,
-        contexte: { ...reponses.contexte, [champ]: valeur as StatutLivre & SituationActuelle & EtatEmotionnel & PretAAgir },
+        contexte: {
+          ...reponses.contexte,
+          [champ]: valeur as StatutLivre & SituationActuelle & EtatEmotionnel & PretAAgir,
+        },
       }
       setReponses(nouvelles)
       avancerOuFinaliser(nouvelles)
     },
     [reponses, indexCourant, avancerOuFinaliser],
+  )
+
+  /**
+   * Soumet la capture (email + consentements) a l'API d'ingestion.
+   *
+   * Strategie : on transitionne IMMEDIATEMENT vers 'resultat' pour ne pas
+   * bloquer l'experience utilisateur sur la latence reseau. L'appel API
+   * tourne en parallele. Si echec, le payload va en queue localStorage
+   * (gere par client.ts) et la note "envoi en file d'attente" s'affiche
+   * dans ResultPreview.
+   */
+  const soumettreCapture = useCallback(
+    async (capture: CaptureValues) => {
+      if (!resultat) return
+      setEnvoiEnCours(true)
+      setEtape('resultat')
+      const reponsesBrutes: Record<string, unknown> = {
+        typage: reponses.typage,
+        intensite: reponses.intensite,
+        contexte: reponses.contexte,
+      }
+      const payload = buildPayload(capture, resultat, reponsesBrutes)
+      try {
+        const res = await submitTestComplete(payload)
+        setApiResponse(res)
+        setEnvoiReussi(res !== null)
+      } finally {
+        setEnvoiEnCours(false)
+      }
+    },
+    [resultat, reponses],
   )
 
   // Évite que ORDRE_CHAMP_CONTEXTE soit purgé par un linter (utile aux dérivés futurs).
@@ -151,12 +201,16 @@ export function useTestState(): UseTestState {
       questionCourante,
       reponses,
       resultat,
+      envoiEnCours,
+      envoiReussi,
+      apiResponse,
       commencer,
       retour,
       recommencer,
       repondreTypage,
       repondreIntensite,
       repondreContexte,
+      soumettreCapture,
     }),
     [
       etape,
@@ -164,12 +218,16 @@ export function useTestState(): UseTestState {
       questionCourante,
       reponses,
       resultat,
+      envoiEnCours,
+      envoiReussi,
+      apiResponse,
       commencer,
       retour,
       recommencer,
       repondreTypage,
       repondreIntensite,
       repondreContexte,
+      soumettreCapture,
     ],
   )
 }

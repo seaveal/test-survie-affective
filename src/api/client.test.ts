@@ -1,0 +1,148 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  buildPayload,
+  flushPendingCaptures,
+  submitTestComplete,
+  type CaptureValues,
+} from './client'
+import type { Resultat } from '../domain/types'
+
+const CAPTURE: CaptureValues = {
+  email: 'alice@h3c.life',
+  prenom: 'Alice',
+  consentementMarketing: true,
+  consentementDonneesSante: false,
+}
+
+const RESULTAT: Resultat = {
+  profilDominant: 'mendiant',
+  profilSecondaire: null,
+  scoreProfils: { mendiant: 30, sauveur: 10, controleur: 8, fantome: 12 },
+  intensite: 'modere',
+  scoreIntensite: 18,
+  statutLivre: 'pas_lu',
+  situation: 'couple_stable',
+  etatEmotionnel: 'tendu',
+  pretAAgir: 'maintenant',
+}
+
+describe('api/client', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    vi.restoreAllMocks()
+  })
+
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  describe('buildPayload', () => {
+    it('mappe correctement les champs Resultat -> payload API', () => {
+      const p = buildPayload(CAPTURE, RESULTAT, { q1: 'A' })
+      expect(p.email).toBe('alice@h3c.life')
+      expect(p.prenom).toBe('Alice')
+      expect(p.consentement_marketing).toBe(true)
+      expect(p.consentement_donnees_sante).toBe(false)
+      expect(p.resultat.profilDominant).toBe('mendiant')
+      expect(p.resultat.intensite).toBe('modere')
+      expect(p.resultat.scoreIntensite).toBe(18)
+      expect(p.resultat.reponsesBrutes).toEqual({ q1: 'A' })
+    })
+
+    it('omet prenom si vide', () => {
+      const p = buildPayload(
+        { ...CAPTURE, prenom: '' },
+        RESULTAT,
+      )
+      expect(p.prenom).toBeUndefined()
+    })
+  })
+
+  describe('submitTestComplete', () => {
+    it('retourne la reponse API en cas de succes', async () => {
+      const mock = {
+        contact_id: 'c1',
+        test_id: 't1',
+        cadeau_coupon_expire_le: '2026-05-25T00:00:00Z',
+        nurturing_planifie: 6,
+      }
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+        ok: true,
+        json: async () => mock,
+      } as unknown as Response)
+
+      const payload = buildPayload(CAPTURE, RESULTAT)
+      const res = await submitTestComplete(payload)
+      expect(res).toEqual(mock)
+      expect(localStorage.getItem('tsa.pending-captures')).toBeNull()
+    })
+
+    it('retourne null et empile la capture en cas d\'echec reseau', async () => {
+      vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new Error('network down'))
+      const payload = buildPayload(CAPTURE, RESULTAT)
+      const res = await submitTestComplete(payload)
+      expect(res).toBeNull()
+      const queue = JSON.parse(localStorage.getItem('tsa.pending-captures') ?? '[]')
+      expect(queue).toHaveLength(1)
+      expect(queue[0].email).toBe('alice@h3c.life')
+    })
+
+    it('retourne null et empile la capture en cas de 5xx', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        text: async () => 'boom',
+      } as unknown as Response)
+      const payload = buildPayload(CAPTURE, RESULTAT)
+      const res = await submitTestComplete(payload)
+      expect(res).toBeNull()
+      const queue = JSON.parse(localStorage.getItem('tsa.pending-captures') ?? '[]')
+      expect(queue).toHaveLength(1)
+    })
+
+    it('retourne null et empile en cas de 422', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+        ok: false,
+        status: 422,
+        text: async () => 'invalid email',
+      } as unknown as Response)
+      const payload = buildPayload(CAPTURE, RESULTAT)
+      const res = await submitTestComplete(payload)
+      expect(res).toBeNull()
+    })
+  })
+
+  describe('flushPendingCaptures', () => {
+    it('retente les payloads en queue et les retire en cas de succes', async () => {
+      const payload = buildPayload(CAPTURE, RESULTAT)
+      localStorage.setItem('tsa.pending-captures', JSON.stringify([payload]))
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          contact_id: 'c1',
+          test_id: 't1',
+          cadeau_coupon_expire_le: '2026-05-25T00:00:00Z',
+          nurturing_planifie: 6,
+        }),
+      } as unknown as Response)
+      await flushPendingCaptures()
+      const queue = JSON.parse(localStorage.getItem('tsa.pending-captures') ?? '[]')
+      expect(queue).toHaveLength(0)
+    })
+
+    it('conserve les payloads qui echouent encore', async () => {
+      const payload = buildPayload(CAPTURE, RESULTAT)
+      localStorage.setItem('tsa.pending-captures', JSON.stringify([payload]))
+      vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new Error('still down'))
+      await flushPendingCaptures()
+      const queue = JSON.parse(localStorage.getItem('tsa.pending-captures') ?? '[]')
+      expect(queue).toHaveLength(1)
+    })
+
+    it('no-op si queue vide', async () => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch')
+      await flushPendingCaptures()
+      expect(fetchSpy).not.toHaveBeenCalled()
+    })
+  })
+})

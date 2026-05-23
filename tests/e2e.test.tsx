@@ -1,11 +1,16 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../src/App'
 
 /**
- * Test e2e du parcours complet : welcome → 30 questions → page résultat.
- * Pas de mock : on consomme les vraies données src/data/* via les composants.
+ * Test e2e du parcours complet : welcome → 30 questions → capture email → page résultat allégée.
+ *
+ * Sprint 2 (2026-05-22) : la page résultat est désormais ALLÉGÉE.
+ * À l'écran : niveau 1 seul (nom profil + intensité) + bloc "le détail arrive par email".
+ * Le détail complet (7 symptômes + roadmap) part par email via Brevo (api.souverainauquotidien.com).
+ *
+ * On mocke `fetch` pour ne pas réellement contacter l'API d'ingestion en CI.
  */
 
 async function commencerLeTest(user: ReturnType<typeof userEvent.setup>) {
@@ -17,24 +22,12 @@ async function repondreToutTypage(
   optionId: string,
 ) {
   for (let i = 0; i < 20; i++) {
-    // À chaque question, le bouton avec aria-pressed=false est ce qu'on choisit
     const boutons = screen.getAllByRole('button')
-    const cible = boutons.find(
-      (b) =>
-        b.textContent?.length &&
-        b.textContent.length > 5 &&
-        b.getAttribute('aria-pressed') !== null,
-    )
-    expect(cible, `tour ${i + 1}, bouton typage trouvé`).toBeDefined()
-    // Re-récupère par option.id : on cherche dans la liste rendue le i-ième
-    // bouton de typage qui correspond à `optionId`. Plus simple : on clique
-    // sur le bouton dont le contenu textuel est le 1er, le 2e, le 3e, ou le 4e
-    // selon optionId. On va plutôt cliquer le bouton à la position A/B/C/D.
-    const idx = ['A', 'B', 'C', 'D'].indexOf(optionId)
     const tousLesBoutonsAriaPressed = boutons.filter(
       (b) => b.getAttribute('aria-pressed') !== null,
     )
     expect(tousLesBoutonsAriaPressed).toHaveLength(4)
+    const idx = ['A', 'B', 'C', 'D'].indexOf(optionId)
     await user.click(tousLesBoutonsAriaPressed[idx])
   }
 }
@@ -57,7 +50,6 @@ async function repondreContexte(
   user: ReturnType<typeof userEvent.setup>,
   index: number,
 ) {
-  // 4 questions de contexte : on clique sur le i-ième bouton de chaque liste.
   for (let i = 0; i < 4; i++) {
     const boutons = screen.getAllByRole('button')
     const tousAriaPressed = boutons.filter(
@@ -69,8 +61,40 @@ async function repondreContexte(
   }
 }
 
+async function passerLecranCapture(
+  user: ReturnType<typeof userEvent.setup>,
+  email: string = 'cyrille+e2e@cyrillenovou.com',
+) {
+  // CaptureScreen affiche un champ email + 2 cases consentement + bouton "Recevoir mon profil"
+  expect(screen.getByTestId('capture-screen')).toBeInTheDocument()
+  const emailInput = screen.getByRole('textbox', { name: /email/i })
+  await user.type(emailInput, email)
+  // Marketing coche par defaut, sante decoche par defaut : on garde l'etat
+  await user.click(screen.getByRole('button', { name: /Recevoir mon profil/i }))
+}
+
 describe('e2e : parcours complet', () => {
-  it("Welcome → 30 questions → page résultat affichée", async () => {
+  beforeEach(() => {
+    // Mock fetch pour ne pas reellement appeler l'API d'ingestion en CI
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        contact_id: 'c-e2e',
+        test_id: 't-e2e',
+        cadeau_coupon_expire_le: '2026-05-25T00:00:00Z',
+        nurturing_planifie: 6,
+      }),
+      text: async () => '',
+    } as unknown as Response)
+    localStorage.clear()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    localStorage.clear()
+  })
+
+  it('Welcome → 30 questions → Capture → page résultat allégée affichée', async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -93,19 +117,17 @@ describe('e2e : parcours complet', () => {
     // 5. Phase contexte : on clique 4 fois sur la 1ère option de chaque liste
     await repondreContexte(user, 0)
 
-    // 6. Page résultat
-    expect(screen.getByText(/profil dominant/i)).toBeInTheDocument()
-    expect(screen.getByText(/Les 7 symptômes que vous reconnaissez/i)).toBeInTheDocument()
-    expect(screen.getByText(/Votre prochain pas/i)).toBeInTheDocument()
-    // 7 symptômes attendus
-    const headings = screen.getAllByRole('heading')
-    const titreSymptomes = headings.find((h) =>
-      /7 symptômes/i.test(h.textContent ?? ''),
+    // 6. Écran de capture (NOUVEAU sprint 2)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      /Votre profil arrive par email/i,
     )
-    expect(titreSymptomes).toBeDefined()
-    const list = titreSymptomes!.parentElement!.querySelector('ol')
-    expect(list).toBeTruthy()
-    expect(within(list as HTMLElement).getAllByRole('listitem')).toHaveLength(7)
+    await passerLecranCapture(user)
+
+    // 7. Page résultat allégée (niveau 1 seul + bloc email)
+    expect(screen.getByTestId('result-preview')).toBeInTheDocument()
+    expect(screen.getByText(/Votre profil dominant/i)).toBeInTheDocument()
+    expect(screen.getByText(/La suite arrive par email/i)).toBeInTheDocument()
+    expect(screen.getByText(/Verifiez vos messages/i)).toBeInTheDocument()
   }, 30000)
 
   it("bouton 'Recommencer' réinitialise le parcours", async () => {
@@ -115,11 +137,29 @@ describe('e2e : parcours complet', () => {
     await repondreToutTypage(user, 'A')
     await repondreToutIntensite(user, 1)
     await repondreContexte(user, 0)
-    expect(screen.getByText(/Votre prochain pas/i)).toBeInTheDocument()
+    await passerLecranCapture(user, 'cyrille+e2e-recommence@cyrillenovou.com')
+    expect(screen.getByTestId('result-preview')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /recommencer/i }))
     // Welcome de nouveau
     expect(
       screen.getByRole('heading', { level: 1, name: /Pourquoi vous choisissez/i }),
     ).toBeInTheDocument()
+  }, 30000)
+
+  it('même si fetch échoue, la page résultat allégée s\'affiche (file d\'attente localStorage)', async () => {
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('network down'))
+    const user = userEvent.setup()
+    render(<App />)
+    await commencerLeTest(user)
+    await repondreToutTypage(user, 'A')
+    await repondreToutIntensite(user, 3)
+    await repondreContexte(user, 0)
+    await passerLecranCapture(user, 'cyrille+e2e-network@cyrillenovou.com')
+    expect(screen.getByTestId('result-preview')).toBeInTheDocument()
+    // Note de retry visible
+    expect(screen.getByTestId('result-retry-note')).toBeInTheDocument()
+    // Queue localStorage contient la capture
+    const queue = JSON.parse(localStorage.getItem('tsa.pending-captures') ?? '[]')
+    expect(queue).toHaveLength(1)
   }, 30000)
 })

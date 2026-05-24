@@ -266,7 +266,7 @@ export const questionsIntensite: QuestionIntensite[] = [
       { valeur: 2, texte: "Parfois fatigue, tension, ou insomnie passagère" },
       { valeur: 3, texte: "Troubles du sommeil ou de l'appétit récurrents" },
       { valeur: 4, texte: "Symptômes physiques qui m'inquiètent (gorge serrée, douleur thoracique, vertiges)" },
-      { valeur: 5, texte: "J'ai vécu des épisodes de panique, dépression ou burn-out" },
+      { valeur: 5, texte: "Des moments où mon corps a lâché, fortement, et durablement" },
     ],
   },
   {
@@ -284,11 +284,11 @@ export const questionsIntensite: QuestionIntensite[] = [
   {
     id: 25,
     type: 'intensite',
-    enonce: "Combien de fois avez-vous tenté de changer ce schéma ?",
+    enonce: "Combien de fois avez-vous déjà entrepris une démarche pour changer ce schéma ?",
     options: [
       { valeur: 1, texte: "C'est ma première démarche réelle de transformation" },
       { valeur: 2, texte: "J'ai essayé 1 ou 2 fois, sans aller au bout" },
-      { valeur: 3, texte: "J'ai fait plusieurs thérapies ou accompagnements" },
+      { valeur: 3, texte: "J'ai suivi plusieurs accompagnements ou approches" },
       { valeur: 4, texte: "J'ai tout essayé, rien n'a fonctionné durablement" },
       { valeur: 5, texte: "J'ai abandonné l'idée de pouvoir changer un jour" },
     ],
@@ -346,7 +346,7 @@ export const questionsContexte: QuestionContexte[] = [
   {
     id: 30,
     type: 'contexte',
-    enonce: "Êtes-vous prêt à investir dans un accompagnement transformateur ?",
+    enonce: "Où en êtes-vous dans votre envie de transformer ce schéma ?",
     champCible: 'pretAAgir',
     options: [
       { id: "A", texte: "Oui, je suis prêt à m'engager maintenant", valeur: "maintenant" },

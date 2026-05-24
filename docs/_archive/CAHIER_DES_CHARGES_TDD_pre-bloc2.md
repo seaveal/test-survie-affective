@@ -240,7 +240,7 @@ export interface Roadmap {
 1. Le lecteur scanne le QR code (ou clique sur un lien dans Circle)
 2. Il atterrit sur la page Circle d'invitation, s'inscrit avec email + mot de passe
 3. Circle l'authentifie et l'amène au Space "Découvrez votre profil"
-4. L'iframe charge l'app à test.souverainauquotidien.com
+4. L'iframe charge l'app à test.cyrillenovou.com
 5. **Écran d'accueil** : titre, sous-titre, mention "30 questions, 5 minutes, confidentiel", bouton "Commencer"
 6. **Phase typage** (questions 1 à 20) : énoncé + 4 options carrées cliquables, transition automatique au clic
 7. **Phase intensité** (questions 21 à 26) : énoncé + échelle Likert 1 à 5 avec étiquettes textuelles
@@ -281,40 +281,20 @@ Le résultat final combine les 4 dimensions : profil dominant, profil secondaire
 
 ### 4.5 Adaptation par statut livre
 
-**Décision 2026-05-24 (livre retiré du parcours)** : le livre n'est plus un produit du funnel test. Tous les statuts basculent désormais sur la même stratégie **cadeau-first** (20 séances audio guidées par email) + appel YCBM 45 min. Le champ `statutLivre` reste collecté pour l'analytics et la segmentation Brevo, mais ne pilote plus le routage de CTA.
-
 | Statut | CTA principal | CTA secondaire | Roadmap |
 |--------|---------------|----------------|---------|
-| pas_lu | Ouvrir mon email et récupérer mes 20 séances | Réserver un appel de qualification YCBM | Roadmap orientée découverte |
-| lu_partiel | Ouvrir mon email et récupérer mes 20 séances | Réserver un appel de qualification YCBM | Roadmap orientée approfondissement |
-| lu_complet | Réserver un appel de qualification YCBM | Rejoindre Souverain au Quotidien | Roadmap orientée passage à l'action |
-
-Voir `PROFILS_RESULTATS_TEXTES.md` (textes verbatim par statut) et `MISSION_2026-05-24_corrections-parcours-bloc1.md`.
+| pas_lu | Commander le livre | Réserver un appel stratégique | Roadmap orientée découverte |
+| lu_partiel | Continuer la lecture du livre | Réserver un appel stratégique | Roadmap orientée approfondissement |
+| lu_complet | Réserver un appel stratégique | Rejoindre la communauté Circle | Roadmap orientée passage à l'action |
 
 ## 5. Spécifications fonctionnelles
 
 ### 5.1 Écran d'accueil
 
-> Écran d'accueil scrollable enrichi (refonte 2026-05-24, décision Cyrille via Claude.ai). Le cadeau des 20 descentes n'est PAS annoncé sur cet écran, il est réservé à l'email de résultat. Voir Annexe A de la mission `MISSION_2026-05-24_ecran-accueil-test-enrichi.md` pour le copy verbatim complet (8 sections).
-
-**Eyebrow** : Test de survie affective
-**Titre (H1)** : En amour, vous rejouez toujours le même scénario
-**Sous-titre** : Le test qui met un nom sur votre schéma, et mesure à quel point il vous tient.
-**Mention sous le bouton** : 30 questions. 5 minutes. Gratuit. Confidentiel.
-**Bouton (Hero + CTA final)** : Commencer le test
-**Signature de fin** : La tête comprend. Le corps répare.
-
-Sections en scroll (verticales, mobile-first 360px mini) :
-1. Hero (visuel boucle SVG + eyebrow + H1 + sous-titre + bouton + ligne info)
-2. Le miroir (5 lignes — bascule "sauf en amour")
-3. Le retournement (blessure unique de l'abandon + 4 stratégies)
-4. Les 4 profils (Mendiant / Sauveur / Contrôleur / Fantôme, icônes Crown/Shield/Eye/User)
-5. Ce que le test vous donne (4 livrables : profil dominant + secondaire, intensité, 7 symptômes, prochain pas)
-6. Réassurance (5 min, gratuit, confidentiel, pas de jugement)
-7. Preuve sociale (39 000 Instagram, 47 000 YouTube)
-8. CTA final + signature
-
-Règles techniques : Lora titres / Inter UI (variables `--font-titre` / `--font-ui`). Framer Motion `whileInView` discret, `useReducedMotion` respecté. Bundle < 250 Ko gzippé. Contraste AA. 0 tiret cadratin, 0 point-virgule (charte voix v2). Les DEUX boutons "Commencer le test" appellent `onCommencer` (contrat préservé).
+**Titre** : Pourquoi vous choisissez toujours les mêmes
+**Sous-titre** : Le test qui révèle votre stratégie de survie affective et l'intensité de votre schéma
+**Mention sous le bouton** : 30 questions. 5 minutes. Confidentiel. Résultat immédiat.
+**Bouton** : Commencer le test
 
 ### 5.2 Affichage des questions de typage (1-20)
 
@@ -510,9 +490,9 @@ L'application est développée en TDD strict. Tests écrits AVANT le code pour l
 
 **Test 5.12 ResultLevel3** : affiche roadmap + CTA selon statut livre.
 
-**Test 5.13 ResultPage** : si statutLivre = 'pas_lu' OU 'lu_partiel', CTA principal = "Ouvrir mon email et récupérer mes 20 séances" (cadeau-first, livre retiré 2026-05-24).
+**Test 5.13 ResultPage** : si statutLivre = 'pas_lu', CTA principal = "Commander le livre".
 
-**Test 5.14 ResultPage** : si statutLivre = 'lu_complet', CTA principal = "Réserver un appel de qualification YCBM" (URL YCBM réelle).
+**Test 5.14 ResultPage** : si statutLivre = 'lu_complet', CTA principal = "Réserver un appel stratégique".
 
 ### Phase 6 : Tests bout en bout (tests/e2e.test.tsx)
 
@@ -567,7 +547,7 @@ L'application est développée en TDD strict. Tests écrits AVANT le code pour l
 
 ### Jour 7 (8 heures) : Déploiement
 - Heures 1-3 : phase 7 (build production) + déploiement Cloudflare Pages
-- Heures 4-5 : configuration domaine custom test.souverainauquotidien.com
+- Heures 4-5 : configuration domaine custom test.cyrillenovou.com
 - Heure 6 : test d'intégration iframe dans Circle réel
 - Heures 7-8 : tampon final, fix bugs détectés en pré-prod, communication mise en ligne
 

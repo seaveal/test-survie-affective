@@ -126,11 +126,13 @@ describe('e2e : parcours complet', () => {
     )
     await passerLecranCapture(user)
 
-    // 7. Page résultat allégée (niveau 1 seul + bloc email)
+    // 7. Page résultat — nom du profil seul + invitation email + DisclaimerFooter
+    //    (décision Bloc 2 2026-05-25 : écran réduit, retrait description/intensité/ambassadeur)
     expect(screen.getByTestId('result-preview')).toBeInTheDocument()
-    expect(screen.getByText(/Votre profil dominant/i)).toBeInTheDocument()
-    expect(screen.getByText(/La suite arrive par email/i)).toBeInTheDocument()
-    expect(screen.getByText(/Verifiez vos messages/i)).toBeInTheDocument()
+    expect(screen.getByText(/Votre profil$/i)).toBeInTheDocument()
+    expect(screen.getByText(/Votre rapport complet est en chemin/i)).toBeInTheDocument()
+    expect(screen.getByText(/Vérifiez vos messages/i)).toBeInTheDocument()
+    expect(screen.getByText(/Avertissement/i)).toBeInTheDocument()
   }, 30000)
 
   it("bouton 'Recommencer' réinitialise le parcours", async () => {

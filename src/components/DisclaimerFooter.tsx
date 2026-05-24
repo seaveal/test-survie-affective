@@ -1,0 +1,47 @@
+// DisclaimerFooter — footer minimal pour écran d'accueil + écran de résultat.
+//
+// Décision Bloc 2 (2026-05-25, mission corrections-parcours-bloc2) :
+// l'écran de résultat est réduit au nom du profil seul + invitation email.
+// Le footer porte le disclaimer canonique Règle 12 (repositionnement coaching
+// strict) et les 3 liens légaux pointant vers souverainauquotidien.com.
+
+const URL_MENTIONS = 'https://souverainauquotidien.com/mentions-legales'
+const URL_CGV = 'https://souverainauquotidien.com/cgv'
+const URL_PRIVACY = 'https://souverainauquotidien.com/privacy'
+
+export function DisclaimerFooter() {
+  return (
+    <footer
+      className="mx-auto mt-8 max-w-2xl px-6 pb-10 pt-6"
+      style={{
+        color: 'var(--h3c-texte-secondaire)',
+        borderTop: '1px solid var(--h3c-bordure)',
+      }}
+    >
+      <p className="text-xs leading-relaxed">
+        <strong>Avertissement.</strong> Régénération est un programme de coaching et
+        de développement personnel. Il ne constitue pas un soin médical, ni une
+        psychothérapie au sens de la loi du 25 juillet 1985. Il ne se substitue pas
+        à un suivi par un professionnel de santé habilité (médecin, psychiatre,
+        psychologue, psychothérapeute reconnu ARS). Si vous traversez une situation
+        nécessitant un accompagnement médical (idéation suicidaire, dépression
+        sévère, troubles psychiatriques actifs, addictions sévères), consultez un
+        professionnel de santé ou appelez le <strong>3114</strong> (numéro national
+        de prévention du suicide, gratuit, 24/7).
+      </p>
+      <nav className="mt-4 flex flex-wrap justify-center gap-x-3 gap-y-2 text-xs">
+        <a href={URL_MENTIONS} className="underline">
+          Mentions légales
+        </a>
+        <span aria-hidden>·</span>
+        <a href={URL_CGV} className="underline">
+          CGV
+        </a>
+        <span aria-hidden>·</span>
+        <a href={URL_PRIVACY} className="underline">
+          Politique de confidentialité
+        </a>
+      </nav>
+    </footer>
+  )
+}

@@ -14,7 +14,10 @@ import App from '../src/App'
  */
 
 async function commencerLeTest(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole('button', { name: /commencer le test/i }))
+  // Refonte écran d'accueil 2026-05-24 : 2 boutons "Commencer le test" (hero + CTA final).
+  // Clic sur le premier (hero) suffit, les deux appellent la même callback onCommencer.
+  const boutons = screen.getAllByRole('button', { name: /commencer le test/i })
+  await user.click(boutons[0])
 }
 
 async function repondreToutTypage(
@@ -100,7 +103,7 @@ describe('e2e : parcours complet', () => {
 
     // 1. Welcome
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      /Pourquoi vous choisissez toujours les mêmes/i,
+      /En amour, vous rejouez toujours le même scénario/i,
     )
     await commencerLeTest(user)
 
@@ -142,7 +145,7 @@ describe('e2e : parcours complet', () => {
     await user.click(screen.getByRole('button', { name: /recommencer/i }))
     // Welcome de nouveau
     expect(
-      screen.getByRole('heading', { level: 1, name: /Pourquoi vous choisissez/i }),
+      screen.getByRole('heading', { level: 1, name: /En amour, vous rejouez toujours le même scénario/i }),
     ).toBeInTheDocument()
   }, 30000)
 

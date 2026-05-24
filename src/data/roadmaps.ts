@@ -14,7 +14,7 @@ export const roadmaps: Roadmap[] = [
     exerciceCorporel: `Quand la voix "pas à la hauteur" se manifeste, portez votre attention sur le ventre. Pas pour le contrôler. Pour observer ce qui s'y passe. Une chaleur ? Une crispation ? Une vibration ? Restez 30 secondes en observation, sans rien changer.
 
 ---`,
-    chapitresLivreCibles: [],
+    chapitresLivreCibles: [3, 6, 12],
   },
   {
     profilId: 'mendiant',
@@ -25,7 +25,7 @@ export const roadmaps: Roadmap[] = [
     exerciceCorporel: `Quand vous sentez monter l'envie de briller, portez votre attention sur la gorge. Sentez si elle est ouverte ou serrée. Si elle est serrée, ralentissez. La gorge serrée raconte une vieille histoire. Le silence l'écoute.
 
 ---`,
-    chapitresLivreCibles: [],
+    chapitresLivreCibles: [3, 5, 6, 12],
   },
   {
     profilId: 'mendiant',
@@ -36,7 +36,7 @@ export const roadmaps: Roadmap[] = [
     exerciceCorporel: `Asseyez-vous 10 minutes chaque matin et posez-vous cette question : "Où est-ce que mon corps porte l'épuisement aujourd'hui ?" Vous ne cherchez pas à le résoudre. Vous le rencontrez. Le corps a besoin d'être vu avant de pouvoir reposer.
 
 ---`,
-    chapitresLivreCibles: [],
+    chapitresLivreCibles: [3, 5, 6, 8, 12],
   },
   {
     profilId: 'sauveur',
@@ -47,7 +47,7 @@ export const roadmaps: Roadmap[] = [
     exerciceCorporel: `Quand vous dites "oui" par automatisme à une demande, portez votre attention sur le plexus solaire. Sentez s'il y a un acquiescement réel ou une compression. Le corps sait avant la tête.
 
 ---`,
-    chapitresLivreCibles: [],
+    chapitresLivreCibles: [3, 6, 11, 12],
   },
   {
     profilId: 'sauveur',
@@ -58,7 +58,7 @@ export const roadmaps: Roadmap[] = [
     exerciceCorporel: `Quand quelqu'un vous offre quelque chose, portez votre attention sur les bras. Sentez s'ils s'ouvrent ou s'ils se ferment. Le mouvement spontané est l'information à connaître.
 
 ---`,
-    chapitresLivreCibles: [],
+    chapitresLivreCibles: [3, 5, 6, 8, 11, 12],
   },
   {
     profilId: 'sauveur',
@@ -69,7 +69,7 @@ export const roadmaps: Roadmap[] = [
     exerciceCorporel: `Chaque matin, demandez-vous : "Où est-ce que mon corps porte les autres aujourd'hui ?" Sentez la zone. Restez avec elle 10 minutes. Vous ne cherchez pas à libérer. Vous reconnaissez.
 
 ---`,
-    chapitresLivreCibles: [],
+    chapitresLivreCibles: [3, 5, 6, 8, 11, 12],
   },
   {
     profilId: 'controleur',
@@ -80,7 +80,7 @@ export const roadmaps: Roadmap[] = [
     exerciceCorporel: `Quand l'anxiété monte, portez votre attention sur la mâchoire. Sentez si elle est serrée ou relâchée. Le corps prépare l'attaque ou la défense bien avant que la pensée s'organise. La mâchoire est la première à parler.
 
 ---`,
-    chapitresLivreCibles: [],
+    chapitresLivreCibles: [3, 6, 10, 12],
   },
   {
     profilId: 'controleur',
@@ -91,7 +91,7 @@ export const roadmaps: Roadmap[] = [
     exerciceCorporel: `Quand vous serrez (les mains, la mâchoire, le ventre), portez votre attention sur la nuque. Sentez la tension qui s'y trouve. Respirez doucement vers cette zone, sans forcer. La nuque est une porte d'entrée pour le système nerveux.
 
 ---`,
-    chapitresLivreCibles: [],
+    chapitresLivreCibles: [3, 5, 6, 8, 10, 12],
   },
   {
     profilId: 'controleur',
@@ -102,7 +102,7 @@ export const roadmaps: Roadmap[] = [
     exerciceCorporel: `Chaque jour, asseyez-vous 10 minutes. Demandez-vous : "Où est-ce que mon corps tient aujourd'hui ?" Repérez la zone qui serre, la zone qui retient. Vous ne cherchez pas à relâcher. Vous reconnaissez. La reconnaissance précède le relâchement.
 
 ---`,
-    chapitresLivreCibles: [],
+    chapitresLivreCibles: [3, 5, 6, 8, 10, 12],
   },
   {
     profilId: 'fantome',
@@ -113,7 +113,7 @@ export const roadmaps: Roadmap[] = [
     exerciceCorporel: `Quand l'envie de partir monte, portez votre attention sur les pieds au sol. Sentez le poids du corps sur la plante des pieds. Le contact avec le sol est l'ancre. Caroline a appris cet exercice avant tout le reste.
 
 ---`,
-    chapitresLivreCibles: [],
+    chapitresLivreCibles: [3, 6, 12],
   },
   {
     profilId: 'fantome',
@@ -124,7 +124,7 @@ export const roadmaps: Roadmap[] = [
     exerciceCorporel: `Quand l'autre se rapproche (physiquement ou émotionnellement), portez votre attention sur la poitrine. Sentez ce qui s'y passe. Une oppression ? Une chaleur ? Une fermeture ? Vous restez 30 secondes en observation. Caroline a fait ce travail-là pendant des mois.
 
 ---`,
-    chapitresLivreCibles: [],
+    chapitresLivreCibles: [3, 5, 6, 8, 12],
   },
   {
     profilId: 'fantome',
@@ -135,6 +135,6 @@ export const roadmaps: Roadmap[] = [
     exerciceCorporel: `Chaque jour, asseyez-vous 10 minutes et posez-vous cette question : "Où est-ce que mon corps a fui aujourd'hui ?" Sentez la zone qui s'est éteinte. La zone qui s'est mise à distance. Vous reconnaissez sans essayer de réveiller. La reconnaissance est le premier mouvement vers le retour.
 
 ---`,
-    chapitresLivreCibles: [],
+    chapitresLivreCibles: [3, 5, 6, 8, 11, 12],
   },
 ]

@@ -60,14 +60,29 @@ describe('CTA par statut livre', () => {
       const c = ctaParStatut[statut]
       expect(c.amorce.length, `${statut}.amorce`).toBeGreaterThan(50)
       expect(c.ctaPrincipal.texte, `${statut}.ctaPrincipal.texte`).toBeTruthy()
-      expect(c.ctaPrincipal.url, `${statut}.ctaPrincipal.url`).toMatch(/^https?:\/\//)
+      // Bloc 2 (2026-05-25) : le CTA principal cadeau-first a url="#" (l'email
+      // part automatiquement, pas de page cible HTTP). Le CTA secondaire reste
+      // une vraie URL https. Ces deux formes sont valides.
+      expect(c.ctaPrincipal.url, `${statut}.ctaPrincipal.url`).toMatch(/^(https?:\/\/|#)/)
       expect(c.ctaSecondaire.texte, `${statut}.ctaSecondaire.texte`).toBeTruthy()
       expect(c.ctaSecondaire.url, `${statut}.ctaSecondaire.url`).toMatch(/^https?:\/\//)
     }
   })
 
-  it("URLs : pas_lu pointe vers le livre, lu_complet pointe vers l'appel", () => {
-    expect(ctaParStatut.pas_lu.ctaPrincipal.url).toMatch(/livre/i)
-    expect(ctaParStatut.lu_complet.ctaPrincipal.url).toMatch(/appel/i)
+  it("URLs Bloc 1/2 : aucun cyrillenovou.com actif, YCBM réel en secondaire", () => {
+    // Décision Bloc 2 (2026-05-25) : le livre est retiré du parcours.
+    // Tous les statuts pointent désormais vers cadeau-descente + appel YCBM.
+    // Les données ctaParStatut sont conservées (analytics) mais le routage UI
+    // est aplati dans ResultLevel3.tsx via ctaUnifie.
+    for (const statut of STATUTS) {
+      const c = ctaParStatut[statut]
+      expect(c.ctaPrincipal.url, `${statut}.ctaPrincipal.url`).not.toMatch(/cyrillenovou\.com/i)
+      expect(c.ctaSecondaire.url, `${statut}.ctaSecondaire.url`).not.toMatch(/cyrillenovou\.com\//i)
+    }
+    // pas_lu et lu_partiel : CTA principal cadeau-first (url=#), secondaire YCBM
+    expect(ctaParStatut.pas_lu.ctaSecondaire.url).toMatch(/youcanbook\.me/i)
+    expect(ctaParStatut.lu_partiel.ctaSecondaire.url).toMatch(/youcanbook\.me/i)
+    // lu_complet : CTA principal direct YCBM
+    expect(ctaParStatut.lu_complet.ctaPrincipal.url).toMatch(/youcanbook\.me/i)
   })
 })

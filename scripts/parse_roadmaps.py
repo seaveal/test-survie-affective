@@ -18,6 +18,27 @@ INTENSITE_FROM_TITLE = {
     "PROFOND": "profond",
 }
 
+# Mappings figés des chapitres du livre à relire par roadmap (4 profils × 3 intensités).
+# Bloc 2 (2026-05-25, mission corrections-parcours-bloc2) : les docs vault ont
+# retiré les sections "Chapitres du livre à relire" en attendant la sortie du livre.
+# Les mappings sont conservés ici, gelés. Réactivés quand VITE_LIVRE_DISPONIBLE=true
+# (front, cf. ResultLevel3.tsx) ou TSA_LIVRE_DISPONIBLE=true (back, cf. profil_renderer.py).
+# Source originale : docs/_archive/ROADMAPS_PERSONNALISEES_pre-bloc2.md
+CHAPITRES_LIVRE_BY_ROADMAP = {
+    ("mendiant", "surface"):  [3, 6, 12],
+    ("mendiant", "modere"):   [3, 5, 6, 12],
+    ("mendiant", "profond"):  [3, 5, 6, 8, 12],
+    ("sauveur", "surface"):   [3, 6, 11, 12],
+    ("sauveur", "modere"):    [3, 5, 6, 8, 11, 12],
+    ("sauveur", "profond"):   [3, 5, 6, 8, 11, 12],
+    ("controleur", "surface"):[3, 6, 10, 12],
+    ("controleur", "modere"): [3, 5, 6, 8, 10, 12],
+    ("controleur", "profond"):[3, 5, 6, 8, 10, 12],
+    ("fantome", "surface"):   [3, 6, 12],
+    ("fantome", "modere"):    [3, 5, 6, 8, 12],
+    ("fantome", "profond"):   [3, 5, 6, 8, 11, 12],
+}
+
 
 def ts_string(s: str) -> str:
     s = s.replace("\\", "\\\\").replace("`", "\\`").replace("${", "\\${")
@@ -45,11 +66,13 @@ def parse_section(title: str, body: str) -> dict:
     pas_deux = extract_block("Pas numéro 2 : Ce mois", r"\n\*\*")
     pas_trois = extract_block("Pas numéro 3 : Dans les 3 mois", r"\n\*\*")
     exercice = extract_block("Exercice corporel prioritaire", r"\n\*\*")
+    # Fallback : si le doc a encore le bloc "Chapitres du livre à relire", on le lit.
+    # Sinon (cas Bloc 2 — bloc retiré), on prend les valeurs gelées de CHAPITRES_LIVRE_BY_ROADMAP.
     chap_block = extract_block(
         "Chapitres du livre à relire", r"\n# |\Z"
     ) or extract_block("Chapitres du livre à relire (si lecteur)", r"\n# |\Z")
-
-    chapitres = sorted(set(int(n) for n in re.findall(r"\bChapitre\s+(\d+)", chap_block)))
+    chapitres_doc = sorted(set(int(n) for n in re.findall(r"\bChapitre\s+(\d+)", chap_block)))
+    chapitres = chapitres_doc or CHAPITRES_LIVRE_BY_ROADMAP.get((profil_id, intensite_id), [])
 
     return {
         "profilId": profil_id,

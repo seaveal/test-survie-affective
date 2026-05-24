@@ -48,8 +48,13 @@ export function Welcome({ onCommencer }: Props) {
           <BoucleHero />
         </div>
         <p
-          className="mb-3 text-xs uppercase tracking-[0.18em] md:text-sm"
-          style={{ color: 'var(--h3c-accent-secondaire)' }}
+          className="mb-3 text-xs uppercase md:text-sm"
+          style={{
+            color: 'var(--h3c-accent-primaire)',
+            fontFamily: 'var(--font-eyebrow)',
+            fontWeight: 500,
+            letterSpacing: '0.14em',
+          }}
         >
           Test de survie affective
         </p>
@@ -300,9 +305,16 @@ function ProfilCard({ icon, nom, phrase }: ProfilCardProps) {
       >
         {icon}
       </span>
+      {/* Surtitre de carte profil — seul autre endroit en Oswald avec l'eyebrow hero
+          (mission update 2026-05-24). MAJUSCULES + letter-spacing 0.14em. */}
       <h3
-        className="text-lg leading-snug"
-        style={{ fontFamily: 'var(--font-titre)' }}
+        className="text-sm uppercase leading-snug md:text-base"
+        style={{
+          fontFamily: 'var(--font-eyebrow)',
+          fontWeight: 600,
+          letterSpacing: '0.14em',
+          color: 'var(--h3c-accent-primaire)',
+        }}
       >
         {nom}
       </h3>

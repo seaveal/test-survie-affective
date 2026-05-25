@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Politique de confidentialité — Souverain au Quotidien (Cyrille NOVOU)</title>
+<meta name="description" content="Politique de confidentialité et traitement des données personnelles du site Souverain au Quotidien, édité par Cyrille NOVOU (EI micro-entreprise).">
+<style>
+  body { font-family: Georgia, 'Times New Roman', serif; max-width: 720px; margin: 2rem auto; padding: 0 1.5rem; color: #222; line-height: 1.65; background: #fafaf7; }
+  h1 { font-size: 1.85rem; border-bottom: 1px solid #b89e5d; padding-bottom: 0.4rem; }
+  h2 { font-size: 1.2rem; margin-top: 2rem; color: #3a3a3a; }
+  p, li { font-size: 1rem; }
+  a { color: #6b5a2f; text-decoration: underline; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95rem; }
+  th, td { border: 1px solid #ccc; padding: 0.5rem 0.75rem; text-align: left; vertical-align: top; }
+  th { background: #f4f0e6; }
+  .legal-nav { margin: 2.5rem 0 1rem; padding-top: 1rem; border-top: 1px solid #ddd; font-size: 0.95rem; }
+  footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #ddd; font-size: 0.85rem; color: #666; text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Politique de confidentialité</h1>
+  <p><em>Version v1 — Mise à jour le 2026-05-25</em></p>
+
+  <h2>1. Responsable du traitement</h2>
+  <p>
+    Le responsable du traitement des données personnelles collectées via le site et les services associés est :<br>
+    <strong>Cyrille NOVOU</strong>, exerçant en entreprise individuelle (régime micro-entreprise)<br>
+    38 rue Béranger, 49100 Angers, France<br>
+    SIRET : en cours d'immatriculation (INPI du 2026-05-25)<br>
+    Contact RGPD / DPO : <a href="mailto:rgpd@souverainauquotidien.com">rgpd@souverainauquotidien.com</a>
+  </p>
+
+  <h2>2. Bases légales du traitement (RGPD art. 6 et 9)</h2>
+  <p>Les traitements mis en œuvre reposent sur les bases légales suivantes :</p>
+  <ul>
+    <li><strong>Exécution du contrat</strong> (art. 6.1.b RGPD) : gestion des commandes, des prestations de coaching, du parcours utilisateur, de la facturation.</li>
+    <li><strong>Consentement explicite</strong> (art. 6.1.a et art. 9.2.a RGPD) : envoi de communications marketing ; traitement des données concernant la santé via les réponses au test d'auto-évaluation. Les consentements marketing et données de santé sont recueillis séparément, via des cases distinctes (champs <code>consentement_marketing</code> et <code>consentement_donnees_sante</code>).</li>
+    <li><strong>Obligations légales</strong> (art. 6.1.c RGPD) : conservation des factures et pièces comptables.</li>
+    <li><strong>Intérêt légitime</strong> (art. 6.1.f RGPD) : sécurité du site, prévention de la fraude, statistiques internes anonymisées.</li>
+  </ul>
+
+  <h2>3. Données collectées</h2>
+  <ul>
+    <li>Identité et contact : prénom, adresse email.</li>
+    <li>Données techniques : adresse IP (chiffrée), horodatage, parcours utilisateur.</li>
+    <li>Réponses au test d'auto-évaluation : les réponses sont chiffrées avec une clé applicative dédiée (<code>TSA_HEALTH_KEY</code>) lorsque le consentement « données de santé » a été recueilli.</li>
+    <li>Données contractuelles : prestations souscrites, échéances, factures.</li>
+    <li>Événements de parcours : ouverture d'emails, validation d'étapes, prise de rendez-vous.</li>
+  </ul>
+
+  <h2>4. Durées de conservation</h2>
+  <table>
+    <thead>
+      <tr><th>Catégorie</th><th>Durée</th><th>Base</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Données prospect (sans contrat)</td><td>3 ans à compter du dernier contact</td><td>Recommandation CNIL prospection</td></tr>
+      <tr><td>Données client (avec contrat)</td><td>Durée de la relation contractuelle + 5 ans</td><td>Prescription civile (art. 2224 C. civ.)</td></tr>
+      <tr><td>Factures et pièces comptables</td><td>10 ans</td><td>Art. L.123-22 Code de commerce</td></tr>
+      <tr><td>Données de santé chiffrées</td><td>Durée du contrat puis effacement</td><td>Consentement, art. 9 RGPD</td></tr>
+      <tr><td>Logs techniques</td><td>12 mois maximum</td><td>Sécurité, LCEN</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. Destinataires et sous-traitants</h2>
+  <p>Les données peuvent être communiquées aux sous-traitants suivants, sélectionnés pour leurs garanties de conformité :</p>
+  <ul>
+    <li><strong>Brevo</strong> (France / Union européenne) — emailing transactionnel et marketing.</li>
+    <li><strong>Stripe</strong> (Union européenne / États-Unis) — traitement sécurisé des paiements.</li>
+    <li><strong>YouCanBookMe</strong> (Royaume-Uni) — réservation des rendez-vous d'appels.</li>
+    <li><strong>IONOS SE</strong> (Allemagne, Union européenne) — hébergement du site et des bases de données.</li>
+  </ul>
+  <p>Chacun de ces sous-traitants est lié au responsable du traitement par un contrat conforme à l'article 28 du RGPD.</p>
+
+  <h2>6. Transferts hors Union européenne</h2>
+  <ul>
+    <li><strong>Stripe</strong> : certains traitements peuvent impliquer un transfert vers les États-Unis. Ce transfert est encadré par les clauses contractuelles types adoptées par la Commission européenne (décision d'exécution 2021/914).</li>
+    <li><strong>YouCanBookMe</strong> : transfert vers le Royaume-Uni, encadré par la décision d'adéquation de la Commission européenne du 28 juin 2021 relative au Royaume-Uni.</li>
+  </ul>
+
+  <h2>7. Droits des personnes concernées</h2>
+  <p>Conformément aux articles 15 à 22 du RGPD, toute personne concernée dispose des droits suivants :</p>
+  <ul>
+    <li>droit d'accès, de rectification, d'effacement (« droit à l'oubli ») ;</li>
+    <li>droit à la limitation du traitement ;</li>
+    <li>droit à la portabilité ;</li>
+    <li>droit d'opposition, y compris à la prospection ;</li>
+    <li>droit de retirer son consentement à tout moment ;</li>
+    <li>droit de définir des directives relatives au sort des données après le décès ;</li>
+    <li>droit d'introduire une réclamation auprès de la CNIL (<a href="https://www.cnil.fr" target="_blank" rel="noopener">www.cnil.fr</a>).</li>
+  </ul>
+  <p>Ces droits peuvent être exercés en écrivant à <a href="mailto:rgpd@souverainauquotidien.com">rgpd@souverainauquotidien.com</a>. Une preuve d'identité pourra être demandée en cas de doute raisonnable sur l'identité du demandeur. Le droit à l'effacement est mis en œuvre via un mécanisme de <em>soft-delete</em> côté API qui garantit que les données effacées ne pourront pas être réactivées (les coordonnées d'un contact effacé sont définitivement neutralisées).</p>
+
+  <h2>8. Cookies</h2>
+  <p>À la date de publication, le site <code>test.souverainauquotidien.com</code> (application web Vite / React de type Single Page Application) <strong>n'embarque ni outil d'analyse d'audience tiers</strong> (Google Analytics, Plausible, Matomo), <strong>ni pixel publicitaire</strong> (Meta, Google Ads, LinkedIn, TikTok), <strong>ni traceur tiers</strong>. Seuls des cookies strictement nécessaires au fonctionnement du site peuvent être déposés (préférences locales, état de session).</p>
+  <p>Toute évolution de ce périmètre (ajout d'un outil d'analyse ou de publicité) sera annoncée par une mise à jour de la présente politique et soumise au recueil préalable du consentement de l'utilisateur, conformément à l'article 82 de la loi « Informatique et Libertés » et aux recommandations de la CNIL.</p>
+
+  <h2>9. Sécurité</h2>
+  <p>Le responsable du traitement met en œuvre les mesures techniques et organisationnelles appropriées pour assurer la sécurité des données : chiffrement en transit (HTTPS), chiffrement applicatif des données de santé (clé <code>TSA_HEALTH_KEY</code>), contrôle d'accès aux interfaces d'administration, journalisation des accès, sauvegardes régulières chiffrées, mises à jour de sécurité.</p>
+
+  <h2>10. Évolutions et version</h2>
+  <p>La présente politique pourra être mise à jour à tout moment. La version applicable est celle accessible au moment de la collecte. <strong>Version v1 — 2026-05-25.</strong></p>
+
+  <nav class="legal-nav">
+    <a href="/mentions-legales">Mentions légales</a> · <a href="/cgv">CGV</a> · <a href="/privacy">Politique de confidentialité</a>
+  </nav>
+</main>
+<footer>Version v1 — Mise à jour le 2026-05-25 · © Cyrille NOVOU</footer>
+</body>
+</html>

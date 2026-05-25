@@ -9,7 +9,7 @@ export const profils: Profil[] = [
     id: 'mendiant',
     nom: `MENDIANT DE LUXE`,
     icone: `Couronne fissurée (Lucide React \`Crown\`)`,
-    ambassadeur: `Fabrice`,
+    ambassadeur: `Yann`,
     descriptionBase: `Vous brillez. Vous performez. Vous excellez dans tout ce que vous faites.
 
 Mais ça ne suffit jamais.
@@ -33,14 +33,14 @@ L'amour ne se mérite pas. Il se reçoit. Mais recevoir, c'est exactement ce que
     modulateursIntensite: {
       surface: `Le schéma Mendiant existe en vous, mais il reste pour l'instant gérable. Vous performez, vous brillez, et la fatigue s'installe doucement sans encore vous abattre. Vous reconnaissez la mécanique, vous la nommez, vous la voyez à l'œuvre. C'est précieux. C'est le bon moment pour agir, avant que la spirale ne se referme.`,
       modere: `Le schéma Mendiant tourne en boucle dans votre vie. Vous donnez beaucoup, vous donnez bien, et vous récoltez de moins en moins. La fatigue est devenue compagne. Les compliments ne tiennent plus la distance. Vous sentez que la performance ne suffit plus à colmater ce qui vous manque au fond. Le moment est venu de ralentir et de descendre dans le corps.`,
-      profond: `Le schéma Mendiant a pris toute la place. Vous ne savez plus exister sans performer. La voix qui répète "pas à la hauteur" tourne en boucle. Le burn-out, l'effondrement, ou le sentiment d'imposture vous talonnent. Cette intensité demande une intervention sérieuse. Pas un livre seul. Pas une lecture rapide. Un vrai travail corporel encadré, parce que la tête à elle seule ne fera pas le chemin.`,
+      profond: `Le schéma Mendiant a pris toute la place. Vous ne savez plus exister sans performer. La voix qui répète "pas à la hauteur" tourne en boucle. L'effondrement et le sentiment d'imposture vous talonnent. Cette intensité demande un accompagnement sérieux et encadré. Pas une lecture rapide. Un vrai travail corporel encadré, parce que la tête à elle seule ne fera pas le chemin.`,
     },
   },
   {
     id: 'sauveur',
     nom: `SAUVEUR ÉPUISÉ`,
     icone: `Cape déchirée (Lucide React \`Shield\`)`,
-    ambassadeur: `Jérémy`,
+    ambassadeur: `Florian`,
     descriptionBase: `Vous donnez. Vous aidez. Vous sauvez.
 
 Tout le monde compte sur vous. Tout le monde sait qu'il peut s'appuyer sur vous.
@@ -66,14 +66,14 @@ Vous avez peur de déranger. Tellement peur que vous avez disparu sous les besoi
     modulateursIntensite: {
       surface: `Le schéma Sauveur s'active dans votre vie, sans avoir encore tout pris. Vous donnez beaucoup, vous le savez, et vous savez aussi vous arrêter de temps en temps. La fatigue est présente mais récupérable. C'est le bon moment pour comprendre la mécanique avant qu'elle ne se cristallise. Le corps est encore disponible pour apprendre à recevoir.`,
       modere: `Le schéma Sauveur structure désormais une grande partie de votre vie. Vous donnez par réflexe, sans même réaliser que vous le faites. La fatigue est chronique. Vous portez plusieurs personnes à bout de bras, et personne ne porte la vôtre. Le moment est venu de mettre des mots et un cadre sur ce qui se joue, parce que la spirale s'accélère.`,
-      profond: `Le schéma Sauveur a colonisé votre identité. Vous ne savez plus exister sans aider. L'épuisement frôle le burn-out, ou il l'a déjà rencontré. Vous donnez avec une rage cachée et vous sentez monter une amertume que vous n'osez pas nommer. Cette intensité demande un travail sérieux et corporel, parce qu'à ce stade, la tête a tout compris depuis longtemps. Et rien n'a changé.`,
+      profond: `Le schéma Sauveur a colonisé votre identité. Vous ne savez plus exister sans aider. L'épuisement a pris le dessus, parfois jusqu'à l'effondrement. Vous donnez avec une rage cachée et vous sentez monter une amertume que vous n'osez pas nommer. Cette intensité demande un travail sérieux et corporel, parce qu'à ce stade, la tête a tout compris depuis longtemps. Et rien n'a changé.`,
     },
   },
   {
     id: 'controleur',
     nom: `CONTRÔLEUR ANXIEUX`,
     icone: `Tour de surveillance (Lucide React \`Eye\`)`,
-    ambassadeur: `Nathan`,
+    ambassadeur: `Antoine`,
     descriptionBase: `Vous anticipez. Vous vérifiez. Vous contrôlez.
 
 Si vous lâchez prise, tout pourrait s'effondrer.
@@ -106,7 +106,7 @@ Vous croyez tenir le monde. C'est le monde qui vous tient.`,
     id: 'fantome',
     nom: `FANTÔME RELATIONNEL`,
     icone: `Silhouette qui s'efface (SVG custom ou Lucide React \`User\` à 50% opacity)`,
-    ambassadeur: `Caroline (fil rouge du livre)`,
+    ambassadeur: `Pascale (fil rouge du livre)`,
     descriptionBase: `Vous disparaissez. Vous vous effacez. Vous fuyez.
 
 Dès que ça devient trop intense, vous prenez la tangente.
@@ -130,39 +130,43 @@ Vous avez l'impression d'être un fantôme dans votre propre vie. Présent et ab
       `**L'incapacité à s'affirmer.** Vous ne dites ni oui ni non. Vous disparaissez.`,
     ],
     modulateursIntensite: {
-      surface: `Le schéma Fantôme s'active dans votre vie, sans encore avoir éteint toute vie relationnelle. Vous fuyez parfois, et vous arrivez aussi à rester par moments. Le repli est encore réversible. C'est le bon moment pour comprendre la mécanique avant que la fuite ne devienne automatique. Caroline a connu ce stade. Elle l'a traversé.`,
+      surface: `Le schéma Fantôme s'active dans votre vie, sans encore avoir éteint toute vie relationnelle. Vous fuyez parfois, et vous arrivez aussi à rester par moments. Le repli est encore réversible. C'est le bon moment pour comprendre la mécanique avant que la fuite ne devienne automatique. Pascale a connu ce stade. Elle l'a traversé.`,
       modere: `Le schéma Fantôme structure une grande partie de vos relations. Vous savez que vous fuyez, vous le voyez, et vous n'arrivez plus à vous arrêter. L'isolement s'installe doucement. Le sentiment de vivre derrière une vitre devient familier. Le moment est venu de regarder en face d'où vient cette impulsion à disparaître, parce qu'elle vous coupe désormais de votre propre vie.`,
-      profond: `Le schéma Fantôme a pris toute la place. Vous avez sans doute déjà tout fui, plusieurs fois. Vous êtes seul depuis longtemps, ou vous êtes physiquement présent dans une relation où votre âme s'est absentée. La sensation d'être un fantôme dans votre propre vie est devenue permanente. Cette intensité demande un travail corporel encadré, parce qu'à ce stade, lire ne suffit plus. Caroline a été là. Elle a fui le travail pendant 18 mois. Elle est revenue. Sa vie a changé. La vôtre peut changer aussi.`,
+      profond: `Le schéma Fantôme a pris toute la place. Vous avez sans doute déjà tout fui, plusieurs fois. Vous êtes seul depuis longtemps, ou vous êtes physiquement présent dans une relation où votre âme s'est absentée. La sensation d'être un fantôme dans votre propre vie est devenue permanente. Cette intensité demande un travail corporel encadré, parce qu'à ce stade, lire ne suffit plus. Pascale a été là. Elle a fui le travail pendant 18 mois. Elle est revenue. Sa vie a changé. La vôtre peut changer aussi.`,
     },
   },
 ]
 
 export const ctaParStatut: Record<StatutLivre, CtaParStatut> = {
   pas_lu: {
-    amorce: `Vous venez de découvrir votre profil. Vous reconnaissez le mécanisme. Mais vous n'avez encore qu'une petite partie de l'image.
+    amorce: `Vous venez de découvrir votre profil. Vous reconnaissez le mécanisme. C'est un premier pas.
 
-Le livre "Vous avez tout compris. Rien n'a changé." raconte l'histoire de Caroline, qui a vécu exactement votre profil de survie. Il décortique la blessure d'abandon, la projection sur le partenaire, et le travail corporel qui répare là où la pensée échoue.
+Vous recevez maintenant par email **vos 20 séances audio guidées**, calibrées sur votre profil. Vous commencez ce soir, à votre rythme. Le corps se met au travail là où la lecture seule ne va pas.
+
+Et si vous voulez aller plus loin, vous réservez un appel de qualification de 45 minutes pour évaluer ensemble votre place dans le programme Régénération.
 
 La tête comprend. Le corps répare.`,
-    ctaPrincipal: { texte: `Commander le livre maintenant`, url: `https://cyrillenovou.com/livre` },
-    ctaSecondaire: { texte: `Réserver un appel stratégique pour le programme Régénération`, url: `https://cyrillenovou.com/appel` },
+    ctaPrincipal: { texte: `Ouvrir mon email et récupérer mes 20 séances`, url: `#` },
+    ctaSecondaire: { texte: `Réserver un appel de qualification pour Régénération`, url: `https://cyrillenovou-45mn.youcanbook.me/` },
   },
   lu_partiel: {
-    amorce: `Vous êtes en train de lire le livre. Votre profil est maintenant identifié. Continuez votre lecture en gardant ce profil à l'esprit. Les chapitres recommandés ci-dessus vous parleront différemment maintenant.
+    amorce: `Votre profil est maintenant identifié. Votre carte intérieure se précise.
 
-Et si la lecture seule commence à montrer ses limites, le passage suivant est l'accompagnement corporel.`,
-    ctaPrincipal: { texte: `Continuer la lecture du livre`, url: `https://cyrillenovou.com/livre` },
-    ctaSecondaire: { texte: `Réserver un appel stratégique pour le programme Régénération`, url: `https://cyrillenovou.com/appel` },
+Vous recevez par email **vos 20 séances audio guidées** calibrées sur votre profil. Elles vous accompagnent dès ce soir. Le corps se met au travail là où comprendre seul ne va pas.
+
+Si l'accompagnement corporel devient évident, vous réservez un appel de qualification de 45 minutes pour évaluer ensemble votre place dans le programme Régénération.`,
+    ctaPrincipal: { texte: `Ouvrir mon email et récupérer mes 20 séances`, url: `#` },
+    ctaSecondaire: { texte: `Réserver un appel de qualification pour Régénération`, url: `https://cyrillenovou-45mn.youcanbook.me/` },
   },
   lu_complet: {
-    amorce: `Vous avez lu le livre. Vous avez identifié votre schéma. Vous avez sans doute commencé à voir certaines choses différemment.
+    amorce: `Vous avez identifié votre schéma. Vous l'avez sans doute déjà vu agir dans plusieurs zones de votre vie.
 
 Vous savez aussi maintenant que comprendre ne suffit pas.
 
-Le travail réel commence dans le corps, dans un cadre encadré, avec un accompagnant. Le programme Régénération existe pour ça. Trois jours résidentiels, six places, une transformation incarnée.
+Le travail réel commence dans le corps, dans un cadre encadré, avec un accompagnant. Le programme Régénération existe pour ça. Trois jours résidentiels, sept places, une transformation incarnée.
 
 Si votre intensité est modérée ou profonde, et si vous êtes prêt à agir, c'est le pas suivant.`,
-    ctaPrincipal: { texte: `Réserver un appel stratégique pour Régénération`, url: `https://cyrillenovou.com/appel` },
-    ctaSecondaire: { texte: `Rejoindre la communauté Circle`, url: `https://cyrillenovou.circle.so` },
+    ctaPrincipal: { texte: `Réserver un appel de qualification pour Régénération`, url: `https://cyrillenovou-45mn.youcanbook.me/` },
+    ctaSecondaire: { texte: `Rejoindre la communauté Souverain au Quotidien`, url: `https://www.souverainauquotidien.com` },
   },
 }

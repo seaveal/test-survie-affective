@@ -1,15 +1,21 @@
+import { useEffect } from 'react'
+import { flushPendingCaptures } from './api/client'
+import { CaptureScreen } from './components/CaptureScreen'
 import { ContextCard } from './components/ContextCard'
 import { LikertCard } from './components/LikertCard'
 import { ProgressBar } from './components/ProgressBar'
 import { QuestionCard } from './components/QuestionCard'
-import { ResultLevel1 } from './components/ResultLevel1'
-import { ResultLevel2 } from './components/ResultLevel2'
-import { ResultLevel3 } from './components/ResultLevel3'
+import { ResultPreview } from './components/ResultPreview'
 import { Welcome } from './components/Welcome'
 import { useTestState } from './hooks/useTestState'
 
 function App() {
   const s = useTestState()
+
+  // Au mount : retente les captures qui auraient echoue precedemment (queue localStorage)
+  useEffect(() => {
+    void flushPendingCaptures()
+  }, [])
 
   if (s.etape === 'welcome') {
     return <Welcome onCommencer={s.commencer} />
@@ -57,13 +63,22 @@ function App() {
     )
   }
 
-  // etape === 'resultat'
+  if (s.etape === 'capture') {
+    return (
+      <CaptureScreen
+        onSubmit={(values) => {
+          void s.soumettreCapture(values)
+        }}
+        envoiEnCours={s.envoiEnCours}
+      />
+    )
+  }
+
+  // etape === 'resultat' : affichage allege (niveau 1 seul + bloc email)
   if (!s.resultat) return null
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col">
-      <ResultLevel1 resultat={s.resultat} />
-      <ResultLevel2 resultat={s.resultat} />
-      <ResultLevel3 resultat={s.resultat} />
+      <ResultPreview resultat={s.resultat} envoiReussi={s.envoiReussi} />
       <div className="px-6 pb-12 pt-4 text-center">
         <button
           type="button"

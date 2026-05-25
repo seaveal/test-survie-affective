@@ -75,7 +75,7 @@ Le schéma Mendiant tourne en boucle dans votre vie. Vous donnez beaucoup, vous 
 
 ### Intensité PROFONDE
 
-Le schéma Mendiant a pris toute la place. Vous ne savez plus exister sans performer. La voix qui répète "pas à la hauteur" tourne en boucle. L'effondrement et le sentiment d'imposture vous talonnent. Cette intensité demande un accompagnement sérieux et encadré. Pas une lecture rapide. Un vrai travail corporel encadré, parce que la tête à elle seule ne fera pas le chemin.
+Le schéma Mendiant a pris toute la place. Vous ne savez plus exister sans performer. La voix qui répète "pas à la hauteur" tourne en boucle. Le burn-out, l'effondrement, ou le sentiment d'imposture vous talonnent. Cette intensité demande une intervention sérieuse. Pas un livre seul. Pas une lecture rapide. Un vrai travail corporel encadré, parce que la tête à elle seule ne fera pas le chemin.
 
 ---
 
@@ -130,7 +130,7 @@ Le schéma Sauveur structure désormais une grande partie de votre vie. Vous don
 
 ### Intensité PROFONDE
 
-Le schéma Sauveur a colonisé votre identité. Vous ne savez plus exister sans aider. L'épuisement a pris le dessus, parfois jusqu'à l'effondrement. Vous donnez avec une rage cachée et vous sentez monter une amertume que vous n'osez pas nommer. Cette intensité demande un travail sérieux et corporel, parce qu'à ce stade, la tête a tout compris depuis longtemps. Et rien n'a changé.
+Le schéma Sauveur a colonisé votre identité. Vous ne savez plus exister sans aider. L'épuisement frôle le burn-out, ou il l'a déjà rencontré. Vous donnez avec une rage cachée et vous sentez monter une amertume que vous n'osez pas nommer. Cette intensité demande un travail sérieux et corporel, parce qu'à ce stade, la tête a tout compris depuis longtemps. Et rien n'a changé.
 
 ---
 
@@ -248,7 +248,7 @@ Le schéma Fantôme a pris toute la place. Vous avez sans doute déjà tout fui,
 
 Si applicable (écart < 4 points avec dominant), ce paragraphe s'affiche entre la description et les 7 symptômes :
 
-> Vous oscillez aussi avec une forte tendance **{nom_profil_secondaire}**. Selon les contextes, vous basculez d'une stratégie à l'autre. Ce détail compte. L'accompagnement vous éclairera pour quelle bonne raison votre histoire a construit cette double stratégie, et comment retrouver la cohérence intérieure.
+> Vous oscillez aussi avec une forte tendance **{nom_profil_secondaire}**. Selon les contextes, vous basculez d'une stratégie à l'autre. Ce détail compte. Le livre vous expliquera pour quelle bonne raison votre histoire a construit cette double stratégie, et comment retrouver la cohérence intérieure.
 
 ---
 
@@ -256,61 +256,57 @@ Si applicable (écart < 4 points avec dominant), ce paragraphe s'affiche entre l
 
 ## Si statutLivre = `pas_lu`
 
-**Bloc d'amorce** (avant les CTA) :
+**Bloc d'amorce livre** (avant les CTA) :
 
-> Vous venez de découvrir votre profil. Vous reconnaissez le mécanisme. C'est un premier pas.
+> Vous venez de découvrir votre profil. Vous reconnaissez le mécanisme. Mais vous n'avez encore qu'une petite partie de l'image.
 >
-> Vous recevez maintenant par email **vos 20 séances audio guidées**, calibrées sur votre profil. Vous commencez ce soir, à votre rythme. Le corps se met au travail là où la lecture seule ne va pas.
->
-> Et si vous voulez aller plus loin, vous réservez un appel de qualification de 45 minutes pour évaluer ensemble votre place dans le programme Régénération.
+> Le livre "Vous avez tout compris. Rien n'a changé." raconte l'histoire de Pascale, qui a vécu exactement votre profil de survie. Il décortique la blessure d'abandon, la projection sur le partenaire, et le travail corporel qui répare là où la pensée échoue.
 >
 > La tête comprend. Le corps répare.
 
 **CTA principal** :
-- Texte : Ouvrir mon email et récupérer mes 20 séances
-- URL : `#` (l'email part automatiquement, voir Brevo email résultat)
+- Texte : Commander le livre maintenant
+- URL : https://cyrillenovou.com/livre
 
 **CTA secondaire** :
-- Texte : Réserver un appel de qualification pour Régénération
-- URL : https://cyrillenovou-45mn.youcanbook.me/
+- Texte : Réserver un appel stratégique pour le programme Régénération
+- URL : https://cyrillenovou.com/appel
 
 ## Si statutLivre = `lu_partiel`
 
 **Bloc d'amorce** :
 
-> Votre profil est maintenant identifié. Votre carte intérieure se précise.
+> Vous êtes en train de lire le livre. Votre profil est maintenant identifié. Continuez votre lecture en gardant ce profil à l'esprit. Les chapitres recommandés ci-dessus vous parleront différemment maintenant.
 >
-> Vous recevez par email **vos 20 séances audio guidées** calibrées sur votre profil. Elles vous accompagnent dès ce soir. Le corps se met au travail là où comprendre seul ne va pas.
->
-> Si l'accompagnement corporel devient évident, vous réservez un appel de qualification de 45 minutes pour évaluer ensemble votre place dans le programme Régénération.
+> Et si la lecture seule commence à montrer ses limites, le passage suivant est l'accompagnement corporel.
 
 **CTA principal** :
-- Texte : Ouvrir mon email et récupérer mes 20 séances
-- URL : `#` (l'email part automatiquement, voir Brevo email résultat)
+- Texte : Continuer la lecture du livre
+- URL : https://cyrillenovou.com/livre
 
 **CTA secondaire** :
-- Texte : Réserver un appel de qualification pour Régénération
-- URL : https://cyrillenovou-45mn.youcanbook.me/
+- Texte : Réserver un appel stratégique pour le programme Régénération
+- URL : https://cyrillenovou.com/appel
 
 ## Si statutLivre = `lu_complet`
 
 **Bloc d'amorce** :
 
-> Vous avez identifié votre schéma. Vous l'avez sans doute déjà vu agir dans plusieurs zones de votre vie.
+> Vous avez lu le livre. Vous avez identifié votre schéma. Vous avez sans doute commencé à voir certaines choses différemment.
 >
 > Vous savez aussi maintenant que comprendre ne suffit pas.
 >
-> Le travail réel commence dans le corps, dans un cadre encadré, avec un accompagnant. Le programme Régénération existe pour ça. Trois jours résidentiels, sept places, une transformation incarnée.
+> Le travail réel commence dans le corps, dans un cadre encadré, avec un accompagnant. Le programme Régénération existe pour ça. Trois jours résidentiels, six places, une transformation incarnée.
 >
 > Si votre intensité est modérée ou profonde, et si vous êtes prêt à agir, c'est le pas suivant.
 
 **CTA principal** :
-- Texte : Réserver un appel de qualification pour Régénération
-- URL : https://cyrillenovou-45mn.youcanbook.me/
+- Texte : Réserver un appel stratégique pour Régénération
+- URL : https://cyrillenovou.com/appel
 
 **CTA secondaire** :
-- Texte : Rejoindre la communauté Souverain au Quotidien
-- URL : https://www.souverainauquotidien.com
+- Texte : Rejoindre la communauté Circle
+- URL : https://cyrillenovou.circle.so
 
 ---
 
@@ -331,7 +327,7 @@ La tête comprend. Le corps répare.
 
 Cyrille Novou
 Méthode H3C : Conscience, Corps, Comportements
-souverainauquotidien.com
+www.cyrillenovou.com
 ```
 
 ---

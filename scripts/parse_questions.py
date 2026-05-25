@@ -4,8 +4,8 @@ import re
 import sys
 from pathlib import Path
 
-DOC = Path("/Users/cyrille/Documents/projets-dev/test-survie-affective/docs/QUESTIONS_30_SCORING.md")
-OUT = Path("/Users/cyrille/Documents/projets-dev/test-survie-affective/src/data/questions.ts")
+DOC = Path(__file__).parent.parent / "docs" / "QUESTIONS_30_SCORING.md"
+OUT = Path(__file__).parent.parent / "src" / "data" / "questions.ts"
 
 PROFIL_LETTER_TO_ID = {"M": "mendiant", "S": "sauveur", "C": "controleur", "F": "fantome"}
 

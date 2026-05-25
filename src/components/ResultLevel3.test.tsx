@@ -24,27 +24,38 @@ describe('<ResultLevel3> — Roadmap + CTA', () => {
     expect(screen.getByText(/exercice corporel/i)).toBeInTheDocument()
   })
 
-  it('CTA principal pas_lu → URL livre', () => {
-    render(<ResultLevel3 resultat={baseResultat} />)
-    const cta = screen.getByRole('link', { name: /commander le livre/i })
-    expect(cta).toHaveAttribute('href', expect.stringMatching(/livre/i))
+  // Bloc 2 (2026-05-25) : CTA aplati, livre retiré du parcours. Tous les statuts
+  // basculent sur le même chemin cadeau-descente + appel YCBM.
+  it('CTA principal cadeau-first (identique pour les 3 statutLivre)', () => {
+    for (const statut of ['pas_lu', 'lu_partiel', 'lu_complet'] as const) {
+      const r = { ...baseResultat, statutLivre: statut }
+      const { unmount } = render(<ResultLevel3 resultat={r} />)
+      const cta = screen.getByRole('link', { name: /ouvrir mon email/i })
+      expect(cta, `principal/${statut}`).toHaveAttribute('href', '#')
+      unmount()
+    }
   })
 
-  it('CTA principal lu_complet → URL appel', () => {
-    const r = { ...baseResultat, statutLivre: 'lu_complet' as const }
-    render(<ResultLevel3 resultat={r} />)
-    const cta = screen.getByRole('link', { name: /appel stratégique/i })
-    expect(cta).toHaveAttribute('href', expect.stringMatching(/appel/i))
+  it('CTA secondaire pointe vers YCBM réel (identique pour les 3 statutLivre)', () => {
+    for (const statut of ['pas_lu', 'lu_partiel', 'lu_complet'] as const) {
+      const r = { ...baseResultat, statutLivre: statut }
+      const { unmount } = render(<ResultLevel3 resultat={r} />)
+      const cta = screen.getByRole('link', { name: /réserver un appel/i })
+      expect(cta, `secondaire/${statut}`).toHaveAttribute(
+        'href',
+        expect.stringMatching(/youcanbook\.me/i),
+      )
+      unmount()
+    }
   })
 
-  it("affiche les chapitres recommandés si lecteur (lu_partiel ou lu_complet)", () => {
-    const r = { ...baseResultat, statutLivre: 'lu_partiel' as const }
-    render(<ResultLevel3 resultat={r} />)
-    expect(screen.getByRole('heading', { name: /chapitres/i })).toBeInTheDocument()
-  })
-
-  it("ne mentionne pas 'chapitres à relire' si pas_lu", () => {
-    render(<ResultLevel3 resultat={baseResultat} />)
-    expect(screen.queryByText(/chapitres à relire/i)).not.toBeInTheDocument()
+  it("ne mentionne plus 'chapitres à relire' (livre gelé par flag LIVRE_DISPONIBLE=false par défaut)", () => {
+    // Tous les statuts désormais : pas d'affichage chapitres tant que VITE_LIVRE_DISPONIBLE=true non activé.
+    for (const statut of ['pas_lu', 'lu_partiel', 'lu_complet'] as const) {
+      const r = { ...baseResultat, statutLivre: statut }
+      const { unmount } = render(<ResultLevel3 resultat={r} />)
+      expect(screen.queryByText(/chapitres à relire/i), `chapitres/${statut}`).not.toBeInTheDocument()
+      unmount()
+    }
   })
 })

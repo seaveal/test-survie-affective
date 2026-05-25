@@ -311,7 +311,7 @@ Score maximum théorique par profil : 60 points (20 occurrences × 3 points).
 - **2** : Parfois fatigue, tension, ou insomnie passagère
 - **3** : Troubles du sommeil ou de l'appétit récurrents
 - **4** : Symptômes physiques qui m'inquiètent (gorge serrée, douleur thoracique, vertiges)
-- **5** : Des moments où mon corps a lâché, fortement, et durablement
+- **5** : J'ai vécu des épisodes de panique, dépression ou burn-out
 
 ---
 
@@ -329,11 +329,11 @@ Score maximum théorique par profil : 60 points (20 occurrences × 3 points).
 
 ## Question 25
 
-**Énoncé :** Combien de fois avez-vous déjà entrepris une démarche pour changer ce schéma ?
+**Énoncé :** Combien de fois avez-vous tenté de changer ce schéma ?
 
 - **1** : C'est ma première démarche réelle de transformation
 - **2** : J'ai essayé 1 ou 2 fois, sans aller au bout
-- **3** : J'ai suivi plusieurs accompagnements ou approches
+- **3** : J'ai fait plusieurs thérapies ou accompagnements
 - **4** : J'ai tout essayé, rien n'a fonctionné durablement
 - **5** : J'ai abandonné l'idée de pouvoir changer un jour
 
@@ -373,8 +373,6 @@ Score maximum théorique par profil : 60 points (20 occurrences × 3 points).
 
 (Note : 3 options ici, pas 4. La question est strictement informative.)
 
-**Décision 2026-05-24 (livre retiré du parcours)** : conserver Q27 comme champ de données (analytics + segmentation Brevo), mais NE PAS router le CTA résultat sur cette valeur. Tous les statuts (`pas_lu` / `lu_partiel` / `lu_complet`) basculent désormais sur le même chemin : cadeau-descente (20 séances audio guidées par email) + appel YCBM 45 minutes. À coordonner avec le repo (chantier Bloc 2).
-
 ---
 
 ## Question 28
@@ -405,7 +403,7 @@ Score maximum théorique par profil : 60 points (20 occurrences × 3 points).
 
 ## Question 30
 
-**Énoncé :** Où en êtes-vous dans votre envie de transformer ce schéma ?
+**Énoncé :** Êtes-vous prêt à investir dans un accompagnement transformateur ?
 
 **Champ cible** : `pretAAgir`
 

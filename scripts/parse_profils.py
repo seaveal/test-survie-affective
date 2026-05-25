@@ -115,14 +115,14 @@ def parse_cta(text: str) -> dict:
             block,
         )
         principal = (
-            {"texte": m_p.group(1).strip(), "url": m_p.group(2).strip()} if m_p else None
+            {"texte": m_p.group(1).strip(), "url": m_p.group(2).strip().strip("`")} if m_p else None
         )
         m_s = re.search(
             r"\*\*CTA secondaire\*\*\s*:\s*\n-\s*Texte\s*:\s*(.+)\n-\s*URL\s*:\s*(\S+)",
             block,
         )
         secondaire = (
-            {"texte": m_s.group(1).strip(), "url": m_s.group(2).strip()} if m_s else None
+            {"texte": m_s.group(1).strip(), "url": m_s.group(2).strip().strip("`")} if m_s else None
         )
         out[statut] = {
             "amorce": amorce,

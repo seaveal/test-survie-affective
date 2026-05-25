@@ -17,6 +17,10 @@
 
   --font-titre: 'Lora', Georgia, serif;
   --font-ui: 'Inter', system-ui, sans-serif;
+  /* Oswald = police d'eyebrow / surtitre uniquement (ajouté 2026-05-24 mission update).
+     Usage STRICT : labels courts en MAJUSCULES + letter-spacing ~0.14em.
+     INTERDITE sur H1, H2, sous-titres, corps de texte, boutons, phrases. */
+  --font-eyebrow: 'Oswald', 'Inter', system-ui, sans-serif;
 }
 
 body {

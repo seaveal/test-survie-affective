@@ -1,4 +1,3 @@
-import { ctaParStatut } from '../data/profils'
 import { getRoadmap } from '../domain/result'
 import type { Resultat } from '../domain/types'
 
@@ -6,11 +5,34 @@ interface Props {
   resultat: Resultat
 }
 
+// CTA aplati (décision Bloc 2 — 2026-05-25, mission corrections-parcours-bloc2).
+// Le livre est retiré du parcours ; tous les statutLivre basculent sur le même
+// chemin cadeau-descente + appel YCBM. statutLivre reste collecté pour
+// analytics/segmentation Brevo, mais ne pilote plus le routage.
+const ctaUnifie = {
+  amorce: `Vous venez d'identifier votre profil. La suite arrive dans votre email : vos 20 séances audio guidées, calibrées sur votre profil, prêtes à écouter dès ce soir. Le corps se met au travail là où comprendre seul ne va pas.
+
+Et si vous voulez aller plus loin, vous réservez un appel de qualification de 45 minutes pour évaluer ensemble votre place dans le programme Régénération.
+
+La tête comprend. Le corps répare.`,
+  ctaPrincipal: {
+    texte: `Ouvrir mon email et récupérer mes 20 séances`,
+    url: `#`,
+  },
+  ctaSecondaire: {
+    texte: `Réserver un appel de qualification pour Régénération`,
+    url: `https://cyrillenovou-45mn.youcanbook.me/`,
+  },
+}
+
+// Flag de gel des références au livre (décision Bloc 2 — 2026-05-25).
+// Le livre H3C n'est pas encore publié ; les "Chapitres à relire" sont gelés
+// par défaut. Réactivation au moment de la sortie en basculant VITE_LIVRE_DISPONIBLE=true.
+const LIVRE_DISPONIBLE = import.meta.env.VITE_LIVRE_DISPONIBLE === 'true'
+
 export function ResultLevel3({ resultat }: Props) {
   const roadmap = getRoadmap(resultat.profilDominant, resultat.intensite)
-  const cta = ctaParStatut[resultat.statutLivre]
-  const estLecteur =
-    resultat.statutLivre === 'lu_complet' || resultat.statutLivre === 'lu_partiel'
+  const cta = ctaUnifie
 
   return (
     <section className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-10">
@@ -30,7 +52,7 @@ export function ResultLevel3({ resultat }: Props) {
         <p className="text-base leading-relaxed">{roadmap.exerciceCorporel}</p>
       </div>
 
-      {estLecteur && roadmap.chapitresLivreCibles.length > 0 && (
+      {LIVRE_DISPONIBLE && roadmap.chapitresLivreCibles.length > 0 && (
         <div
           className="rounded-xl p-5"
           style={{ background: 'var(--h3c-fond-card)' }}

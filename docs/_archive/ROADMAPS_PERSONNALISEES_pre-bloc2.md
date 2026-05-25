@@ -13,6 +13,7 @@ Chaque roadmap correspond à un croisement (profil × intensité) et propose :
 - **Pas numéro 2** : engagement à tenir sur le mois en cours
 - **Pas numéro 3** : transformation à enclencher dans les 3 mois
 - **Exercice corporel prioritaire** : pratique somatique adaptée au profil
+- **Chapitres du livre à relire** : pour les lecteurs (statutLivre = `lu_complet` ou `lu_partiel`)
 
 Les 3 pas suivent une progression : observer, expérimenter, transformer.
 
@@ -27,10 +28,13 @@ Pendant 7 jours, observez sans intervenir chaque fois que la voix "ai-je bien fa
 Choisissez une chose par semaine pour laquelle vous demandez de l'aide. Pas une chose que vous savez faire. Une chose pour laquelle vous avez besoin de quelqu'un. Demandez. Recevez. Observez ce que cela fait dans le corps.
 
 **Pas numéro 3 : Dans les 3 mois**
-Vivez une expérience structurée de réception sans contrepartie. Un séminaire de ressourcement, une retraite, un accompagnement où l'on s'occupe de vous sans rien attendre en retour. Le corps a besoin de cette expérience pour apprendre que recevoir ne tue pas.
+Vivez une expérience structurée de réception sans contrepartie. Un séminaire de soin, une retraite, un accompagnement où l'on s'occupe de vous sans rien attendre en retour. Le corps a besoin de cette expérience pour apprendre que recevoir ne tue pas.
 
 **Exercice corporel prioritaire**
 Quand la voix "pas à la hauteur" se manifeste, portez votre attention sur le ventre. Pas pour le contrôler. Pour observer ce qui s'y passe. Une chaleur ? Une crispation ? Une vibration ? Restez 30 secondes en observation, sans rien changer.
+
+**Chapitres du livre à relire (si lecteur)**
+Chapitre 3 (les masques de la survie), Chapitre 6 (la projection sur le partenaire), Chapitre 12 (la victoire de Yann).
 
 ---
 
@@ -48,6 +52,9 @@ Engagez un travail somatique encadré. Le schéma est devenu suffisamment struct
 **Exercice corporel prioritaire**
 Quand vous sentez monter l'envie de briller, portez votre attention sur la gorge. Sentez si elle est ouverte ou serrée. Si elle est serrée, ralentissez. La gorge serrée raconte une vieille histoire. Le silence l'écoute.
 
+**Chapitres du livre à relire**
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 12 (Yann).
+
 ---
 
 # MENDIANT × PROFOND
@@ -64,6 +71,9 @@ Engagez un programme corporel intensif et encadré. À ce niveau, le travail seu
 **Exercice corporel prioritaire**
 Asseyez-vous 10 minutes chaque matin et posez-vous cette question : "Où est-ce que mon corps porte l'épuisement aujourd'hui ?" Vous ne cherchez pas à le résoudre. Vous le rencontrez. Le corps a besoin d'être vu avant de pouvoir reposer.
 
+**Chapitres du livre à relire**
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 12 (Yann).
+
 ---
 
 # SAUVEUR × SURFACE
@@ -75,10 +85,13 @@ Faites la liste des 5 personnes que vous portez en ce moment dans votre vie. Pou
 Refusez une demande d'aide par semaine. Pas pour vous endurcir. Pour observer ce qui monte en vous quand vous dites non. La culpabilité ? La peur ? Le vide ? C'est précisément ce que le schéma a recouvert pendant des années.
 
 **Pas numéro 3 : Dans les 3 mois**
-Invitez dans votre vie une personne qui sait recevoir et donner sans condition. Un facilitateur, un accompagnant. Vous avez besoin de modéliser une nouvelle façon d'être en relation, et cela passe par l'exposition à des relations où la réciprocité existe pour de bon.
+Invitez dans votre vie une personne qui sait recevoir et donner sans condition. Un thérapeute, un facilitateur, un accompagnant. Vous avez besoin de modéliser une nouvelle façon d'être en relation, et cela passe par l'exposition à des relations où la réciprocité existe pour de bon.
 
 **Exercice corporel prioritaire**
 Quand vous dites "oui" par automatisme à une demande, portez votre attention sur le plexus solaire. Sentez s'il y a un acquiescement réel ou une compression. Le corps sait avant la tête.
+
+**Chapitres du livre à relire**
+Chapitre 3 (les masques), Chapitre 6 (projection), Chapitre 11 (les comportements affirmés), Chapitre 12 (Florian).
 
 ---
 
@@ -96,12 +109,15 @@ Engagez un travail somatique encadré pour apprendre à recevoir corporellement.
 **Exercice corporel prioritaire**
 Quand quelqu'un vous offre quelque chose, portez votre attention sur les bras. Sentez s'ils s'ouvrent ou s'ils se ferment. Le mouvement spontané est l'information à connaître.
 
+**Chapitres du livre à relire**
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 11 (les comportements affirmés), Chapitre 12 (Florian).
+
 ---
 
 # SAUVEUR × PROFOND
 
 **Pas numéro 1 : Cette semaine**
-Prenez rendez-vous avec votre médecin traitant cette semaine pour faire le point sur votre état. Le corps a porté plus que sa part pendant trop longtemps. Cet avis médical pose le cadre, avant le travail d'accompagnement.
+Prenez rendez-vous avec votre médecin traitant cette semaine pour faire évaluer l'épuisement. Burn-out, dépression sourde, syndrome de fatigue chronique. Le corps a porté plus que sa part pendant trop longtemps. Le diagnostic médical pose le cadre du soin.
 
 **Pas numéro 2 : Ce mois**
 Déléguez ou abandonnez 30% de vos engagements pendant 3 mois. Identifiez ce qui peut tomber. Ce qui peut être confié. Ce qui peut tout simplement disparaître. Le système qui s'écroule autour de vous quand vous lâchez n'était pas le vôtre à porter.
@@ -111,6 +127,9 @@ Engagez un programme corporel encadré. À ce niveau, le travail individuel et l
 
 **Exercice corporel prioritaire**
 Chaque matin, demandez-vous : "Où est-ce que mon corps porte les autres aujourd'hui ?" Sentez la zone. Restez avec elle 10 minutes. Vous ne cherchez pas à libérer. Vous reconnaissez.
+
+**Chapitres du livre à relire**
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 11 (les comportements affirmés), Chapitre 12 (Florian).
 
 ---
 
@@ -128,6 +147,9 @@ Vivez une expérience structurée d'incertitude maîtrisée. Un voyage sans plan
 **Exercice corporel prioritaire**
 Quand l'anxiété monte, portez votre attention sur la mâchoire. Sentez si elle est serrée ou relâchée. Le corps prépare l'attaque ou la défense bien avant que la pensée s'organise. La mâchoire est la première à parler.
 
+**Chapitres du livre à relire**
+Chapitre 3 (les masques), Chapitre 6 (projection), Chapitre 10 (le système nerveux en alerte), Chapitre 12 (Antoine).
+
 ---
 
 # CONTRÔLEUR × MODÉRÉ
@@ -144,12 +166,15 @@ Engagez un travail somatique pour réguler le système nerveux. À ce niveau, l'
 **Exercice corporel prioritaire**
 Quand vous serrez (les mains, la mâchoire, le ventre), portez votre attention sur la nuque. Sentez la tension qui s'y trouve. Respirez doucement vers cette zone, sans forcer. La nuque est une porte d'entrée pour le système nerveux.
 
+**Chapitres du livre à relire**
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 10 (le système nerveux en alerte), Chapitre 12 (Antoine).
+
 ---
 
 # CONTRÔLEUR × PROFOND
 
 **Pas numéro 1 : Cette semaine**
-Prenez rendez-vous avec votre médecin traitant cette semaine pour faire le point sur cet état d'alerte permanent. Le système nerveux est en alerte rouge depuis trop longtemps. L'avis médical n'est pas négociable à ce niveau.
+Prenez rendez-vous avec votre médecin traitant cette semaine pour faire évaluer un éventuel trouble anxieux généralisé. Le système nerveux est en alerte rouge depuis trop longtemps. L'évaluation médicale n'est pas négociable à ce niveau.
 
 **Pas numéro 2 : Ce mois**
 Posez un cadre strict de réduction des sources d'anxiété pendant 3 mois. Limitez les nouvelles, les sollicitations professionnelles non vitales, les conflits ouverts. Le système nerveux a besoin d'un environnement de récupération avant de pouvoir se réguler.
@@ -159,6 +184,9 @@ Engagez un programme corporel intensif avec accompagnement professionnel. Le tra
 
 **Exercice corporel prioritaire**
 Chaque jour, asseyez-vous 10 minutes. Demandez-vous : "Où est-ce que mon corps tient aujourd'hui ?" Repérez la zone qui serre, la zone qui retient. Vous ne cherchez pas à relâcher. Vous reconnaissez. La reconnaissance précède le relâchement.
+
+**Chapitres du livre à relire**
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 10 (le système nerveux en alerte), Chapitre 12 (Antoine).
 
 ---
 
@@ -176,6 +204,9 @@ Vivez une expérience structurée de présence prolongée. Une retraite, un sém
 **Exercice corporel prioritaire**
 Quand l'envie de partir monte, portez votre attention sur les pieds au sol. Sentez le poids du corps sur la plante des pieds. Le contact avec le sol est l'ancre. Pascale a appris cet exercice avant tout le reste.
 
+**Chapitres du livre à relire**
+Chapitre 3 (les masques), Chapitre 6 (projection), Chapitre 12 (la victoire de Pascale).
+
 ---
 
 # FANTÔME × MODÉRÉ
@@ -192,12 +223,15 @@ Engagez un travail somatique encadré pour apprivoiser la présence. À ce nivea
 **Exercice corporel prioritaire**
 Quand l'autre se rapproche (physiquement ou émotionnellement), portez votre attention sur la poitrine. Sentez ce qui s'y passe. Une oppression ? Une chaleur ? Une fermeture ? Vous restez 30 secondes en observation. Pascale a fait ce travail-là pendant des mois.
 
+**Chapitres du livre à relire**
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), chapitre BASCULE (la rechute de Pascale), Chapitre 12 (la victoire de Pascale).
+
 ---
 
 # FANTÔME × PROFOND
 
 **Pas numéro 1 : Cette semaine**
-Prenez rendez-vous cette semaine avec votre médecin traitant pour faire le point sur l'isolement et votre état. À ce niveau, la fuite a souvent produit un isolement durable. Cet avis médical pose le cadre, avant le travail d'accompagnement.
+Prenez rendez-vous cette semaine avec votre médecin traitant pour faire évaluer l'isolement et l'état émotionnel. À ce niveau, la fuite a souvent produit un isolement durable, parfois une dépression sourde. Le diagnostic médical pose le cadre du soin.
 
 **Pas numéro 2 : Ce mois**
 Reprenez contact avec une personne de confiance par semaine. Pas pour tout raconter. Pour signaler que vous existez. Un message court. Un appel de 5 minutes. Un café partagé. Vous reconstituez un fil de présence dans le tissu social.
@@ -207,6 +241,9 @@ Engagez le programme Régénération en présentiel. À ce niveau d'isolement, l
 
 **Exercice corporel prioritaire**
 Chaque jour, asseyez-vous 10 minutes et posez-vous cette question : "Où est-ce que mon corps a fui aujourd'hui ?" Sentez la zone qui s'est éteinte. La zone qui s'est mise à distance. Vous reconnaissez sans essayer de réveiller. La reconnaissance est le premier mouvement vers le retour.
+
+**Chapitres du livre à relire**
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), chapitre BASCULE (la rechute de Pascale), Chapitre 11 (les comportements affirmés), Chapitre 12 (la victoire de Pascale).
 
 ---
 
@@ -222,7 +259,8 @@ interface Roadmap {
   pasNumeroDeux: string;
   pasNumeroTrois: string;
   exerciceCorporel: string;
-  // Livre retiré du parcours (décision 2026-05-24). CTA centré cadeau-descente + appel YCBM.
+  chapitresLivreCibles: number[];
+  // CTA composé dynamiquement selon statutLivre, voir PROFILS_RESULTATS_TEXTES_V2.md
 }
 ```
 

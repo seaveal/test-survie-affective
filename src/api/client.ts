@@ -21,6 +21,7 @@ export interface TestCompletePayload {
   consentement_donnees_sante: boolean
   source_acquisition?:
     | 'instagram'
+    | 'facebook'
     | 'youtube'
     | 'livre'
     | 'bouche_a_oreille'

@@ -31,7 +31,7 @@ Une page de résultat se compose en 3 niveaux verticaux :
 **id** : `mendiant`
 **Icône** : Couronne fissurée (Lucide React `Crown`)
 **Stratégie** : Performance ("Si je suis parfait, on ne m'abandonnera pas")
-**Ambassadeur** : Fabrice
+**Ambassadeur** : Yann
 
 ## Description de base (commune aux 3 intensités)
 
@@ -84,7 +84,7 @@ Le schéma Mendiant a pris toute la place. Vous ne savez plus exister sans perfo
 **id** : `sauveur`
 **Icône** : Cape déchirée (Lucide React `Shield`)
 **Stratégie** : Utilité ("Si je suis indispensable, on ne m'abandonnera pas")
-**Ambassadeur** : Jérémy
+**Ambassadeur** : Florian
 
 ## Description de base
 
@@ -139,7 +139,7 @@ Le schéma Sauveur a colonisé votre identité. Vous ne savez plus exister sans 
 **id** : `controleur`
 **Icône** : Tour de surveillance (Lucide React `Eye`)
 **Stratégie** : Contrôle ("Si je contrôle tout, je peux éviter l'abandon")
-**Ambassadeur** : Nathan
+**Ambassadeur** : Antoine
 
 ## Description de base
 
@@ -194,7 +194,7 @@ Le schéma Contrôleur a pris la commande de votre vie entière. L'anxiété est
 **id** : `fantome`
 **Icône** : Silhouette qui s'efface (SVG custom ou Lucide React `User` à 50% opacity)
 **Stratégie** : Fuite ("Je pars avant qu'on me quitte")
-**Ambassadrice** : Caroline (fil rouge du livre)
+**Ambassadrice** : Pascale (fil rouge du livre)
 
 ## Description de base
 
@@ -232,7 +232,7 @@ Vous avez l'impression d'être un fantôme dans votre propre vie. Présent et ab
 
 ### Intensité SURFACE
 
-Le schéma Fantôme s'active dans votre vie, sans encore avoir éteint toute vie relationnelle. Vous fuyez parfois, et vous arrivez aussi à rester par moments. Le repli est encore réversible. C'est le bon moment pour comprendre la mécanique avant que la fuite ne devienne automatique. Caroline a connu ce stade. Elle l'a traversé.
+Le schéma Fantôme s'active dans votre vie, sans encore avoir éteint toute vie relationnelle. Vous fuyez parfois, et vous arrivez aussi à rester par moments. Le repli est encore réversible. C'est le bon moment pour comprendre la mécanique avant que la fuite ne devienne automatique. Pascale a connu ce stade. Elle l'a traversé.
 
 ### Intensité MODÉRÉE
 
@@ -240,7 +240,7 @@ Le schéma Fantôme structure une grande partie de vos relations. Vous savez que
 
 ### Intensité PROFONDE
 
-Le schéma Fantôme a pris toute la place. Vous avez sans doute déjà tout fui, plusieurs fois. Vous êtes seul depuis longtemps, ou vous êtes physiquement présent dans une relation où votre âme s'est absentée. La sensation d'être un fantôme dans votre propre vie est devenue permanente. Cette intensité demande un travail corporel encadré, parce qu'à ce stade, lire ne suffit plus. Caroline a été là. Elle a fui le travail pendant 18 mois. Elle est revenue. Sa vie a changé. La vôtre peut changer aussi.
+Le schéma Fantôme a pris toute la place. Vous avez sans doute déjà tout fui, plusieurs fois. Vous êtes seul depuis longtemps, ou vous êtes physiquement présent dans une relation où votre âme s'est absentée. La sensation d'être un fantôme dans votre propre vie est devenue permanente. Cette intensité demande un travail corporel encadré, parce qu'à ce stade, lire ne suffit plus. Pascale a été là. Elle a fui le travail pendant 18 mois. Elle est revenue. Sa vie a changé. La vôtre peut changer aussi.
 
 ---
 
@@ -260,7 +260,7 @@ Si applicable (écart < 4 points avec dominant), ce paragraphe s'affiche entre l
 
 > Vous venez de découvrir votre profil. Vous reconnaissez le mécanisme. Mais vous n'avez encore qu'une petite partie de l'image.
 >
-> Le livre "Vous avez tout compris. Rien n'a changé." raconte l'histoire de Caroline, qui a vécu exactement votre profil de survie. Il décortique la blessure d'abandon, la projection sur le partenaire, et le travail corporel qui répare là où la pensée échoue.
+> Le livre "Vous avez tout compris. Rien n'a changé." raconte l'histoire de Pascale, qui a vécu exactement votre profil de survie. Il décortique la blessure d'abandon, la projection sur le partenaire, et le travail corporel qui répare là où la pensée échoue.
 >
 > La tête comprend. Le corps répare.
 

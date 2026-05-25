@@ -39,12 +39,12 @@ describe('Données profils — structure et invariants', () => {
     }
   })
 
-  it('Ambassadeurs canon : Fabrice (mendiant), Jérémy (sauveur), Nathan (controleur), Caroline (fantome)', () => {
+  it('Ambassadeurs canon : Yann (mendiant), Florian (sauveur), Antoine (controleur), Pascale (fantome)', () => {
     const map = Object.fromEntries(profils.map((p) => [p.id, p.ambassadeur]))
-    expect(map.mendiant).toMatch(/Fabrice/)
-    expect(map.sauveur).toMatch(/Jérémy/)
-    expect(map.controleur).toMatch(/Nathan/)
-    expect(map.fantome).toMatch(/Caroline/)
+    expect(map.mendiant).toMatch(/Yann/)
+    expect(map.sauveur).toMatch(/Florian/)
+    expect(map.controleur).toMatch(/Antoine/)
+    expect(map.fantome).toMatch(/Pascale/)
   })
 })
 

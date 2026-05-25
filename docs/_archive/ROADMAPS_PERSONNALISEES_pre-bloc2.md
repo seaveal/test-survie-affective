@@ -34,7 +34,7 @@ Vivez une expérience structurée de réception sans contrepartie. Un séminaire
 Quand la voix "pas à la hauteur" se manifeste, portez votre attention sur le ventre. Pas pour le contrôler. Pour observer ce qui s'y passe. Une chaleur ? Une crispation ? Une vibration ? Restez 30 secondes en observation, sans rien changer.
 
 **Chapitres du livre à relire (si lecteur)**
-Chapitre 3 (les masques de la survie), Chapitre 6 (la projection sur le partenaire), Chapitre 12 (la victoire de Fabrice).
+Chapitre 3 (les masques de la survie), Chapitre 6 (la projection sur le partenaire), Chapitre 12 (la victoire de Yann).
 
 ---
 
@@ -53,7 +53,7 @@ Engagez un travail somatique encadré. Le schéma est devenu suffisamment struct
 Quand vous sentez monter l'envie de briller, portez votre attention sur la gorge. Sentez si elle est ouverte ou serrée. Si elle est serrée, ralentissez. La gorge serrée raconte une vieille histoire. Le silence l'écoute.
 
 **Chapitres du livre à relire**
-Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 12 (Fabrice).
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 12 (Yann).
 
 ---
 
@@ -72,7 +72,7 @@ Engagez un programme corporel intensif et encadré. À ce niveau, le travail seu
 Asseyez-vous 10 minutes chaque matin et posez-vous cette question : "Où est-ce que mon corps porte l'épuisement aujourd'hui ?" Vous ne cherchez pas à le résoudre. Vous le rencontrez. Le corps a besoin d'être vu avant de pouvoir reposer.
 
 **Chapitres du livre à relire**
-Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 12 (Fabrice).
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 12 (Yann).
 
 ---
 
@@ -91,7 +91,7 @@ Invitez dans votre vie une personne qui sait recevoir et donner sans condition. 
 Quand vous dites "oui" par automatisme à une demande, portez votre attention sur le plexus solaire. Sentez s'il y a un acquiescement réel ou une compression. Le corps sait avant la tête.
 
 **Chapitres du livre à relire**
-Chapitre 3 (les masques), Chapitre 6 (projection), Chapitre 11 (les comportements affirmés), Chapitre 12 (Jérémy).
+Chapitre 3 (les masques), Chapitre 6 (projection), Chapitre 11 (les comportements affirmés), Chapitre 12 (Florian).
 
 ---
 
@@ -110,7 +110,7 @@ Engagez un travail somatique encadré pour apprendre à recevoir corporellement.
 Quand quelqu'un vous offre quelque chose, portez votre attention sur les bras. Sentez s'ils s'ouvrent ou s'ils se ferment. Le mouvement spontané est l'information à connaître.
 
 **Chapitres du livre à relire**
-Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 11 (les comportements affirmés), Chapitre 12 (Jérémy).
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 11 (les comportements affirmés), Chapitre 12 (Florian).
 
 ---
 
@@ -129,7 +129,7 @@ Engagez un programme corporel encadré. À ce niveau, le travail individuel et l
 Chaque matin, demandez-vous : "Où est-ce que mon corps porte les autres aujourd'hui ?" Sentez la zone. Restez avec elle 10 minutes. Vous ne cherchez pas à libérer. Vous reconnaissez.
 
 **Chapitres du livre à relire**
-Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 11 (les comportements affirmés), Chapitre 12 (Jérémy).
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 11 (les comportements affirmés), Chapitre 12 (Florian).
 
 ---
 
@@ -148,7 +148,7 @@ Vivez une expérience structurée d'incertitude maîtrisée. Un voyage sans plan
 Quand l'anxiété monte, portez votre attention sur la mâchoire. Sentez si elle est serrée ou relâchée. Le corps prépare l'attaque ou la défense bien avant que la pensée s'organise. La mâchoire est la première à parler.
 
 **Chapitres du livre à relire**
-Chapitre 3 (les masques), Chapitre 6 (projection), Chapitre 10 (le système nerveux en alerte), Chapitre 12 (Nathan).
+Chapitre 3 (les masques), Chapitre 6 (projection), Chapitre 10 (le système nerveux en alerte), Chapitre 12 (Antoine).
 
 ---
 
@@ -167,7 +167,7 @@ Engagez un travail somatique pour réguler le système nerveux. À ce niveau, l'
 Quand vous serrez (les mains, la mâchoire, le ventre), portez votre attention sur la nuque. Sentez la tension qui s'y trouve. Respirez doucement vers cette zone, sans forcer. La nuque est une porte d'entrée pour le système nerveux.
 
 **Chapitres du livre à relire**
-Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 10 (le système nerveux en alerte), Chapitre 12 (Nathan).
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 10 (le système nerveux en alerte), Chapitre 12 (Antoine).
 
 ---
 
@@ -186,7 +186,7 @@ Engagez un programme corporel intensif avec accompagnement professionnel. Le tra
 Chaque jour, asseyez-vous 10 minutes. Demandez-vous : "Où est-ce que mon corps tient aujourd'hui ?" Repérez la zone qui serre, la zone qui retient. Vous ne cherchez pas à relâcher. Vous reconnaissez. La reconnaissance précède le relâchement.
 
 **Chapitres du livre à relire**
-Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 10 (le système nerveux en alerte), Chapitre 12 (Nathan).
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), Chapitre 10 (le système nerveux en alerte), Chapitre 12 (Antoine).
 
 ---
 
@@ -202,10 +202,10 @@ Choisissez une situation par semaine où vous restez 5 minutes de plus que d'hab
 Vivez une expérience structurée de présence prolongée. Une retraite, un séminaire, un séjour où vous n'avez pas la possibilité de fuir physiquement. Le corps apprend la présence par exposition encadrée.
 
 **Exercice corporel prioritaire**
-Quand l'envie de partir monte, portez votre attention sur les pieds au sol. Sentez le poids du corps sur la plante des pieds. Le contact avec le sol est l'ancre. Caroline a appris cet exercice avant tout le reste.
+Quand l'envie de partir monte, portez votre attention sur les pieds au sol. Sentez le poids du corps sur la plante des pieds. Le contact avec le sol est l'ancre. Pascale a appris cet exercice avant tout le reste.
 
 **Chapitres du livre à relire**
-Chapitre 3 (les masques), Chapitre 6 (projection), Chapitre 12 (la victoire de Caroline).
+Chapitre 3 (les masques), Chapitre 6 (projection), Chapitre 12 (la victoire de Pascale).
 
 ---
 
@@ -221,10 +221,10 @@ Testez pendant 30 jours de revenir au lieu de partir, dans une situation par sem
 Engagez un travail somatique encadré pour apprivoiser la présence. À ce niveau, le mental peut décider de rester. Le corps part quand même. Le travail corporel est le pont entre les deux.
 
 **Exercice corporel prioritaire**
-Quand l'autre se rapproche (physiquement ou émotionnellement), portez votre attention sur la poitrine. Sentez ce qui s'y passe. Une oppression ? Une chaleur ? Une fermeture ? Vous restez 30 secondes en observation. Caroline a fait ce travail-là pendant des mois.
+Quand l'autre se rapproche (physiquement ou émotionnellement), portez votre attention sur la poitrine. Sentez ce qui s'y passe. Une oppression ? Une chaleur ? Une fermeture ? Vous restez 30 secondes en observation. Pascale a fait ce travail-là pendant des mois.
 
 **Chapitres du livre à relire**
-Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), chapitre BASCULE (la rechute de Caroline), Chapitre 12 (la victoire de Caroline).
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), chapitre BASCULE (la rechute de Pascale), Chapitre 12 (la victoire de Pascale).
 
 ---
 
@@ -237,13 +237,13 @@ Prenez rendez-vous cette semaine avec votre médecin traitant pour faire évalue
 Reprenez contact avec une personne de confiance par semaine. Pas pour tout raconter. Pour signaler que vous existez. Un message court. Un appel de 5 minutes. Un café partagé. Vous reconstituez un fil de présence dans le tissu social.
 
 **Pas numéro 3 : Dans les 3 mois**
-Engagez le programme Régénération en présentiel. À ce niveau d'isolement, le corps a besoin du groupe, de la chaleur d'autres présences, et d'un cadre où la fuite n'est pas une option immédiate. C'est exactement ce que Caroline a fait après ses 18 mois d'absence.
+Engagez le programme Régénération en présentiel. À ce niveau d'isolement, le corps a besoin du groupe, de la chaleur d'autres présences, et d'un cadre où la fuite n'est pas une option immédiate. C'est exactement ce que Pascale a fait après ses 18 mois d'absence.
 
 **Exercice corporel prioritaire**
 Chaque jour, asseyez-vous 10 minutes et posez-vous cette question : "Où est-ce que mon corps a fui aujourd'hui ?" Sentez la zone qui s'est éteinte. La zone qui s'est mise à distance. Vous reconnaissez sans essayer de réveiller. La reconnaissance est le premier mouvement vers le retour.
 
 **Chapitres du livre à relire**
-Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), chapitre BASCULE (la rechute de Caroline), Chapitre 11 (les comportements affirmés), Chapitre 12 (la victoire de Caroline).
+Chapitre 3 (les masques), Chapitre 5 (la blessure d'abandon), Chapitre 6 (projection), Chapitre 8 (la mémoire dans le corps), chapitre BASCULE (la rechute de Pascale), Chapitre 11 (les comportements affirmés), Chapitre 12 (la victoire de Pascale).
 
 ---
 

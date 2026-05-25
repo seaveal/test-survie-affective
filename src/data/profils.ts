@@ -9,7 +9,7 @@ export const profils: Profil[] = [
     id: 'mendiant',
     nom: `MENDIANT DE LUXE`,
     icone: `Couronne fissurée (Lucide React \`Crown\`)`,
-    ambassadeur: `Fabrice`,
+    ambassadeur: `Yann`,
     descriptionBase: `Vous brillez. Vous performez. Vous excellez dans tout ce que vous faites.
 
 Mais ça ne suffit jamais.
@@ -40,7 +40,7 @@ L'amour ne se mérite pas. Il se reçoit. Mais recevoir, c'est exactement ce que
     id: 'sauveur',
     nom: `SAUVEUR ÉPUISÉ`,
     icone: `Cape déchirée (Lucide React \`Shield\`)`,
-    ambassadeur: `Jérémy`,
+    ambassadeur: `Florian`,
     descriptionBase: `Vous donnez. Vous aidez. Vous sauvez.
 
 Tout le monde compte sur vous. Tout le monde sait qu'il peut s'appuyer sur vous.
@@ -73,7 +73,7 @@ Vous avez peur de déranger. Tellement peur que vous avez disparu sous les besoi
     id: 'controleur',
     nom: `CONTRÔLEUR ANXIEUX`,
     icone: `Tour de surveillance (Lucide React \`Eye\`)`,
-    ambassadeur: `Nathan`,
+    ambassadeur: `Antoine`,
     descriptionBase: `Vous anticipez. Vous vérifiez. Vous contrôlez.
 
 Si vous lâchez prise, tout pourrait s'effondrer.
@@ -106,7 +106,7 @@ Vous croyez tenir le monde. C'est le monde qui vous tient.`,
     id: 'fantome',
     nom: `FANTÔME RELATIONNEL`,
     icone: `Silhouette qui s'efface (SVG custom ou Lucide React \`User\` à 50% opacity)`,
-    ambassadeur: `Caroline (fil rouge du livre)`,
+    ambassadeur: `Pascale (fil rouge du livre)`,
     descriptionBase: `Vous disparaissez. Vous vous effacez. Vous fuyez.
 
 Dès que ça devient trop intense, vous prenez la tangente.
@@ -130,9 +130,9 @@ Vous avez l'impression d'être un fantôme dans votre propre vie. Présent et ab
       `**L'incapacité à s'affirmer.** Vous ne dites ni oui ni non. Vous disparaissez.`,
     ],
     modulateursIntensite: {
-      surface: `Le schéma Fantôme s'active dans votre vie, sans encore avoir éteint toute vie relationnelle. Vous fuyez parfois, et vous arrivez aussi à rester par moments. Le repli est encore réversible. C'est le bon moment pour comprendre la mécanique avant que la fuite ne devienne automatique. Caroline a connu ce stade. Elle l'a traversé.`,
+      surface: `Le schéma Fantôme s'active dans votre vie, sans encore avoir éteint toute vie relationnelle. Vous fuyez parfois, et vous arrivez aussi à rester par moments. Le repli est encore réversible. C'est le bon moment pour comprendre la mécanique avant que la fuite ne devienne automatique. Pascale a connu ce stade. Elle l'a traversé.`,
       modere: `Le schéma Fantôme structure une grande partie de vos relations. Vous savez que vous fuyez, vous le voyez, et vous n'arrivez plus à vous arrêter. L'isolement s'installe doucement. Le sentiment de vivre derrière une vitre devient familier. Le moment est venu de regarder en face d'où vient cette impulsion à disparaître, parce qu'elle vous coupe désormais de votre propre vie.`,
-      profond: `Le schéma Fantôme a pris toute la place. Vous avez sans doute déjà tout fui, plusieurs fois. Vous êtes seul depuis longtemps, ou vous êtes physiquement présent dans une relation où votre âme s'est absentée. La sensation d'être un fantôme dans votre propre vie est devenue permanente. Cette intensité demande un travail corporel encadré, parce qu'à ce stade, lire ne suffit plus. Caroline a été là. Elle a fui le travail pendant 18 mois. Elle est revenue. Sa vie a changé. La vôtre peut changer aussi.`,
+      profond: `Le schéma Fantôme a pris toute la place. Vous avez sans doute déjà tout fui, plusieurs fois. Vous êtes seul depuis longtemps, ou vous êtes physiquement présent dans une relation où votre âme s'est absentée. La sensation d'être un fantôme dans votre propre vie est devenue permanente. Cette intensité demande un travail corporel encadré, parce qu'à ce stade, lire ne suffit plus. Pascale a été là. Elle a fui le travail pendant 18 mois. Elle est revenue. Sa vie a changé. La vôtre peut changer aussi.`,
     },
   },
 ]

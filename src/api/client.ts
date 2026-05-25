@@ -134,21 +134,65 @@ export async function flushPendingCaptures(): Promise<void> {
   writeQueue(remaining)
 }
 
+export interface UtmParams {
+  source?: string
+  medium?: string
+  campaign?: string
+}
+
+/**
+ * Extrait les paramètres UTM (source / medium / campaign) depuis une querystring
+ * (par défaut `window.location.search`). Trim + lowercase appliqués pour aligner
+ * sur la normalisation back (cf. tsa_api routes/test_complete.py _UTM_SOURCE_NORMALIZATION).
+ * Retourne un objet avec champs `undefined` si UTM absents.
+ *
+ * En env non-browser (SSR, tests jsdom où window.location.search est vide) :
+ * retourne `{}` qui sérialise propre en JSON.
+ */
+export function extractUtmParams(search?: string): UtmParams {
+  const raw =
+    search ??
+    (typeof window !== 'undefined' ? window.location.search : '')
+  if (!raw) return {}
+  let params: URLSearchParams
+  try {
+    params = new URLSearchParams(raw)
+  } catch {
+    return {}
+  }
+  const norm = (v: string | null): string | undefined => {
+    if (v === null) return undefined
+    const trimmed = v.trim().toLowerCase()
+    return trimmed === '' ? undefined : trimmed
+  }
+  return {
+    source: norm(params.get('utm_source')),
+    medium: norm(params.get('utm_medium')),
+    campaign: norm(params.get('utm_campaign')),
+  }
+}
+
 /**
  * Construit le payload d'API à partir d'un Resultat domaine + capture.
+ *
+ * Les UTM sont extraits par défaut depuis `window.location.search` (passe `utm`
+ * explicitement pour les tests). Le champ `source_acquisition` est laissé
+ * `undefined` : le back applique le fallback `_normalize_source_from_utm(utm.source)`
+ * pour mapper `fb` / `meta` → `facebook`, `ig` → `instagram`, etc. (cf. commit
+ * 5525136 test-survie-affective-api).
  */
 export function buildPayload(
   capture: CaptureValues,
   resultat: Resultat,
   reponsesBrutes: Record<string, unknown> = {},
+  utm: UtmParams = extractUtmParams(),
 ): TestCompletePayload {
   return {
     email: capture.email,
     prenom: capture.prenom || undefined,
     consentement_marketing: capture.consentementMarketing,
     consentement_donnees_sante: capture.consentementDonneesSante,
-    source_acquisition: 'autre',
-    utm: { source: undefined, medium: undefined, campaign: undefined },
+    utm,
     resultat: {
       profilDominant: resultat.profilDominant,
       profilSecondaire: resultat.profilSecondaire,

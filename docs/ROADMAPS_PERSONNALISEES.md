@@ -174,7 +174,7 @@ Choisissez une situation par semaine où vous restez 5 minutes de plus que d'hab
 Vivez une expérience structurée de présence prolongée. Une retraite, un séminaire, un séjour où vous n'avez pas la possibilité de fuir physiquement. Le corps apprend la présence par exposition encadrée.
 
 **Exercice corporel prioritaire**
-Quand l'envie de partir monte, portez votre attention sur les pieds au sol. Sentez le poids du corps sur la plante des pieds. Le contact avec le sol est l'ancre. Pascale a appris cet exercice avant tout le reste.
+Quand l'envie de partir monte, portez votre attention sur les pieds au sol. Sentez le poids du corps sur la plante des pieds. Le contact avec le sol est l'ancre. Sylvie a appris cet exercice avant tout le reste.
 
 ---
 
@@ -190,7 +190,7 @@ Testez pendant 30 jours de revenir au lieu de partir, dans une situation par sem
 Engagez un travail somatique encadré pour apprivoiser la présence. À ce niveau, le mental peut décider de rester. Le corps part quand même. Le travail corporel est le pont entre les deux.
 
 **Exercice corporel prioritaire**
-Quand l'autre se rapproche (physiquement ou émotionnellement), portez votre attention sur la poitrine. Sentez ce qui s'y passe. Une oppression ? Une chaleur ? Une fermeture ? Vous restez 30 secondes en observation. Pascale a fait ce travail-là pendant des mois.
+Quand l'autre se rapproche (physiquement ou émotionnellement), portez votre attention sur la poitrine. Sentez ce qui s'y passe. Une oppression ? Une chaleur ? Une fermeture ? Vous restez 30 secondes en observation. Sylvie a fait ce travail-là pendant des mois.
 
 ---
 
@@ -203,7 +203,7 @@ Prenez rendez-vous cette semaine avec votre médecin traitant pour faire le poin
 Reprenez contact avec une personne de confiance par semaine. Pas pour tout raconter. Pour signaler que vous existez. Un message court. Un appel de 5 minutes. Un café partagé. Vous reconstituez un fil de présence dans le tissu social.
 
 **Pas numéro 3 : Dans les 3 mois**
-Engagez le programme Régénération en présentiel. À ce niveau d'isolement, le corps a besoin du groupe, de la chaleur d'autres présences, et d'un cadre où la fuite n'est pas une option immédiate. C'est exactement ce que Pascale a fait après ses 18 mois d'absence.
+Engagez le programme Régénération en présentiel. À ce niveau d'isolement, le corps a besoin du groupe, de la chaleur d'autres présences, et d'un cadre où la fuite n'est pas une option immédiate. C'est exactement ce que Sylvie a fait après ses 18 mois d'absence.
 
 **Exercice corporel prioritaire**
 Chaque jour, asseyez-vous 10 minutes et posez-vous cette question : "Où est-ce que mon corps a fui aujourd'hui ?" Sentez la zone qui s'est éteinte. La zone qui s'est mise à distance. Vous reconnaissez sans essayer de réveiller. La reconnaissance est le premier mouvement vers le retour.

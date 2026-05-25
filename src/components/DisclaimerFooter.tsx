@@ -19,15 +19,16 @@ export function DisclaimerFooter() {
       }}
     >
       <p className="text-xs leading-relaxed">
-        <strong>Avertissement.</strong> Régénération est un programme de coaching et
-        de développement personnel. Il ne constitue pas un soin médical, ni une
-        psychothérapie au sens de la loi du 25 juillet 1985. Il ne se substitue pas
-        à un suivi par un professionnel de santé habilité (médecin, psychiatre,
-        psychologue, psychothérapeute reconnu ARS). Si vous traversez une situation
-        nécessitant un accompagnement médical (idéation suicidaire, dépression
-        sévère, troubles psychiatriques actifs, addictions sévères), consultez un
-        professionnel de santé ou appelez le <strong>3114</strong> (numéro national
-        de prévention du suicide, gratuit, 24/7).
+        <strong>Avertissement.</strong> Le Test de survie affective et le programme
+        Régénération relèvent du coaching et du développement personnel. Ils ne
+        constituent pas un soin médical, ni une psychothérapie au sens de la loi
+        du 25 juillet 1985. Ils ne se substituent pas à un suivi par un
+        professionnel de santé habilité (médecin, psychiatre, psychologue,
+        psychothérapeute reconnu ARS). Si vous traversez une situation nécessitant
+        un accompagnement médical (idéation suicidaire, dépression sévère,
+        troubles psychiatriques actifs, addictions sévères), consultez un
+        professionnel de santé ou appelez le <strong>3114</strong> (numéro
+        national de prévention du suicide, gratuit, 24/7).
       </p>
       <nav className="mt-4 flex flex-wrap justify-center gap-x-3 gap-y-2 text-xs">
         <a href={URL_MENTIONS} className="underline">

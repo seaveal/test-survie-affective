@@ -5,10 +5,10 @@ import { Welcome } from './Welcome'
 
 describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
   describe('Hero', () => {
-    it('affiche l\'eyebrow "Test de survie affective"', () => {
+    it('affiche l\'eyebrow "Test de survie affective" (exact, à distinguer du disclaimer footer qui mentionne aussi "Le Test de survie affective et le programme Régénération...")', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
-        screen.getByText(/test de survie affective/i),
+        screen.getByText(/^test de survie affective$/i),
       ).toBeInTheDocument()
     })
 
@@ -32,6 +32,15 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(/30 questions\. 5 minutes\. Gratuit et confidentiel\./i),
+      ).toBeInTheDocument()
+    })
+
+    it('affiche la ligne de preuve sociale 3 réseaux (Instagram + YouTube + Facebook)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByText(
+          /Rejoint par plus de 39\s?000.*Instagram.*47\s?000.*YouTube.*13\s?000.*Facebook/i,
+        ),
       ).toBeInTheDocument()
     })
 
@@ -139,10 +148,9 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('NE contient plus la preuve sociale (39 000 / 47 000 / Cyrille Novou)', () => {
+    it('NE mentionne PAS « Cyrille Novou » nommément dans la preuve sociale (V2 redesign 2026-05-26 : preuve sociale rendue impersonnelle)', () => {
       render(<Welcome onCommencer={() => {}} />)
-      expect(screen.queryByText(/39\s?000/)).not.toBeInTheDocument()
-      expect(screen.queryByText(/47\s?000/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/cyrille novou/i)).not.toBeInTheDocument()
     })
   })
 })

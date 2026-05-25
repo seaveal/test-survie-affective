@@ -19,8 +19,8 @@ describe('<ResultLevel1> — Révélation', () => {
   it('affiche le profil dominant et son ambassadeur', () => {
     render(<ResultLevel1 resultat={baseResultat} />)
     expect(screen.getByText(/profil dominant/i)).toBeInTheDocument()
-    // Ambassadeur Pascale pour fantome
-    expect(screen.getByText(/Pascale/i)).toBeInTheDocument()
+    // Ambassadeur Sylvie pour fantome
+    expect(screen.getByText(/Sylvie/i)).toBeInTheDocument()
   })
 
   it("affiche l'intensité (modéré ici)", () => {

@@ -5,11 +5,95 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#8b7355" />
-    <meta name="description" content="30 questions, 5 minutes, gratuit. Le test révèle votre profil de survie affective, l'intensité de votre schéma, et votre prochain pas." />
+    <meta name="robots" content="index,follow" />
+
+    <!-- SEO primaire : cluster « dépendance affective » (Règle 12 : zéro vocabulaire clinique côté indexable) -->
+    <title>Test de dépendance affective gratuit : quel schéma rejouez-vous ?</title>
+    <meta
+      name="description"
+      content="Test de dépendance affective gratuit en 5 minutes. Identifiez le schéma relationnel que vous rejouez en amour, et à quel point il vous tient. 30 questions, confidentiel."
+    />
+    <link rel="canonical" href="https://test.souverainauquotidien.com/" />
+
+    <!-- Open Graph (Facebook, LinkedIn, Slack, etc.) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://test.souverainauquotidien.com/" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content="Souverain au quotidien" />
+    <meta
+      property="og:title"
+      content="Test de dépendance affective gratuit : quel schéma rejouez-vous ?"
+    />
+    <meta
+      property="og:description"
+      content="Test gratuit en 5 minutes pour identifier le schéma relationnel que vous rejouez en amour et à quel point il vous tient."
+    />
+    <meta property="og:image" content="https://test.souverainauquotidien.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Test de dépendance affective. Quatre silhouettes en écho de la plus pâle à la plus nette, symbole du même scénario qui se rejoue." />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Test de dépendance affective gratuit : quel schéma rejouez-vous ?"
+    />
+    <meta
+      name="twitter:description"
+      content="Test gratuit en 5 minutes pour identifier le schéma relationnel que vous rejouez en amour et à quel point il vous tient."
+    />
+    <meta name="twitter:image" content="https://test.souverainauquotidien.com/og-image.png" />
+
+    <!-- Polices Google Fonts (non bloquant via display=swap) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:wght@400;500;600&family=Oswald:wght@500;600&display=swap" rel="stylesheet" />
-    <title>Test de survie affective : quel schéma rejouez-vous en amour ?</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:wght@400;500;600&family=Oswald:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Données structurées JSON-LD : WebSite + Quiz (cluster « dépendance affective ») -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://test.souverainauquotidien.com/#website",
+            "url": "https://test.souverainauquotidien.com/",
+            "name": "Test de survie affective",
+            "description": "Test de dépendance affective gratuit en 5 minutes pour identifier le schéma relationnel que vous rejouez en amour.",
+            "inLanguage": "fr-FR",
+            "publisher": {
+              "@type": "Organization",
+              "name": "Souverain au quotidien",
+              "url": "https://souverainauquotidien.com/"
+            }
+          },
+          {
+            "@type": "Quiz",
+            "@id": "https://test.souverainauquotidien.com/#quiz",
+            "name": "Test de survie affective",
+            "description": "30 questions, 5 minutes. Identifiez votre schéma relationnel dominant (Mendiant de Luxe, Sauveur Épuisé, Contrôleur Anxieux ou Fantôme Relationnel) et l'intensité avec laquelle il vous tient.",
+            "url": "https://test.souverainauquotidien.com/",
+            "inLanguage": "fr-FR",
+            "about": [
+              { "@type": "Thing", "name": "Dépendance affective" },
+              { "@type": "Thing", "name": "Peur de l'abandon" },
+              { "@type": "Thing", "name": "Schéma relationnel" }
+            ],
+            "educationalLevel": "Beginner",
+            "isAccessibleForFree": true,
+            "provider": {
+              "@type": "Organization",
+              "name": "Souverain au quotidien",
+              "url": "https://souverainauquotidien.com/"
+            }
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

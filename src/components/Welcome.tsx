@@ -94,6 +94,14 @@ export function Welcome({ onCommencer }: Props) {
           >
             30 questions. 5 minutes. Gratuit et confidentiel.
           </motion.p>
+          <motion.p
+            {...itemProps}
+            className="mt-4 text-sm"
+            style={{ color: 'var(--h3c-texte-secondaire)' }}
+          >
+            Rejoint par plus de 39 000 personnes sur Instagram, 47 000 sur
+            YouTube et 13 000 sur Facebook.
+          </motion.p>
         </motion.section>
       </main>
       <DisclaimerFooter />

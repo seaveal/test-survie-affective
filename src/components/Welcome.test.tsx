@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { Welcome } from './Welcome'
 
-describe('<Welcome> (page d\'accueil enrichie 2026-05-24)', () => {
+describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
   describe('Hero', () => {
     it('affiche l\'eyebrow "Test de survie affective"', () => {
       render(<Welcome onCommencer={() => {}} />)
@@ -19,21 +19,19 @@ describe('<Welcome> (page d\'accueil enrichie 2026-05-24)', () => {
       ).toHaveTextContent(/en amour, vous rejouez toujours le même scénario/i)
     })
 
-    it('affiche le sous-titre du hero', () => {
+    it('affiche le sous-titre du hero (avec "schéma relationnel")', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(
-          /le test qui met un nom sur votre schéma, et mesure à quel point il vous tient/i,
+          /le test qui met un nom sur votre schéma relationnel, et mesure à quel point il vous tient/i,
         ),
       ).toBeInTheDocument()
     })
 
-    it('affiche la ligne "30 questions. 5 minutes. Gratuit. Confidentiel."', () => {
+    it('affiche la ligne "30 questions. 5 minutes. Gratuit et confidentiel."', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
-        screen.getByText(
-          /30 questions.*5 minutes.*Gratuit.*Confidentiel/i,
-        ),
+        screen.getByText(/30 questions\. 5 minutes\. Gratuit et confidentiel\./i),
       ).toBeInTheDocument()
     })
 
@@ -46,175 +44,105 @@ describe('<Welcome> (page d\'accueil enrichie 2026-05-24)', () => {
     })
   })
 
-  describe('Boutons "Commencer le test"', () => {
-    it('a au moins un bouton "Commencer le test"', () => {
+  describe('Bouton "Commencer le test"', () => {
+    it('a exactement UN bouton "Commencer le test" (hero seul, plus de CTA final)', () => {
       render(<Welcome onCommencer={() => {}} />)
       const boutons = screen.getAllByRole('button', {
         name: /commencer le test/i,
       })
-      expect(boutons.length).toBeGreaterThanOrEqual(1)
+      expect(boutons).toHaveLength(1)
     })
 
-    it('a exactement DEUX boutons "Commencer le test" (hero + CTA final)', () => {
-      render(<Welcome onCommencer={() => {}} />)
-      const boutons = screen.getAllByRole('button', {
-        name: /commencer le test/i,
-      })
-      expect(boutons).toHaveLength(2)
-    })
-
-    it('les DEUX boutons appellent onCommencer au clic', async () => {
+    it('le bouton appelle onCommencer au clic', async () => {
       const user = userEvent.setup()
       const onCommencer = vi.fn()
       render(<Welcome onCommencer={onCommencer} />)
-      const boutons = screen.getAllByRole('button', {
-        name: /commencer le test/i,
-      })
-      await user.click(boutons[0])
-      await user.click(boutons[1])
-      expect(onCommencer).toHaveBeenCalledTimes(2)
+      const bouton = screen.getByRole('button', { name: /commencer le test/i })
+      await user.click(bouton)
+      expect(onCommencer).toHaveBeenCalledTimes(1)
     })
 
-    it('le premier bouton est focusable au clavier', () => {
+    it('le bouton est focusable au clavier', () => {
       render(<Welcome onCommencer={() => {}} />)
-      const boutons = screen.getAllByRole('button', {
-        name: /commencer le test/i,
-      })
-      boutons[0].focus()
-      expect(boutons[0]).toHaveFocus()
+      const bouton = screen.getByRole('button', { name: /commencer le test/i })
+      bouton.focus()
+      expect(bouton).toHaveFocus()
     })
   })
 
-  describe('Section "Le miroir"', () => {
-    it('affiche le titre "Le miroir"', () => {
+  describe('DisclaimerFooter Règle 12 (branché sur la route welcome)', () => {
+    it('affiche le mot "Avertissement" en tête du disclaimer', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(screen.getByText(/avertissement/i)).toBeInTheDocument()
+    })
+
+    it('rappelle que Régénération n\'est pas une psychothérapie au sens de la loi de 1985', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
-        screen.getByRole('heading', { name: /^le miroir$/i }),
+        screen.getByText(/loi du 25 juillet 1985/i),
       ).toBeInTheDocument()
     })
 
-    it('affiche le texte "Sauf en amour"', () => {
+    it('mentionne le 3114 (prévention du suicide)', () => {
       render(<Welcome onCommencer={() => {}} />)
-      expect(screen.getByText(/sauf en amour/i)).toBeInTheDocument()
+      expect(screen.getByText(/3114/)).toBeInTheDocument()
     })
-  })
 
-  describe('Section "Le retournement"', () => {
-    it('affiche le titre "Le retournement"', () => {
+    it('présente les 3 liens légaux (Mentions / CGV / Confidentialité)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
-        screen.getByRole('heading', { name: /^le retournement$/i }),
+        screen.getByRole('link', { name: /mentions légales/i }),
       ).toBeInTheDocument()
-    })
-
-    it('mentionne la blessure de l\'abandon', () => {
-      render(<Welcome onCommencer={() => {}} />)
       expect(
-        screen.getByText(/une seule blessure : l'abandon/i),
+        screen.getByRole('link', { name: /^cgv$/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('link', { name: /politique de confidentialité/i }),
       ).toBeInTheDocument()
     })
   })
 
-  describe('Section "Les 4 profils"', () => {
-    it('mentionne les 4 profils par leur nom complet', () => {
-      render(<Welcome onCommencer={() => {}} />)
-      expect(screen.getByText(/le mendiant de luxe/i)).toBeInTheDocument()
-      expect(screen.getByText(/le sauveur épuisé/i)).toBeInTheDocument()
-      expect(screen.getByText(/le contrôleur anxieux/i)).toBeInTheDocument()
-      expect(screen.getByText(/le fantôme relationnel/i)).toBeInTheDocument()
-    })
-
-    it('affiche les 4 phrases d\'archetype', () => {
-      render(<Welcome onCommencer={() => {}} />)
-      expect(
-        screen.getByText(/vous performez pour mériter l'amour/i),
-      ).toBeInTheDocument()
-      expect(
-        screen.getByText(
-          /vous vous rendez indispensable pour qu'on reste/i,
-        ),
-      ).toBeInTheDocument()
-      expect(
-        screen.getByText(
-          /vous serrez si fort que vous repoussez ceux que vous voulez garder/i,
-        ),
-      ).toBeInTheDocument()
-      expect(
-        screen.getByText(/vous partez avant qu'on vous quitte/i),
-      ).toBeInTheDocument()
-    })
-  })
-
-  describe('Section "Ce que le test vous donne" (4 livrables)', () => {
-    it('annonce les 4 livrables à la fin des 30 questions', () => {
-      render(<Welcome onCommencer={() => {}} />)
-      expect(
-        screen.getByText(
-          /votre profil dominant, et votre profil secondaire s'il existe/i,
-        ),
-      ).toBeInTheDocument()
-      expect(
-        screen.getByText(
-          /l'intensité de votre schéma aujourd'hui : surface, modéré ou profond/i,
-        ),
-      ).toBeInTheDocument()
-      expect(
-        screen.getByText(
-          /les 7 symptômes que vous vivez, lus à travers votre profil/i,
-        ),
-      ).toBeInTheDocument()
-      expect(
-        screen.getByText(
-          /votre prochain pas, une feuille de route adaptée à votre cas/i,
-        ),
-      ).toBeInTheDocument()
-    })
-  })
-
-  describe('Section "Preuve sociale"', () => {
-    it('mentionne 39 000 Instagram et 47 000 YouTube', () => {
-      render(<Welcome onCommencer={() => {}} />)
-      expect(
-        screen.getByText(/39\s?000.*instagram.*47\s?000.*youtube/i),
-      ).toBeInTheDocument()
-    })
-
-    it('nomme Cyrille Novou', () => {
-      render(<Welcome onCommencer={() => {}} />)
-      expect(screen.getByText(/cyrille novou/i)).toBeInTheDocument()
-    })
-  })
-
-  describe('Section "CTA final"', () => {
-    it('affiche "Vous avez tout compris. Rien n\'a changé."', () => {
-      render(<Welcome onCommencer={() => {}} />)
-      expect(
-        screen.getByRole('heading', {
-          name: /vous avez tout compris\. rien n'a changé\./i,
-        }),
-      ).toBeInTheDocument()
-    })
-
-    it('affiche "Comprendre ne suffit pas."', () => {
-      render(<Welcome onCommencer={() => {}} />)
-      expect(
-        screen.getByText(/comprendre ne suffit pas/i),
-      ).toBeInTheDocument()
-    })
-
-    it('affiche la signature "La tête comprend. Le corps répare."', () => {
-      render(<Welcome onCommencer={() => {}} />)
-      expect(
-        screen.getByText(/la tête comprend\. le corps répare\./i),
-      ).toBeInTheDocument()
-    })
-  })
-
-  describe('Garde-fous contractuels', () => {
+  describe('Garde-fous contractuels (anti-régression du raccourcissement)', () => {
     it('NE MENTIONNE PAS le cadeau / 20 descentes (réservé email)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(screen.queryByText(/20 descentes/i)).not.toBeInTheDocument()
       expect(screen.queryByText(/cadeau/i)).not.toBeInTheDocument()
+    })
+
+    it('NE contient plus les sections de vente supprimées (miroir, retournement, 4 profils)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.queryByRole('heading', { name: /^le miroir$/i }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('heading', { name: /^le retournement$/i }),
+      ).not.toBeInTheDocument()
+      expect(screen.queryByText(/le mendiant de luxe/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/le sauveur épuisé/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/le contrôleur anxieux/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/le fantôme relationnel/i)).not.toBeInTheDocument()
+    })
+
+    it('NE contient plus la signature "La tête comprend. Le corps répare."', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.queryByText(/la tête comprend\. le corps répare\./i),
+      ).not.toBeInTheDocument()
+    })
+
+    it('NE contient plus le H2 final "Vous avez tout compris."', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.queryByRole('heading', {
+          name: /vous avez tout compris\. rien n'a changé\./i,
+        }),
+      ).not.toBeInTheDocument()
+    })
+
+    it('NE contient plus la preuve sociale (39 000 / 47 000 / Cyrille Novou)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(screen.queryByText(/39\s?000/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/47\s?000/)).not.toBeInTheDocument()
     })
   })
 })

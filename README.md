@@ -104,7 +104,7 @@ wrangler pages deploy dist --project-name=test-survie-affective
 ### Domaine custom
 
 Une fois le projet créé sur Cloudflare Pages :
-- Pages → projet → **Custom domains** → Add → `test.cyrillenovou.com`
+- Pages → projet → **Custom domains** → Add → `test.souverainauquotidien.com` (domaine prod live)
 - Cloudflare propose le CNAME à ajouter chez le registrar du domaine.
 
 ### Vérifier l'embed

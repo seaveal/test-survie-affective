@@ -14,8 +14,9 @@ import App from '../src/App'
  */
 
 async function commencerLeTest(user: ReturnType<typeof userEvent.setup>) {
-  // Refonte écran d'accueil 2026-05-24 : 2 boutons "Commencer le test" (hero + CTA final).
-  // Clic sur le premier (hero) suffit, les deux appellent la même callback onCommencer.
+  // Welcome v2 (2026-05-25) : un seul bouton "Commencer le test" sur le hero
+  // (les sections de vente du 24/05 ont été supprimées). getAllByRole reste
+  // tolérant si un autre bouton du même libellé réapparaissait un jour.
   const boutons = screen.getAllByRole('button', { name: /commencer le test/i })
   await user.click(boutons[0])
 }

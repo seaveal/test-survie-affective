@@ -37,11 +37,11 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       ).toBeInTheDocument()
     })
 
-    it('affiche le bloc autorisation - 3e ligne (Le test vous dit laquelle de ces interdictions tient encore vos relations.)', () => {
+    it('affiche le bloc autorisation - 3e ligne (Le test vous dit laquelle de ces interdictions pilote vos relations.)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(
-          /Le test vous dit laquelle de ces interdictions tient encore vos relations\./i,
+          /Le test vous dit laquelle de ces interdictions pilote vos relations\./i,
         ),
       ).toBeInTheDocument()
     })

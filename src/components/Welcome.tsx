@@ -90,7 +90,7 @@ export function Welcome({ onCommencer }: Props) {
             className="mb-8 max-w-xl text-base leading-relaxed md:text-lg"
             style={{ color: 'var(--h3c-texte-secondaire)' }}
           >
-            Le test vous dit laquelle de ces interdictions tient encore
+            Le test vous dit laquelle de ces interdictions pilote
             vos relations.
           </motion.p>
           <motion.button

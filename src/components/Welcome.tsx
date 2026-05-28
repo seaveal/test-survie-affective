@@ -75,8 +75,8 @@ export function Welcome({ onCommencer }: Props) {
             className="mb-8 max-w-xl text-base leading-relaxed md:text-lg"
             style={{ color: 'var(--h3c-texte-secondaire)' }}
           >
-            Le test qui met un nom sur votre schéma relationnel, et mesure à
-            quel point il vous tient.
+            Le test qui met un nom sur votre schéma, et révèle ce qui vous
+            empêche d'en sortir.
           </motion.p>
           <motion.button
             {...itemProps}
@@ -92,7 +92,7 @@ export function Welcome({ onCommencer }: Props) {
             className="mt-5 text-sm"
             style={{ color: 'var(--h3c-texte-secondaire)' }}
           >
-            30 questions. 5 minutes. Gratuit et confidentiel.
+            30 questions. 5 minutes. Gratuit. Confidentiel.
           </motion.p>
           <motion.p
             {...itemProps}
@@ -101,6 +101,14 @@ export function Welcome({ onCommencer }: Props) {
           >
             Rejoint par plus de 39 000 personnes sur Instagram, 47 000 sur
             YouTube et 13 000 sur Facebook.
+          </motion.p>
+          <motion.p
+            {...itemProps}
+            className="mt-4 max-w-xl text-sm leading-relaxed"
+            style={{ color: 'var(--h3c-texte-secondaire)' }}
+          >
+            En cinq ans, plus de 700 femmes et hommes ont écrit pour la même
+            raison. La vôtre y est sans doute aussi.
           </motion.p>
         </motion.section>
       </main>

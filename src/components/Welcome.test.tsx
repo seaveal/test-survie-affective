@@ -19,19 +19,19 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       ).toHaveTextContent(/en amour, vous rejouez toujours le même scénario/i)
     })
 
-    it('affiche le sous-titre du hero (avec "schéma relationnel")', () => {
+    it('affiche le sous-titre V2.1 voix client ("révèle ce qui vous empêche d\'en sortir")', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(
-          /le test qui met un nom sur votre schéma relationnel, et mesure à quel point il vous tient/i,
+          /le test qui met un nom sur votre schéma, et révèle ce qui vous empêche d'en sortir/i,
         ),
       ).toBeInTheDocument()
     })
 
-    it('affiche la ligne "30 questions. 5 minutes. Gratuit et confidentiel."', () => {
+    it('affiche la ligne "30 questions. 5 minutes. Gratuit. Confidentiel." (V2.1 rythme percussif)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
-        screen.getByText(/30 questions\. 5 minutes\. Gratuit et confidentiel\./i),
+        screen.getByText(/30 questions\. 5 minutes\. Gratuit\. Confidentiel\./i),
       ).toBeInTheDocument()
     })
 
@@ -40,6 +40,15 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       expect(
         screen.getByText(
           /Rejoint par plus de 39\s?000.*Instagram.*47\s?000.*YouTube.*13\s?000.*Facebook/i,
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it('affiche la 2e ligne de preuve sociale "+ 700 RDV" (V2.1 voix client 737 RDV YCBM)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByText(
+          /En cinq ans, plus de 700 femmes et hommes ont écrit pour la même raison\. La vôtre y est sans doute aussi\./i,
         ),
       ).toBeInTheDocument()
     })

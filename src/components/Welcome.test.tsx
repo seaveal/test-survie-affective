@@ -19,13 +19,38 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       ).toHaveTextContent(/en amour, vous rejouez toujours le même scénario/i)
     })
 
-    it('affiche le sous-titre V2.1 voix client ("révèle ce qui vous empêche d\'en sortir")', () => {
+    it('affiche le bloc autorisation - 1re ligne (Derrière chaque scénario qui se répète, il y a une autorisation...)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(
-          /le test qui met un nom sur votre schéma, et révèle ce qui vous empêche d'en sortir/i,
+          /Derrière chaque scénario qui se répète, il y a une autorisation que vous n'avez jamais reçue/i,
         ),
       ).toBeInTheDocument()
+    })
+
+    it('affiche le bloc autorisation - ligne médiane (Ressentir. Décevoir. Poser une limite. Prendre de la place.)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByText(
+          /Ressentir\. Décevoir\. Poser une limite\. Prendre de la place\./i,
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it('affiche le bloc autorisation - 3e ligne (Le test vous dit laquelle de ces interdictions tient encore vos relations.)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByText(
+          /Le test vous dit laquelle de ces interdictions tient encore vos relations\./i,
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it('NE contient PLUS le sous-titre V2.1 ("révèle ce qui vous empêche d\'en sortir") - remplacé par le bloc autorisation 2026-05-29', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.queryByText(/révèle ce qui vous empêche d'en sortir/i),
+      ).not.toBeInTheDocument()
     })
 
     it('affiche la ligne "30 questions. 5 minutes. Gratuit. Confidentiel." (V2.1 rythme percussif)', () => {

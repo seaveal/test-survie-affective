@@ -65,18 +65,33 @@ export function Welcome({ onCommencer }: Props) {
           </motion.p>
           <motion.h1
             {...itemProps}
-            className="mb-5 text-3xl leading-tight sm:text-4xl md:text-5xl"
+            className="mb-6 text-3xl leading-tight sm:text-4xl md:text-5xl"
             style={{ fontFamily: 'var(--font-titre)' }}
           >
             En amour, vous rejouez toujours le même scénario
           </motion.h1>
           <motion.p
             {...itemProps}
+            className="mb-3 max-w-xl text-base leading-relaxed md:text-lg"
+            style={{ color: 'var(--h3c-texte-secondaire)' }}
+          >
+            Derrière chaque scénario qui se répète, il y a une autorisation
+            que vous n'avez jamais reçue.
+          </motion.p>
+          <motion.p
+            {...itemProps}
+            className="mb-3 max-w-xl text-base italic leading-relaxed md:text-lg"
+            style={{ color: 'var(--h3c-texte-principal)' }}
+          >
+            Ressentir. Décevoir. Poser une limite. Prendre de la place.
+          </motion.p>
+          <motion.p
+            {...itemProps}
             className="mb-8 max-w-xl text-base leading-relaxed md:text-lg"
             style={{ color: 'var(--h3c-texte-secondaire)' }}
           >
-            Le test qui met un nom sur votre schéma, et révèle ce qui vous
-            empêche d'en sortir.
+            Le test vous dit laquelle de ces interdictions tient encore
+            vos relations.
           </motion.p>
           <motion.button
             {...itemProps}

@@ -44,11 +44,20 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       ).toBeInTheDocument()
     })
 
-    it('affiche le bloc autorisation V2.4 - promesse test (Le test vous dit lequel de ces visages vous habite, et quelle interdiction le tient.)', () => {
+    it('affiche le bloc autorisation V2.5 - promesse test 1re phrase (Le test ne vous donnera pas une compréhension de plus.)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(
-          /Le test vous dit lequel de ces visages vous habite, et quelle interdiction le tient\./i,
+          /Le test ne vous donnera pas une compréhension de plus\./i,
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it('affiche le bloc autorisation V2.5 - promesse test 2e phrase (Il vous donnera un nom, un visage, et la prochaine action.)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByText(
+          /Il vous donnera un nom, un visage, et la prochaine action\./i,
         ),
       ).toBeInTheDocument()
     })
@@ -64,6 +73,13 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.queryByText(/interdictions pilote vos relations/i),
+      ).not.toBeInTheDocument()
+    })
+
+    it('NE contient PLUS la formulation V2.4 ("lequel de ces visages vous habite")', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.queryByText(/lequel de ces visages vous habite/i),
       ).not.toBeInTheDocument()
     })
 

@@ -99,8 +99,8 @@ export function Welcome({ onCommencer }: Props) {
             className="mb-8 max-w-xl text-base leading-relaxed md:text-lg"
             style={{ color: 'var(--h3c-texte-secondaire)' }}
           >
-            Le test vous dit lequel de ces visages vous habite, et quelle
-            interdiction le tient.
+            Le test ne vous donnera pas une compréhension de plus. Il vous
+            donnera un nom, un visage, et la prochaine action.
           </motion.p>
           <motion.button
             {...itemProps}

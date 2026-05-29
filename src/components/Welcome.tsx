@@ -75,23 +75,32 @@ export function Welcome({ onCommencer }: Props) {
             className="mb-3 max-w-xl text-base leading-relaxed md:text-lg"
             style={{ color: 'var(--h3c-texte-secondaire)' }}
           >
-            Derrière chaque scénario qui se répète, il y a une autorisation
-            que vous n'avez jamais reçue.
+            Derrière chaque scénario qui se répète, il y a un visage parmi
+            quatre.
           </motion.p>
           <motion.p
             {...itemProps}
             className="mb-3 max-w-xl text-base italic leading-relaxed md:text-lg"
             style={{ color: 'var(--h3c-texte-principal)' }}
           >
-            Ressentir. Décevoir. Poser une limite. Prendre de la place.
+            Mendiant. Sauveur. Contrôleur. Fantôme.
+          </motion.p>
+          <motion.p
+            {...itemProps}
+            className="mb-3 max-w-xl text-base leading-relaxed md:text-lg"
+            style={{ color: 'var(--h3c-texte-secondaire)' }}
+          >
+            Et derrière ce visage, une autorisation que vous n'avez jamais
+            reçue&nbsp;: ressentir, décevoir, poser une limite, ou prendre
+            de la place.
           </motion.p>
           <motion.p
             {...itemProps}
             className="mb-8 max-w-xl text-base leading-relaxed md:text-lg"
             style={{ color: 'var(--h3c-texte-secondaire)' }}
           >
-            Le test vous dit laquelle de ces interdictions pilote
-            vos relations.
+            Le test ne vous donnera pas une compréhension de plus. Il vous
+            donnera un nom, un visage, et la prochaine action.
           </motion.p>
           <motion.button
             {...itemProps}

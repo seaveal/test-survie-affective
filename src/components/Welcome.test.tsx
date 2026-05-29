@@ -19,37 +19,67 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       ).toHaveTextContent(/en amour, vous rejouez toujours le même scénario/i)
     })
 
-    it('affiche le bloc autorisation - 1re ligne (Derrière chaque scénario qui se répète, il y a une autorisation...)', () => {
+    it('affiche le bloc autorisation V2.4 - 1re ligne (un visage parmi quatre)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(
-          /Derrière chaque scénario qui se répète, il y a une autorisation que vous n'avez jamais reçue/i,
+          /Derrière chaque scénario qui se répète, il y a un visage parmi quatre\./i,
         ),
       ).toBeInTheDocument()
     })
 
-    it('affiche le bloc autorisation - ligne médiane (Ressentir. Décevoir. Poser une limite. Prendre de la place.)', () => {
+    it('affiche le bloc autorisation V2.4 - rafale 4 profils (Mendiant. Sauveur. Contrôleur. Fantôme.)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByText(/Mendiant\. Sauveur\. Contrôleur\. Fantôme\./i),
+      ).toBeInTheDocument()
+    })
+
+    it('affiche le bloc autorisation V2.4 - paragraphe autorisations (ressentir, décevoir, poser une limite, ou prendre de la place)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(
-          /Ressentir\. Décevoir\. Poser une limite\. Prendre de la place\./i,
+          /Et derrière ce visage, une autorisation que vous n'avez jamais reçue.*ressentir, décevoir, poser une limite, ou prendre de la place\./i,
         ),
       ).toBeInTheDocument()
     })
 
-    it('affiche le bloc autorisation - 3e ligne (Le test vous dit laquelle de ces interdictions pilote vos relations.)', () => {
+    it('affiche le bloc autorisation V2.5 - promesse test 1re phrase (Le test ne vous donnera pas une compréhension de plus.)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(
-          /Le test vous dit laquelle de ces interdictions pilote vos relations\./i,
+          /Le test ne vous donnera pas une compréhension de plus\./i,
         ),
       ).toBeInTheDocument()
     })
 
-    it('NE contient PLUS le sous-titre V2.1 ("révèle ce qui vous empêche d\'en sortir") - remplacé par le bloc autorisation 2026-05-29', () => {
+    it('affiche le bloc autorisation V2.5 - promesse test 2e phrase (Il vous donnera un nom, un visage, et la prochaine action.)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByText(
+          /Il vous donnera un nom, un visage, et la prochaine action\./i,
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it('NE contient PLUS le sous-titre V2.1 ("révèle ce qui vous empêche d\'en sortir")', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.queryByText(/révèle ce qui vous empêche d'en sortir/i),
+      ).not.toBeInTheDocument()
+    })
+
+    it('NE contient PLUS la formulation V2.3 ("interdictions pilote vos relations")', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.queryByText(/interdictions pilote vos relations/i),
+      ).not.toBeInTheDocument()
+    })
+
+    it('NE contient PLUS la formulation V2.4 ("lequel de ces visages vous habite")', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.queryByText(/lequel de ces visages vous habite/i),
       ).not.toBeInTheDocument()
     })
 

@@ -5,14 +5,15 @@
   --h3c-fond-card: #ffffff;
   --h3c-texte-principal: #2c2c2c;
   --h3c-texte-secondaire: #666666;
-  --h3c-accent-primaire: #8b7355;
+  /* Couleur canonique UNIQUE des boutons CTA H3C — acté Cyrille 2026-05-30.
+     S'applique partout : Test SA frontend (Welcome, Result, cards), emails Brevo
+     (25 templates), et toute future surface. Remplace #8b7355 et #9E4332.
+     Hover et active calculés proportionnellement (≈ -16% et -33% luminosité). */
+  --h3c-accent-primaire: #a65634;
   --h3c-accent-secondaire: #c4a777;
-  /* Terracotta profonde — couleur d'accent CTA validée par Cyrille 2026-05-29
-     (mission refonte design écran d'accueil). Contraste AA vérifié pour usage
-     UI/large sur fond crème. Le taupe primaire reste en réserve historique. */
-  --h3c-accent-terracotta: #9E4332;
-  --h3c-accent-terracotta-hover: #843626;
-  --h3c-accent-terracotta-active: #6c2c1f;
+  --h3c-accent-terracotta: #a65634;
+  --h3c-accent-terracotta-hover: #8c4830;
+  --h3c-accent-terracotta-active: #723a26;
   --h3c-erreur: #c0392b;
   --h3c-succes: #5d8a66;
   --h3c-bordure: #e8e2d8;

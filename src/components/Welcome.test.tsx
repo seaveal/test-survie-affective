@@ -1,11 +1,11 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { Welcome } from './Welcome'
 
-describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
+describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cartes)', () => {
   describe('Hero', () => {
-    it('affiche l\'eyebrow "Test de survie affective" (exact, à distinguer du disclaimer footer qui mentionne aussi "Le Test de survie affective et le programme Régénération...")', () => {
+    it('affiche l\'eyebrow "Test de survie affective" (distinct du disclaimer footer qui mentionne aussi "Le Test de survie affective et le programme Régénération...")', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(/^test de survie affective$/i),
@@ -19,32 +19,32 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       ).toHaveTextContent(/en amour, vous rejouez toujours le même scénario/i)
     })
 
-    it('affiche le bloc autorisation V2.4 - 1re ligne (un visage parmi quatre)', () => {
+    it('affiche le bloc autorisation - 1re ligne (un masque parmi quatre)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(
-          /Derrière chaque scénario qui se répète, il y a un visage parmi quatre\./i,
+          /Derrière chaque scénario qui se répète, il y a un masque parmi quatre\./i,
         ),
       ).toBeInTheDocument()
     })
 
-    it('affiche le bloc autorisation V2.4 - rafale 4 profils (Mendiant. Sauveur. Contrôleur. Fantôme.)', () => {
+    it('affiche le bloc autorisation - rafale 4 profils (Mendiant. Sauveur. Contrôleur. Fantôme.)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(/Mendiant\. Sauveur\. Contrôleur\. Fantôme\./i),
       ).toBeInTheDocument()
     })
 
-    it('affiche le bloc autorisation V2.4 - paragraphe autorisations (ressentir, décevoir, poser une limite, ou prendre de la place)', () => {
+    it('affiche le bloc autorisation - paragraphe autorisations (derrière ce masque, ressentir, décevoir, poser une limite, ou prendre de la place)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(
-          /Et derrière ce visage, une autorisation que vous n'avez jamais reçue.*ressentir, décevoir, poser une limite, ou prendre de la place\./i,
+          /Et derrière ce masque, une autorisation que vous n'avez jamais reçue.*ressentir, décevoir, poser une limite, ou prendre de la place\./i,
         ),
       ).toBeInTheDocument()
     })
 
-    it('affiche le bloc autorisation V2.5 - promesse test 1re phrase (Le test ne vous donnera pas une compréhension de plus.)', () => {
+    it('affiche la promesse test 1re phrase (Le test ne vous donnera pas une compréhension de plus.)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(
@@ -53,13 +53,30 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       ).toBeInTheDocument()
     })
 
-    it('affiche le bloc autorisation V2.5 - promesse test 2e phrase (Il vous donnera un nom, un visage, et la prochaine action.)', () => {
+    it('affiche la promesse test 2e phrase (Il vous donnera un nom, un masque, et la prochaine action.)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(
-          /Il vous donnera un nom, un visage, et la prochaine action\./i,
+          /Il vous donnera un nom, un masque, et la prochaine action\./i,
         ),
       ).toBeInTheDocument()
+    })
+
+    it('affiche le nouveau visuel MasquesHero (SVG décoratif accessible, 4 masques alignés)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      const svg = screen.getByRole('img', {
+        name: /quatre masques alignés, du plus pâle au plus net/i,
+      })
+      expect(svg).toBeInTheDocument()
+    })
+
+    it('NE contient PLUS le visuel BoucleHero (silhouette répétée)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.queryByRole('img', {
+          name: /silhouette répétée quatre fois en écho/i,
+        }),
+      ).not.toBeInTheDocument()
     })
 
     it('NE contient PLUS le sous-titre V2.1 ("révèle ce qui vous empêche d\'en sortir")', () => {
@@ -82,38 +99,81 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
         screen.queryByText(/lequel de ces visages vous habite/i),
       ).not.toBeInTheDocument()
     })
+  })
 
-    it('affiche la ligne "30 questions. 5 minutes. Gratuit. Confidentiel." (V2.1 rythme percussif)', () => {
+  describe('Bloc 4 cartes masques (centre de gravité visuel)', () => {
+    it('affiche les 4 cartes masques en role="list"', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      const liste = screen.getByRole('list', { name: /quatre masques du test/i })
+      expect(liste).toBeInTheDocument()
+      // Scope la recherche à la liste des masques (d'autres role="list"
+      // coexistent : Caractéristiques du test + Communauté).
+      const { getAllByRole } = within(liste)
+      expect(getAllByRole('listitem')).toHaveLength(4)
+    })
+
+    it('affiche le nom canonique MENDIANT DE LUXE (issu de profils.ts)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
-        screen.getByText(/30 questions\. 5 minutes\. Gratuit\. Confidentiel\./i),
+        screen.getByRole('heading', { level: 2, name: /^mendiant de luxe$/i }),
       ).toBeInTheDocument()
     })
 
-    it('affiche la ligne de preuve sociale 3 réseaux (Instagram + YouTube + Facebook)', () => {
+    it('affiche le nom canonique SAUVEUR ÉPUISÉ (issu de profils.ts)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByRole('heading', { level: 2, name: /^sauveur épuisé$/i }),
+      ).toBeInTheDocument()
+    })
+
+    it('affiche le nom canonique CONTRÔLEUR ANXIEUX (issu de profils.ts)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByRole('heading', {
+          level: 2,
+          name: /^contrôleur anxieux$/i,
+        }),
+      ).toBeInTheDocument()
+    })
+
+    it('affiche le nom canonique FANTÔME RELATIONNEL (issu de profils.ts)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByRole('heading', {
+          level: 2,
+          name: /^fantôme relationnel$/i,
+        }),
+      ).toBeInTheDocument()
+    })
+
+    it('affiche la phrase de tension Mendiant (Vous brillez. Vous performez. Vous excellez.)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByText(/Vous brillez\. Vous performez\. Vous excellez\./i),
+      ).toBeInTheDocument()
+    })
+
+    it('affiche la phrase de tension Sauveur (Vous donnez. Vous aidez. Vous sauvez.)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByText(/Vous donnez\. Vous aidez\. Vous sauvez\./i),
+      ).toBeInTheDocument()
+    })
+
+    it('affiche la phrase de tension Contrôleur (Vous anticipez. Vous vérifiez. Vous contrôlez.)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByText(/Vous anticipez\. Vous vérifiez\. Vous contrôlez\./i),
+      ).toBeInTheDocument()
+    })
+
+    it('affiche la phrase de tension Fantôme (Vous disparaissez. Vous vous effacez. Vous fuyez.)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.getByText(
-          /Rejoint par plus de 39\s?000.*Instagram.*47\s?000.*YouTube.*13\s?000.*Facebook/i,
+          /Vous disparaissez\. Vous vous effacez\. Vous fuyez\./i,
         ),
       ).toBeInTheDocument()
-    })
-
-    it('affiche la 2e ligne de preuve sociale "+ 700 RDV" (V2.1 voix client 737 RDV YCBM)', () => {
-      render(<Welcome onCommencer={() => {}} />)
-      expect(
-        screen.getByText(
-          /En cinq ans, plus de 700 femmes et hommes ont écrit pour la même raison\. La vôtre y est sans doute aussi\./i,
-        ),
-      ).toBeInTheDocument()
-    })
-
-    it('affiche le visuel boucle (SVG décoratif accessible)', () => {
-      render(<Welcome onCommencer={() => {}} />)
-      const svg = screen.getByRole('img', {
-        name: /une silhouette répétée quatre fois en écho/i,
-      })
-      expect(svg).toBeInTheDocument()
     })
   })
 
@@ -140,6 +200,43 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       const bouton = screen.getByRole('button', { name: /commencer le test/i })
       bouton.focus()
       expect(bouton).toHaveFocus()
+    })
+  })
+
+  describe('Preuve sociale et meta CTA', () => {
+    it('affiche la ligne caractéristiques (30 questions, 5 minutes, gratuit, confidentiel)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      const liste = screen.getByRole('list', {
+        name: /caractéristiques du test/i,
+      })
+      expect(liste).toBeInTheDocument()
+      // Scope sur la liste pour éviter collision avec DisclaimerFooter
+      // (qui mentionne "gratuit" pour le 3114).
+      expect(liste).toHaveTextContent(/30 questions/i)
+      expect(liste).toHaveTextContent(/5 minutes/i)
+      expect(liste).toHaveTextContent(/gratuit/i)
+      expect(liste).toHaveTextContent(/confidentiel/i)
+    })
+
+    it('affiche la preuve sociale 3 réseaux (39 000 IG, 47 000 YT, 13 000 FB)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      const liste = screen.getByRole('list', { name: /communauté/i })
+      expect(liste).toBeInTheDocument()
+      expect(liste).toHaveTextContent(/39\s?000/)
+      expect(liste).toHaveTextContent(/47\s?000/)
+      expect(liste).toHaveTextContent(/13\s?000/)
+      expect(liste).toHaveTextContent(/instagram/i)
+      expect(liste).toHaveTextContent(/youtube/i)
+      expect(liste).toHaveTextContent(/facebook/i)
+    })
+
+    it('affiche la 2e ligne de preuve sociale "+ 700 témoignages"', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByText(
+          /En cinq ans, plus de 700 femmes et hommes ont écrit pour la même raison\. La vôtre y est sans doute aussi\./i,
+        ),
+      ).toBeInTheDocument()
     })
   })
 
@@ -175,6 +272,29 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
     })
   })
 
+  describe('Garde-fous : substitution visage → masque (mission 2026-05-29)', () => {
+    it('NE contient PLUS "il y a un visage parmi quatre" (remplacé par "un masque parmi quatre")', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.queryByText(/il y a un visage parmi quatre/i),
+      ).not.toBeInTheDocument()
+    })
+
+    it('NE contient PLUS "derrière ce visage" (remplacé par "derrière ce masque")', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.queryByText(/derrière ce visage/i),
+      ).not.toBeInTheDocument()
+    })
+
+    it('NE contient PLUS "un nom, un visage, et la prochaine action" (remplacé par "un nom, un masque, ...")', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.queryByText(/un nom, un visage, et la prochaine action/i),
+      ).not.toBeInTheDocument()
+    })
+  })
+
   describe('Garde-fous contractuels (anti-régression du raccourcissement)', () => {
     it('NE MENTIONNE PAS le cadeau / 20 descentes (réservé email)', () => {
       render(<Welcome onCommencer={() => {}} />)
@@ -182,7 +302,7 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       expect(screen.queryByText(/cadeau/i)).not.toBeInTheDocument()
     })
 
-    it('NE contient plus les sections de vente supprimées (miroir, retournement, 4 profils)', () => {
+    it('NE contient plus les sections de vente supprimées (miroir, retournement)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
         screen.queryByRole('heading', { name: /^le miroir$/i }),
@@ -190,10 +310,6 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       expect(
         screen.queryByRole('heading', { name: /^le retournement$/i }),
       ).not.toBeInTheDocument()
-      expect(screen.queryByText(/le mendiant de luxe/i)).not.toBeInTheDocument()
-      expect(screen.queryByText(/le sauveur épuisé/i)).not.toBeInTheDocument()
-      expect(screen.queryByText(/le contrôleur anxieux/i)).not.toBeInTheDocument()
-      expect(screen.queryByText(/le fantôme relationnel/i)).not.toBeInTheDocument()
     })
 
     it('NE contient plus la signature "La tête comprend. Le corps répare."', () => {
@@ -212,9 +328,33 @@ describe('<Welcome> (écran d\'accueil court v2 — 2026-05-25)', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('NE mentionne PAS « Cyrille Novou » nommément dans la preuve sociale (V2 redesign 2026-05-26 : preuve sociale rendue impersonnelle)', () => {
+    it('NE mentionne PAS « Cyrille Novou » nommément dans la preuve sociale (V2 redesign 2026-05-26)', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(screen.queryByText(/cyrille novou/i)).not.toBeInTheDocument()
+    })
+
+    it('NE réintroduit AUCUN terme banni Règle 12 dans la copy marketing (le DisclaimerFooter est exempt car requis par la loi 1985)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      // Scope strict : le <main> (la copy commerciale) — pas le <footer>
+      // disclaimer, qui DOIT citer "psychothérapie au sens de la loi 1985"
+      // et "psychothérapeute reconnu ARS" pour disqualifier le programme
+      // de ces catégories réglementées (Règle 12 / repositionnement coaching).
+      const main = screen.getByRole('main')
+      const text = main.textContent ?? ''
+      expect(text).not.toMatch(/thérapie/i)
+      expect(text).not.toMatch(/thérapeut/i)
+      expect(text).not.toMatch(/diagnostic/i)
+      expect(text).not.toMatch(/guérir/i)
+      expect(text).not.toMatch(/guérison/i)
+      expect(text).not.toMatch(/trauma/i)
+      expect(text).not.toMatch(/(^|\s)patient(\s|$|s)/i)
+    })
+
+    it('respecte la charte voix v2 : aucun tiret cadratin et aucun point-virgule', () => {
+      const { container } = render(<Welcome onCommencer={() => {}} />)
+      const text = container.textContent ?? ''
+      expect(text).not.toMatch(/—/)
+      expect(text).not.toMatch(/;/)
     })
   })
 })

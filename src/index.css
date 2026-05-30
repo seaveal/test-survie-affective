@@ -7,6 +7,12 @@
   --h3c-texte-secondaire: #666666;
   --h3c-accent-primaire: #8b7355;
   --h3c-accent-secondaire: #c4a777;
+  /* Terracotta profonde — couleur d'accent CTA validée par Cyrille 2026-05-29
+     (mission refonte design écran d'accueil). Contraste AA vérifié pour usage
+     UI/large sur fond crème. Le taupe primaire reste en réserve historique. */
+  --h3c-accent-terracotta: #9E4332;
+  --h3c-accent-terracotta-hover: #843626;
+  --h3c-accent-terracotta-active: #6c2c1f;
   --h3c-erreur: #c0392b;
   --h3c-succes: #5d8a66;
   --h3c-bordure: #e8e2d8;
@@ -38,4 +44,30 @@ h1, h2, h3 {
   font-weight: 500;
   color: var(--h3c-texte-principal);
   margin: 0;
+}
+
+/* CTA terracotta — mission refonte écran d'accueil 2026-05-29.
+   Hover + active + focus marqués (D2 mission : donner du poids au CTA).
+   Padding et tailles tirés du composant Welcome (px-10 py-4). */
+.tsa-cta-terracotta {
+  background-color: var(--h3c-accent-terracotta);
+  transition: background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+.tsa-cta-terracotta:hover {
+  background-color: var(--h3c-accent-terracotta-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(158, 67, 50, 0.25);
+}
+.tsa-cta-terracotta:active {
+  background-color: var(--h3c-accent-terracotta-active);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(158, 67, 50, 0.25);
+}
+.tsa-cta-terracotta:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--h3c-fond-principal), 0 0 0 5px var(--h3c-accent-terracotta);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tsa-cta-terracotta { transition: none; }
+  .tsa-cta-terracotta:hover { transform: none; }
 }

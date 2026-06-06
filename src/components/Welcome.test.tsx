@@ -328,9 +328,16 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
       ).not.toBeInTheDocument()
     })
 
-    it('NE mentionne PAS « Cyrille Novou » nommément dans la preuve sociale (V2 redesign 2026-05-26)', () => {
+    it('MENTIONNE « Cyrille NOVOU » dans le bandeau auteur sous le H1 (SEO E-E-A-T, renverse la decision V2 redesign 2026-05-26 par decision Cyrille 2026-06-06)', () => {
       render(<Welcome onCommencer={() => {}} />)
-      expect(screen.queryByText(/cyrille novou/i)).not.toBeInTheDocument()
+      expect(screen.getByText(/cyrille novou/i)).toBeInTheDocument()
+    })
+
+    it('MENTIONNE le titre du livre « Vous avez tout compris. Rien n\'a changé. » dans le bandeau auteur (SEO branded 2026-06-06)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByText(/vous avez tout compris\.\s*rien n['’]a changé\./i),
+      ).toBeInTheDocument()
     })
 
     it('NE réintroduit AUCUN terme banni Règle 12 dans la copy marketing (le DisclaimerFooter est exempt car requis par la loi 1985)', () => {

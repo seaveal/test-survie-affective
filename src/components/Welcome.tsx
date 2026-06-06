@@ -174,11 +174,25 @@ export function Welcome({ onCommencer }: Props) {
           {/* H1 centré, hiérarchie affirmée */}
           <motion.h1
             {...itemProps}
-            className="mx-auto mb-8 max-w-2xl text-center text-3xl leading-tight sm:text-4xl md:mb-10 md:text-5xl"
+            className="mx-auto mb-6 max-w-2xl text-center text-3xl leading-tight sm:text-4xl md:mb-7 md:text-5xl"
             style={{ fontFamily: 'var(--font-titre)', fontWeight: 500 }}
           >
             En amour, vous rejouez toujours le même scénario
           </motion.h1>
+
+          {/* Bandeau auteur — signal E-E-A-T + cohérence JSON-LD Person/Book */}
+          <motion.p
+            {...itemProps}
+            className="mx-auto mb-8 max-w-xl text-center text-sm italic leading-relaxed md:mb-10 md:text-base"
+            style={{
+              color: 'var(--h3c-texte-secondaire)',
+              fontFamily: 'var(--font-titre)',
+            }}
+          >
+            Conçu par <strong style={{ fontStyle: 'normal', fontWeight: 600, color: 'var(--h3c-texte-principal)' }}>Cyrille NOVOU</strong>,
+            coach en dépendance affective et schémas relationnels, auteur du
+            livre <span style={{ fontStyle: 'italic' }}>« Vous avez tout compris. Rien n&apos;a changé. »</span>
+          </motion.p>
 
           {/* Bloc corps aligné gauche */}
           <motion.div {...itemProps} className="mx-auto mb-10 max-w-xl md:mb-12">

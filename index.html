@@ -133,6 +133,59 @@
     </script>
   </head>
   <body>
+    <!--
+      Pré-rendu SEO statique pour crawlers no-JS (Perplexity, ChatGPT, Claude, Bingbot legacy).
+      Le contenu doit mirror Welcome.tsx. À synchroniser manuellement si refonte design.
+      Google rend le JS donc verra le contenu React enrichi.
+      Pattern <noscript> = conforme guidelines SEO, pas de cloaking.
+    -->
+    <noscript>
+      <header>
+        <p style="text-transform:uppercase;font-size:0.875rem;letter-spacing:0.14em;color:#a65634;">Test de survie affective</p>
+        <h1>En amour, vous rejouez toujours le même scénario</h1>
+        <p><em>Conçu par <strong>Cyrille NOVOU</strong>, coach en dépendance affective et schémas relationnels, auteur du livre « Vous avez tout compris. Rien n'a changé. » (la méthode corporelle pour sortir de la dépendance affective).</em></p>
+      </header>
+      <main>
+        <p>Derrière chaque scénario qui se répète, il y a un masque parmi quatre.</p>
+        <p><em>Mendiant de Luxe. Sauveur Épuisé. Contrôleur Anxieux. Fantôme Relationnel.</em></p>
+        <p>Et derrière ce masque, une autorisation que vous n'avez jamais reçue : ressentir, décevoir, poser une limite, ou prendre de la place.</p>
+        <p>Le test ne vous donnera pas une compréhension de plus. Il vous donnera un nom, un masque, et la prochaine action.</p>
+
+        <section aria-label="Les quatre masques du test">
+          <h2>Les quatre masques</h2>
+          <article>
+            <h3>Mendiant de Luxe</h3>
+            <p>Vous brillez. Vous performez. Vous excellez. Et ça ne suffit jamais.</p>
+          </article>
+          <article>
+            <h3>Sauveur Épuisé</h3>
+            <p>Vous donnez. Vous aidez. Vous sauvez. Mais qui s'occupe de vous ?</p>
+          </article>
+          <article>
+            <h3>Contrôleur Anxieux</h3>
+            <p>Vous anticipez. Vous vérifiez. Vous contrôlez. Plus vous serrez, plus vous repoussez.</p>
+          </article>
+          <article>
+            <h3>Fantôme Relationnel</h3>
+            <p>Vous disparaissez. Vous vous effacez. Vous fuyez. Vous partez avant qu'on vous quitte.</p>
+          </article>
+        </section>
+
+        <p><strong>30 questions, 5 minutes, confidentiel.</strong> Ce test n'est pas un quiz parmi d'autres : il identifie votre schéma relationnel dominant parmi quatre archétypes propriétaires, et l'intensité avec laquelle il vous tient.</p>
+
+        <p><a href="https://test.souverainauquotidien.com/">Commencer le test de dépendance affective</a></p>
+
+        <section aria-label="L'auteur">
+          <h2>Cyrille NOVOU, coach en dépendance affective</h2>
+          <p>Cyrille NOVOU est coach en dépendance affective et schémas relationnels. Il a accompagné plus de 700 femmes et hommes en cinq ans. Il est l'auteur du livre <em>« Vous avez tout compris. Rien n'a changé. »</em>, sous-titré <em>« La méthode corporelle pour sortir de la dépendance affective »</em>. Il anime également la chaîne YouTube <strong>47 000 abonnés</strong> et la communauté Instagram <a href="https://www.instagram.com/lecorpsnetrichejamais/">@lecorpsnetrichejamais</a>.</p>
+          <p><strong>Important</strong> : ce test est un outil de coaching et de développement personnel. Il ne constitue pas un diagnostic médical, ni une psychothérapie au sens de la loi du 25 juillet 1985. Il ne se substitue pas à un suivi par un professionnel de santé habilité.</p>
+        </section>
+      </main>
+      <footer>
+        <p><a href="/mentions-legales">Mentions légales</a> · <a href="/cgv">CGV</a> · <a href="/privacy">Politique de confidentialité</a></p>
+      </footer>
+    </noscript>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -174,25 +174,48 @@ export function Welcome({ onCommencer }: Props) {
           {/* H1 centré, hiérarchie affirmée */}
           <motion.h1
             {...itemProps}
-            className="mx-auto mb-6 max-w-2xl text-center text-3xl leading-tight sm:text-4xl md:mb-7 md:text-5xl"
+            className="mx-auto mb-7 max-w-2xl text-center text-3xl leading-tight sm:text-4xl md:mb-9 md:text-5xl"
             style={{ fontFamily: 'var(--font-titre)', fontWeight: 500 }}
           >
             En amour, vous rejouez toujours le même scénario
           </motion.h1>
 
-          {/* Bandeau auteur — signal E-E-A-T + cohérence JSON-LD Person/Book */}
-          <motion.p
+          {/* Signature auteur — colophon éditorial (filet + nom caps + référence livre italique) */}
+          {/* Signal E-E-A-T pour Google/LLM + cohérence JSON-LD Person/Book */}
+          <motion.div
             {...itemProps}
-            className="mx-auto mb-8 max-w-xl text-center text-sm italic leading-relaxed md:mb-10 md:text-base"
-            style={{
-              color: 'var(--h3c-texte-secondaire)',
-              fontFamily: 'var(--font-titre)',
-            }}
+            className="mx-auto mb-10 flex flex-col items-center md:mb-14"
+            data-testid="signature-auteur"
           >
-            Conçu par <strong style={{ fontStyle: 'normal', fontWeight: 600, color: 'var(--h3c-texte-principal)' }}>Cyrille NOVOU</strong>,
-            coach en dépendance affective et schémas relationnels, auteur du
-            livre <span style={{ fontStyle: 'italic' }}>« Vous avez tout compris. Rien n&apos;a changé. »</span>
-          </motion.p>
+            <div
+              aria-hidden="true"
+              className="mb-3 h-px w-10 md:mb-4 md:w-12"
+              style={{ background: 'var(--h3c-accent-terracotta)', opacity: 0.45 }}
+            />
+            <p
+              className="mb-1.5 text-[0.6875rem] md:mb-2 md:text-xs"
+              style={{
+                fontFamily: 'var(--font-eyebrow)',
+                fontWeight: 500,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--h3c-texte-principal)',
+              }}
+            >
+              Par Cyrille NOVOU
+            </p>
+            <p
+              className="text-center text-sm leading-snug md:text-base"
+              style={{
+                fontFamily: 'var(--font-titre)',
+                fontStyle: 'italic',
+                fontWeight: 400,
+                color: 'var(--h3c-texte-secondaire)',
+              }}
+            >
+              auteur de «&nbsp;Vous avez tout compris. Rien n&apos;a changé.&nbsp;»
+            </p>
+          </motion.div>
 
           {/* Bloc corps aligné gauche */}
           <motion.div {...itemProps} className="mx-auto mb-10 max-w-xl md:mb-12">

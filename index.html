@@ -8,12 +8,14 @@
     <meta name="robots" content="index,follow" />
 
     <!-- SEO primaire : cluster « dépendance affective » (Règle 12 : zéro vocabulaire clinique côté indexable) -->
+    <!-- Signal auteur : Cyrille NOVOU (creator Quiz) + Book (mentions Quiz) ajoutés en JSON-LD ci-dessous -->
     <title>Test de dépendance affective gratuit : quel schéma rejouez-vous ?</title>
     <meta
       name="description"
-      content="Test de dépendance affective gratuit en 5 minutes. Identifiez le schéma relationnel que vous rejouez en amour, et à quel point il vous tient. 30 questions, confidentiel."
+      content="Test de dépendance affective gratuit en 5 minutes par Cyrille NOVOU. Identifiez le schéma relationnel que vous rejouez en amour. 30 questions, confidentiel."
     />
     <link rel="canonical" href="https://test.souverainauquotidien.com/" />
+    <meta name="author" content="Cyrille NOVOU" />
 
     <!-- Open Graph (Facebook, LinkedIn, Slack, etc.) -->
     <meta property="og:type" content="website" />
@@ -26,7 +28,7 @@
     />
     <meta
       property="og:description"
-      content="Test gratuit en 5 minutes pour identifier le schéma relationnel que vous rejouez en amour et à quel point il vous tient."
+      content="Test gratuit en 5 minutes pour identifier le schéma relationnel que vous rejouez en amour. Par Cyrille NOVOU, coach et auteur du livre « Vous avez tout compris. Rien n'a changé. »"
     />
     <meta property="og:image" content="https://test.souverainauquotidien.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
@@ -41,7 +43,7 @@
     />
     <meta
       name="twitter:description"
-      content="Test gratuit en 5 minutes pour identifier le schéma relationnel que vous rejouez en amour et à quel point il vous tient."
+      content="Test gratuit en 5 minutes pour identifier le schéma relationnel que vous rejouez en amour. Par Cyrille NOVOU, coach et auteur du livre « Vous avez tout compris. Rien n'a changé. »"
     />
     <meta name="twitter:image" content="https://test.souverainauquotidien.com/og-image.png" />
 
@@ -53,7 +55,7 @@
       rel="stylesheet"
     />
 
-    <!-- Données structurées JSON-LD : WebSite + Quiz (cluster « dépendance affective ») -->
+    <!-- Données structurées JSON-LD : WebSite + Quiz + Person (Cyrille NOVOU) + Book (cluster « dépendance affective » + signal d'autorité auteur) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -65,6 +67,7 @@
             "name": "Test de survie affective",
             "description": "Test de dépendance affective gratuit en 5 minutes pour identifier le schéma relationnel que vous rejouez en amour.",
             "inLanguage": "fr-FR",
+            "author": { "@id": "https://souverainauquotidien.com/#cyrille-novou" },
             "publisher": {
               "@type": "Organization",
               "name": "Souverain au quotidien",
@@ -85,11 +88,45 @@
             ],
             "educationalLevel": "Beginner",
             "isAccessibleForFree": true,
+            "creator": { "@id": "https://souverainauquotidien.com/#cyrille-novou" },
+            "mentions": [
+              { "@id": "https://souverainauquotidien.com/#livre-vous-avez-tout-compris" }
+            ],
             "provider": {
               "@type": "Organization",
               "name": "Souverain au quotidien",
               "url": "https://souverainauquotidien.com/"
             }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://souverainauquotidien.com/#cyrille-novou",
+            "name": "Cyrille NOVOU",
+            "givenName": "Cyrille",
+            "familyName": "NOVOU",
+            "jobTitle": "Coach en dépendance affective et schémas relationnels",
+            "description": "Coach en dépendance affective et schémas relationnels. Auteur du livre « Vous avez tout compris. Rien n'a changé. » et créateur de la Méthode H3C.",
+            "url": "https://souverainauquotidien.com/",
+            "nationality": "Française",
+            "knowsAbout": [
+              "Dépendance affective",
+              "Schémas relationnels",
+              "Peur de l'abandon",
+              "Méthode corporelle",
+              "Méthode H3C"
+            ],
+            "sameAs": [
+              "https://www.instagram.com/lecorpsnetrichejamais/"
+            ]
+          },
+          {
+            "@type": "Book",
+            "@id": "https://souverainauquotidien.com/#livre-vous-avez-tout-compris",
+            "name": "Vous avez tout compris. Rien n'a changé.",
+            "alternativeHeadline": "La méthode corporelle pour sortir de la dépendance affective",
+            "author": { "@id": "https://souverainauquotidien.com/#cyrille-novou" },
+            "inLanguage": "fr-FR",
+            "abstract": "La méthode corporelle pour sortir de la dépendance affective. Comprendre et réparer les schémas relationnels qui se rejouent en amour : mendicité affective, sauvetage compulsif, contrôle anxieux, retrait fantôme."
           }
         ]
       }

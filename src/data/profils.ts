@@ -10,17 +10,15 @@ export const profils: Profil[] = [
     nom: `MENDIANT DE LUXE`,
     icone: `Couronne fissurée (Lucide React \`Crown\`)`,
     ambassadeur: `Vincent`,
-    descriptionBase: `Vous brillez. Vous performez. Vous excellez dans tout ce que vous faites.
+    descriptionBase: `Vous brillez. Et vous vous sentez vide.
 
-Mais ça ne suffit jamais.
+Vous performez, vous excellez, vous séduisez. Votre stratégie tient en une phrase : si je suis parfait, on ne m'abandonnera pas. Si je brille assez fort, on me gardera.
 
-Derrière chaque victoire, il y a cette voix qui vous dit que vous devez en faire plus. Être plus. Donner plus. Pour mériter l'amour.
+Seulement l'amour qu'on vous donne n'entre pas. Vous le voyez, vous l'entendez, vous ne le ressentez pas. Au fond, vous êtes convaincu que l'amour se mérite, alors qu'il se reçoit. Et recevoir, justement, est la seule chose que votre corps n'a jamais apprise. On vous offre un cadeau, vous remerciez et vous vous sentez mal. On vous propose de l'aide, vous refusez. On vous complimente, vous démentez. « C'est rien. » « J'ai eu de la chance. » « N'importe qui aurait fait pareil. »
 
-Vous êtes accro au regard des autres comme un junkie à sa dose. Et c'est plus fort que vous.
+Vous avez appris à ne rien laisser entrer. Dans votre enfance, une information s'est inscrite, définitive : je ne mérite pas. Pas de recevoir, pas d'être aidé, pas d'être aimé pour ce que vous êtes. Alors vous donnez, vous performez, vous accumulez au-dehors les preuves d'une valeur que vous ne sentez pas au-dedans. Et quand l'amour se présente, votre corps en barre l'entrée. La porte est fermée de l'intérieur.
 
-Vous avez collectionné les diplômes, les performances, les compliments. Vous avez tout fait pour être à la hauteur. Et pourtant, l'angoisse revient toujours. Le sentiment d'imposture. La peur d'être démasqué.
-
-L'amour ne se mérite pas. Il se reçoit. Mais recevoir, c'est exactement ce que vous ne savez pas faire.`,
+Recevoir reste votre seul interdit.`,
     septSymptomes: [
       `**La quête de regard.** Vous mesurez votre valeur au nombre de têtes qui se tournent quand vous entrez dans une pièce.`,
       `**La honte de soi.** Quand le regard manque, l'effondrement intérieur est immédiat. Comme si vous n'existiez plus.`,
@@ -41,19 +39,17 @@ L'amour ne se mérite pas. Il se reçoit. Mais recevoir, c'est exactement ce que
     nom: `SAUVEUR ÉPUISÉ`,
     icone: `Cape déchirée (Lucide React \`Shield\`)`,
     ambassadeur: `Damien`,
-    descriptionBase: `Vous donnez. Vous aidez. Vous sauvez.
+    descriptionBase: `Vous sauvez tout le monde. Et personne ne vous sauve.
 
-Tout le monde compte sur vous. Tout le monde sait qu'il peut s'appuyer sur vous.
+Vous donnez, vous aidez, vous assumez. Votre stratégie est celle de l'utilité : si je suis indispensable, on ne m'abandonnera pas. Si l'on a besoin de moi, on me garde. Mais le don sans retour appelle son contraire avec une régularité mécanique, et celui qui donne sans compter attire toujours celui qui prend sans rendre.
 
-Mais qui s'occupe de vous ?
+Vous dites oui quand vous pensez non. Vous souriez quand vous voudriez pleurer. Vous secourez quand c'est vous qu'il faudrait secourir. Et vous appelez cela de l'amour.
 
-Vous vous épuisez à rendre les autres heureux. Vous ravalez vos propres besoins, vous reportez vos projets, vous oubliez vos rêves. Vous attendez secrètement qu'un jour, quelqu'un fera pareil pour vous.
+Vous avez peut-être derrière vous des années à comprendre pour quelle bonne raison. Un parent émotionnellement absent, une enfance entière passée à tenter de le rendre heureux, et le même geste répété, devenu adulte, avec chaque personne rencontrée. Vous avez tout compris. Et vous continuez.
 
-Ce jour ne vient pas.
+Car le Sauveur Épuisé est un mendiant déguisé en héros. Il donne pour recevoir. Et le jour où il n'a plus rien à donner, il se retrouve seul avec sa propre tristesse, celle qu'il a prise en charge pour tous, sauf pour lui.
 
-Tant que vous donnez pour recevoir, vous ne recevrez jamais ce dont vous avez profondément besoin.
-
-Vous avez peur de déranger. Tellement peur que vous avez disparu sous les besoins des autres. Et personne ne s'en est aperçu.`,
+Votre valeur ne dépend pas de votre utilité. Mais votre corps n'a jamais appris à le savoir.`,
     septSymptomes: [
       `**La quête de regard.** Vous cherchez à être bien vu, considéré, reconnu pour tout ce que vous faites pour les autres.`,
       `**La honte de soi.** Quand vous ne donnez pas, vous ne valez plus rien à vos propres yeux.`,
@@ -74,19 +70,15 @@ Vous avez peur de déranger. Tellement peur que vous avez disparu sous les besoi
     nom: `CONTRÔLEUR ANXIEUX`,
     icone: `Tour de surveillance (Lucide React \`Eye\`)`,
     ambassadeur: `Sébastien`,
-    descriptionBase: `Vous anticipez. Vous vérifiez. Vous contrôlez.
+    descriptionBase: `Plus vous contrôlez, plus vous avez peur.
 
-Si vous lâchez prise, tout pourrait s'effondrer.
+Vous surveillez, vous anticipez, vous vérifiez. Votre stratégie : tout prévoir pour que rien ne vous surprenne. Sauf que le contrôle est un cercle, et il se referme sur vous. Plus vous contrôlez, plus la peur monte. Plus la peur monte, plus vous contrôlez. Le danger que vous guettez n'est pourtant pas devant vous. Il est derrière, dans des mémoires d'enfance que vous prenez pour le présent.
 
-L'incertitude vous fait peur. L'imprévu vous angoisse. Le silence de l'autre vous met en alerte rouge.
+L'anxiété vous sert d'écran de fumée. Pour ne pas être triste, pour ne pas être en colère, vous avez peur, vous stressez. Votre système nerveux préfère encore l'anxiété à la vérité, parce que la vérité, dessous, fait bien plus mal.
 
-Alors vous serrez. Vous tenez. Vous étouffez.
+Alors vous voulez débattre, argumenter, démontrer. Tout plutôt que ressentir. Parce que ressentir revient à lâcher le contrôle, et que lâcher le contrôle, dans votre corps, veut dire mourir.
 
-Vous serrez si fort que vous repoussez ceux que vous voulez garder.
-
-Plus vous contrôlez, plus vous repoussez les autres. Et plus vous repoussez, plus vous confirmez la peur d'être abandonné. La boucle est parfaite. Elle est aussi insupportable.
-
-Vous croyez tenir le monde. C'est le monde qui vous tient.`,
+Vous vous croyez victime de ce qui vous arrive. La vérité est plus dure à tenir. Vous le faites arriver. Pour ne pas subir, vous devenez l'agresseur que vous fuyez, bourreau et victime dans le même corps, par le même geste. Le triangle se referme sur vous. Et voilà des années que vous tournez dedans sans en voir les murs.`,
     septSymptomes: [
       `**La quête de regard.** Vous scrutez en permanence le moindre signe de désengagement chez l'autre.`,
       `**La honte de soi.** Quand vous perdez le contrôle, vous vous sentez vulnérable, exposé, indigne.`,
@@ -107,19 +99,15 @@ Vous croyez tenir le monde. C'est le monde qui vous tient.`,
     nom: `FANTÔME RELATIONNEL`,
     icone: `Silhouette qui s'efface (SVG custom ou Lucide React \`User\` à 50% opacity)`,
     ambassadeur: `Sylvie (fil rouge du livre)`,
-    descriptionBase: `Vous disparaissez. Vous vous effacez. Vous fuyez.
+    descriptionBase: `Vous partez avant qu'on vous quitte.
 
-Dès que ça devient trop intense, vous prenez la tangente.
+Vous fuyez. Que ça devienne sérieux, vous étouffez. Que l'autre s'approche, vous reculez. Votre stratégie : partir le premier, pour que l'abandon, au moins, vienne de vous. Ce n'est pas une liberté. C'est une prison, celle de la fuite. Présent de corps, absent d'âme, vous gardez au-dedans un territoire que personne n'a le droit de toucher, parce que la dernière fois qu'on l'a touché, la douleur a été trop grande.
 
-Pas par manque d'amour. Par peur de le perdre.
+Vous quittez quelqu'un un matin et vous vous retrouvez en couple le soir même, avec un autre. Rester seul, ne serait-ce qu'une nuit, vous terrorise. Partir, revenir, repartir. Car le Fantôme ne fuit pas une personne. Il fuit ce qu'il ressent quand il se retrouve seul avec lui-même.
 
-Vous partez avant qu'on vous quitte. Vous gardez vos distances avant qu'on vous blesse. Vous coupez avant qu'on coupe.
+Ou bien vous restez. Avec des partenaires qui vous rabaissent, qui vous font souffrir, et vous restez quand même. Pour quelle bonne raison ? Parce que vous y gagnez quelque chose, en secret. Souvent, de rester petit. De ne pas grandir. De ne pas déranger un parent ancien qui n'aurait pas supporté votre élan.
 
-En fuyant la douleur, vous fuyez aussi l'amour.
-
-Vous avez tellement peur de déranger que vous avez disparu. Et personne ne s'en est aperçu. C'est exactement ça le drame. Personne ne vous a cherché parce que vous aviez tout fait pour qu'on ne vous trouve pas.
-
-Vous avez l'impression d'être un fantôme dans votre propre vie. Présent et absent à la fois.`,
+Petit, vous avez appris à lire le visage d'un parent avant d'apprendre à lire les mots. Prendre de la place, c'était risquer de perdre l'amour. Alors vous avez choisi, sans le savoir, des liens qui vous maintiennent petit.`,
     septSymptomes: [
       `**La quête de regard.** Vous le fuyez et vous le cherchez en même temps. Vous voulez être vu sans être exposé.`,
       `**La honte de soi.** Vous croyez ne pas avoir le droit d'occuper la place. De déranger. D'exister bruyamment.`,

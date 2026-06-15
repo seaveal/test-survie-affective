@@ -3,11 +3,18 @@
 // Décision Bloc 2 (2026-05-25, mission corrections-parcours-bloc2) :
 // l'écran de résultat est réduit au nom du profil seul + invitation email.
 // Le footer porte le disclaimer canonique Règle 12 (repositionnement coaching
-// strict) et les 3 liens légaux pointant vers souverainauquotidien.com.
+// strict) et les 3 liens légaux.
+//
+// Fix 2026-06-15 : les liens pointaient vers l'apex souverainauquotidien.com
+// (/cgv, /mentions-legales, /privacy) — non servi par Caddy → 403 (liens cassés).
+// On pointe désormais vers les pages légales réelles servies sur le même domaine
+// (test.souverainauquotidien.com/legal/*, HTML statique /var/www/legal). Chemins
+// relatifs = domain-agnostic. terms.html (« Conditions de service ») contient
+// aussi l'Éditeur → sert de CGV ET de mentions légales.
 
-const URL_MENTIONS = 'https://souverainauquotidien.com/mentions-legales'
-const URL_CGV = 'https://souverainauquotidien.com/cgv'
-const URL_PRIVACY = 'https://souverainauquotidien.com/privacy'
+const URL_MENTIONS = '/legal/terms'
+const URL_CGV = '/legal/terms'
+const URL_PRIVACY = '/legal/privacy'
 
 export function DisclaimerFooter() {
   return (

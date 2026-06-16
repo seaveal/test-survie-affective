@@ -10,15 +10,21 @@ import type { Resultat } from '../domain/types'
 export interface CaptureValues {
   email: string
   prenom: string
+  /** Mobile au format E.164 (+33...), déjà normalisé par CaptureScreen. Absent si non fourni. */
+  telephone?: string
   consentementMarketing: boolean
   consentementDonneesSante: boolean
+  /** Opt-in SMS explicite (mission 2026-06-16). True seulement si numéro valide ET case cochée. */
+  consentementSms: boolean
 }
 
 export interface TestCompletePayload {
   email: string
   prenom?: string
+  telephone?: string
   consentement_marketing: boolean
   consentement_donnees_sante: boolean
+  consentement_sms: boolean
   source_acquisition?:
     | 'instagram'
     | 'facebook'
@@ -190,8 +196,10 @@ export function buildPayload(
   return {
     email: capture.email,
     prenom: capture.prenom || undefined,
+    telephone: capture.telephone || undefined,
     consentement_marketing: capture.consentementMarketing,
     consentement_donnees_sante: capture.consentementDonneesSante,
+    consentement_sms: capture.consentementSms,
     utm,
     resultat: {
       profilDominant: resultat.profilDominant,

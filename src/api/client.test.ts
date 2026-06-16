@@ -13,6 +13,7 @@ const CAPTURE: CaptureValues = {
   prenom: 'Alice',
   consentementMarketing: true,
   consentementDonneesSante: false,
+  consentementSms: false,
 }
 
 const RESULTAT: Resultat = {
@@ -58,6 +59,23 @@ describe('api/client', () => {
         {},
       )
       expect(p.prenom).toBeUndefined()
+    })
+
+    it('inclut telephone (E.164) + consentement_sms quand fournis', () => {
+      const p = buildPayload(
+        { ...CAPTURE, telephone: '+33612345678', consentementSms: true },
+        RESULTAT,
+        {},
+        {},
+      )
+      expect(p.telephone).toBe('+33612345678')
+      expect(p.consentement_sms).toBe(true)
+    })
+
+    it('omet telephone si absent, consentement_sms=false par defaut', () => {
+      const p = buildPayload(CAPTURE, RESULTAT, {}, {})
+      expect(p.telephone).toBeUndefined()
+      expect(p.consentement_sms).toBe(false)
     })
 
     it('NE hardcode PLUS source_acquisition (le back décide via UTM)', () => {

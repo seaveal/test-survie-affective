@@ -22,7 +22,7 @@ import { motion, useReducedMotion } from 'framer-motion'
  * Remplace BoucleHero (mission 2026-05-25 → 2026-05-29).
  */
 
-const TERRA = '#9E4332'
+const TERRA = '#A8432B'  // terracotta canonique de marque (cf. --h3c-accent-terracotta), aligné Livre H3C 2026-06-21
 const CREME = '#FAF8F5'
 
 interface MasqueProps {

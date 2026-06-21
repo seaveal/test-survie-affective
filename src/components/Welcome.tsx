@@ -17,7 +17,7 @@ interface Props {
  *   contenu tiré strictement de src/data/profils.ts (noms + premières phrases de
  *   tension du descriptionBase canonique)
  * - Échelle typo affirmée (eyebrow Oswald MAJ → H1 Lora large → corps Inter)
- * - CTA terracotta #9E4332 avec hover/active/focus nets
+ * - CTA terracotta #A8432B (token --h3c-accent-terracotta) avec hover/active/focus nets
  * - Preuve sociale en points distincts (3 réseaux + 700 témoignages)
  * - Longueur resserrée : hero + masques + CTA + preuve, c'est tout
  * - visage → masque (3 occurrences remplacées)

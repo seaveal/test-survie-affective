@@ -7,6 +7,17 @@
 
 import type { Resultat } from '../domain/types'
 
+// Helpers exposés par le bloc H3C-TRACKING injecté dans index.html
+// (généré depuis 40-Knowledge/Pro/PHM/tracking-config.json — Chantier 8).
+declare global {
+  interface Window {
+    h3cAttribution?: () => Record<string, string | undefined>
+    h3cFb?: () => { fbp?: string; fbc?: string }
+    h3cEventId?: () => string
+    h3cTrack?: (event: string, params?: Record<string, unknown>) => void
+  }
+}
+
 export interface CaptureValues {
   email: string
   prenom: string
@@ -32,7 +43,13 @@ export interface TestCompletePayload {
     | 'livre'
     | 'bouche_a_oreille'
     | 'autre'
-  utm?: { source?: string; medium?: string; campaign?: string }
+  utm?: { source?: string; medium?: string; campaign?: string; content?: string; term?: string }
+  // Chantier 8 : déduplication Meta Pixel↔CAPI (même event_id des deux côtés)
+  // + qualité de match serveur (fbp/fbc) + event_source_url (landing avec UTM).
+  event_id?: string
+  fbp?: string
+  fbc?: string
+  landing_url?: string
   resultat: {
     profilDominant: Resultat['profilDominant']
     profilSecondaire: Resultat['profilSecondaire']
@@ -112,6 +129,21 @@ async function postOnce(payload: TestCompletePayload): Promise<TestCompleteRespo
 export async function submitTestComplete(
   payload: TestCompletePayload,
 ): Promise<TestCompleteResponse | null> {
+  // Chantier 8 : Lead dédupliqué Pixel↔CAPI. On génère l'event_id UNE fois,
+  // on pousse l'événement browser (dataLayer → GTM → Pixel, si consenti) et le
+  // même id part au serveur (CAPI). Les retries de queue gardent l'event_id
+  // déjà posé → pas de double Lead.
+  if (!payload.event_id) {
+    payload.event_id =
+      typeof window !== 'undefined' && window.h3cEventId
+        ? window.h3cEventId()
+        : `h3c-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+    try {
+      window.h3cTrack?.('lead', { event_id: payload.event_id })
+    } catch {
+      // tracking indisponible : sans impact sur la capture
+    }
+  }
   try {
     return await postOnce(payload)
   } catch (err) {
@@ -144,6 +176,8 @@ export interface UtmParams {
   source?: string
   medium?: string
   campaign?: string
+  content?: string
+  term?: string
 }
 
 /**
@@ -156,6 +190,32 @@ export interface UtmParams {
  * retourne `{}` qui sérialise propre en JSON.
  */
 export function extractUtmParams(search?: string): UtmParams {
+  const normStr = (v: string | null | undefined): string | undefined => {
+    if (v === null || v === undefined) return undefined
+    const trimmed = v.trim().toLowerCase()
+    return trimmed === '' ? undefined : trimmed
+  }
+
+  // Chantier 8 : préfère l'attribution FIRST-TOUCH persistée par le bloc
+  // H3C-TRACKING (sessionStorage) — survit aux navigations internes du SPA
+  // là où window.location.search se perd. Fallback : querystring courante.
+  if (search === undefined && typeof window !== 'undefined' && window.h3cAttribution) {
+    try {
+      const at = window.h3cAttribution()
+      if (at && (at.utm_source || at.utm_medium || at.utm_campaign)) {
+        return {
+          source: normStr(at.utm_source),
+          medium: normStr(at.utm_medium),
+          campaign: normStr(at.utm_campaign),
+          content: normStr(at.utm_content),
+          term: normStr(at.utm_term),
+        }
+      }
+    } catch {
+      // attribution indisponible : fallback querystring
+    }
+  }
+
   const raw =
     search ??
     (typeof window !== 'undefined' ? window.location.search : '')
@@ -166,15 +226,12 @@ export function extractUtmParams(search?: string): UtmParams {
   } catch {
     return {}
   }
-  const norm = (v: string | null): string | undefined => {
-    if (v === null) return undefined
-    const trimmed = v.trim().toLowerCase()
-    return trimmed === '' ? undefined : trimmed
-  }
   return {
-    source: norm(params.get('utm_source')),
-    medium: norm(params.get('utm_medium')),
-    campaign: norm(params.get('utm_campaign')),
+    source: normStr(params.get('utm_source')),
+    medium: normStr(params.get('utm_medium')),
+    campaign: normStr(params.get('utm_campaign')),
+    content: normStr(params.get('utm_content')),
+    term: normStr(params.get('utm_term')),
   }
 }
 
@@ -193,6 +250,14 @@ export function buildPayload(
   reponsesBrutes: Record<string, unknown> = {},
   utm: UtmParams = extractUtmParams(),
 ): TestCompletePayload {
+  // Chantier 8 : fbp/fbc (si consentement marketing donné, cookies posés par le
+  // Pixel) et landing_url renforcent le matching Meta CAPI côté serveur.
+  let fb: { fbp?: string; fbc?: string } = {}
+  try {
+    fb = (typeof window !== 'undefined' && window.h3cFb ? window.h3cFb() : {}) || {}
+  } catch {
+    fb = {}
+  }
   return {
     email: capture.email,
     prenom: capture.prenom || undefined,
@@ -201,6 +266,10 @@ export function buildPayload(
     consentement_donnees_sante: capture.consentementDonneesSante,
     consentement_sms: capture.consentementSms,
     utm,
+    fbp: fb.fbp,
+    fbc: fb.fbc,
+    landing_url:
+      typeof window !== 'undefined' ? window.location.href.slice(0, 500) : undefined,
     resultat: {
       profilDominant: resultat.profilDominant,
       profilSecondaire: resultat.profilSecondaire,

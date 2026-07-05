@@ -1,6 +1,163 @@
 <!doctype html>
 <html lang="fr">
   <head>
+<!-- H3C-TRACKING:BEGIN cfg=9bddd7ac58d5 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
+<script>
+(function () {
+  'use strict';
+  var GTM_ID = '';
+  var CONSENT_KEY = 'h3c_consent';
+  var POLICY_VERSION = '2026-07-05';
+  var DURATION_MS = 6 * 30.5 * 24 * 3600 * 1000;
+  var PRIVACY_URL = 'https://test.souverainauquotidien.com/legal/privacy';
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { window.dataLayer.push(arguments); }
+  window.gtag = window.gtag || gtag;
+
+  // Consent Mode v2 : tout refusé par défaut, déclaré AVANT tout chargement de tag.
+  gtag('consent', 'default', {
+    ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+    analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted'
+  });
+
+  // --- Attribution first-touch (sessionStorage first-party — voyage jusqu'au Purchase serveur) ---
+  var ATTR_KEY = 'h3c_attribution';
+  try {
+    if (!sessionStorage.getItem(ATTR_KEY)) {
+      var q = new URLSearchParams(window.location.search), at = {};
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'gclid'].forEach(function (k) {
+        var v = q.get(k); if (v) at[k] = v.slice(0, 200);
+      });
+      at.landing = window.location.pathname;
+      if (document.referrer) at.referrer = document.referrer.slice(0, 200);
+      at.ts = Date.now();
+      sessionStorage.setItem(ATTR_KEY, JSON.stringify(at));
+    }
+  } catch (e) {}
+
+  window.h3cAttribution = function () {
+    try { return JSON.parse(sessionStorage.getItem(ATTR_KEY) || '{}'); } catch (e) { return {}; }
+  };
+
+  // _fbp/_fbc (cookies posés par le Pixel après consentement) — qualité de match Meta CAPI.
+  window.h3cFb = function () {
+    var out = {};
+    try {
+      var p = document.cookie.match(/(?:^|; )_fbp=([^;]+)/); if (p) out.fbp = p[1];
+      var c = document.cookie.match(/(?:^|; )_fbc=([^;]+)/); if (c) out.fbc = c[1];
+      if (!out.fbc) { var a = window.h3cAttribution(); if (a.fbclid) out.fbc = 'fb.1.' + Date.now() + '.' + a.fbclid; }
+    } catch (e) {}
+    return out;
+  };
+
+  window.h3cEventId = function () {
+    try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+    return 'h3c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+  };
+
+  // Push dataLayer enrichi de l'attribution (les événements pré-consentement restent
+  // en file dans dataLayer et sont traités par GTM à son chargement).
+  window.h3cTrack = function (event, params) {
+    var d = {}; params = params || {};
+    for (var k in params) { if (Object.prototype.hasOwnProperty.call(params, k)) d[k] = params[k]; }
+    d.event = event;
+    var at = window.h3cAttribution();
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (k) {
+      if (at[k] && d[k] === undefined) d[k] = at[k];
+    });
+    window.dataLayer.push(d);
+  };
+
+  if (!GTM_ID) return; // conteneur GTM pas encore créé : helpers seuls, ni bannière ni tags
+
+  // --- Choix stocké (6 mois max, invalidé si la version de politique change) ---
+  function readChoice() {
+    try {
+      var c = JSON.parse(localStorage.getItem(CONSENT_KEY) || 'null');
+      if (!c || c.v !== POLICY_VERSION) return null;
+      if (Date.now() - c.ts > DURATION_MS) return null;
+      return c;
+    } catch (e) { return null; }
+  }
+  function saveChoice(analytics, ads) {
+    try { localStorage.setItem(CONSENT_KEY, JSON.stringify({ v: POLICY_VERSION, ts: Date.now(), analytics: !!analytics, ads: !!ads })); } catch (e) {}
+  }
+
+  var gtmLoaded = false;
+  function applyChoice(c) {
+    gtag('consent', 'update', {
+      analytics_storage: c.analytics ? 'granted' : 'denied',
+      ad_storage: c.ads ? 'granted' : 'denied',
+      ad_user_data: c.ads ? 'granted' : 'denied',
+      ad_personalization: c.ads ? 'granted' : 'denied'
+    });
+    if ((c.analytics || c.ads) && !gtmLoaded) {
+      gtmLoaded = true;
+      window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+      var s = document.createElement('script'); s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtm.js?id=' + GTM_ID;
+      document.head.appendChild(s);
+    }
+  }
+
+  // --- Bannière CNIL : refuser aussi simple qu'accepter, choix révocable (bouton Cookies) ---
+  var STYLE = '#h3c-cmp{position:fixed;left:0;right:0;bottom:0;z-index:2147483000;background:#fff;border-top:1px solid #e4ddd4;box-shadow:0 -4px 24px rgba(0,0,0,.12);padding:16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}#h3c-cmp .h3c-cmp-in{max-width:760px;margin:0 auto;}#h3c-cmp p{margin:0 0 10px;font-size:.86rem;line-height:1.5;color:#4a4a4a;}#h3c-cmp a{color:#A8432B;}#h3c-cmp .h3c-cmp-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}#h3c-cmp button{font:inherit;font-size:.85rem;font-weight:600;border-radius:9px;padding:10px 16px;cursor:pointer;border:1px solid #cbb6a6;background:#fff;color:#333;}#h3c-cmp .h3c-ok{background:#A8432B;border-color:#A8432B;color:#fff;}#h3c-cmp label{font-size:.82rem;color:#4a4a4a;margin-right:10px;display:inline-flex;align-items:center;gap:5px;}#h3c-cmp .h3c-cats{display:none;margin:6px 0 4px;}#h3c-cmp .h3c-cats.on{display:block;}#h3c-reopen{position:fixed;left:10px;bottom:10px;z-index:2147482999;font-size:.72rem;background:rgba(255,255,255,.92);border:1px solid #e4ddd4;border-radius:8px;padding:4px 9px;cursor:pointer;color:#6a6a6a;font-family:system-ui,sans-serif;}';
+
+  function addReopen() {
+    if (document.getElementById('h3c-reopen')) return;
+    var r = document.createElement('button');
+    r.id = 'h3c-reopen'; r.type = 'button'; r.textContent = 'Cookies';
+    r.setAttribute('aria-label', 'Gérer mes cookies');
+    r.addEventListener('click', showBanner);
+    document.body.appendChild(r);
+  }
+  function removeBanner() { var b = document.getElementById('h3c-cmp'); if (b) b.remove(); addReopen(); }
+  function showBanner() {
+    if (document.getElementById('h3c-cmp')) return;
+    if (!document.getElementById('h3c-cmp-style')) {
+      var st = document.createElement('style'); st.id = 'h3c-cmp-style'; st.textContent = STYLE;
+      document.head.appendChild(st);
+    }
+    var w = document.createElement('div');
+    w.id = 'h3c-cmp'; w.setAttribute('role', 'dialog'); w.setAttribute('aria-label', 'Consentement cookies');
+    w.innerHTML =
+      '<div class="h3c-cmp-in">' +
+      '<p>Avec votre accord, ce site utilise des cookies de mesure d\'audience (Google Analytics) et de publicité (Meta, Google Ads) pour comprendre ce qui vous aide vraiment. Sans action de votre part, aucun de ces cookies n\'est déposé. <a href="' + PRIVACY_URL + '">En savoir plus</a>.</p>' +
+      '<div class="h3c-cats" id="h3c-cats">' +
+      '<label><input type="checkbox" id="h3c-cat-analytics" checked> Mesure d\'audience</label>' +
+      '<label><input type="checkbox" id="h3c-cat-ads" checked> Publicité et réseaux sociaux</label>' +
+      '</div>' +
+      '<div class="h3c-cmp-row">' +
+      '<button type="button" class="h3c-ok" id="h3c-accept">Tout accepter</button>' +
+      '<button type="button" id="h3c-refuse">Continuer sans accepter</button>' +
+      '<button type="button" id="h3c-custom">Personnaliser</button>' +
+      '</div></div>';
+    document.body.appendChild(w);
+    document.getElementById('h3c-accept').addEventListener('click', function () {
+      var custom = document.getElementById('h3c-cats').classList.contains('on');
+      var an = custom ? document.getElementById('h3c-cat-analytics').checked : true;
+      var ad = custom ? document.getElementById('h3c-cat-ads').checked : true;
+      saveChoice(an, ad); applyChoice({ analytics: an, ads: ad }); removeBanner();
+    });
+    document.getElementById('h3c-refuse').addEventListener('click', function () {
+      saveChoice(false, false); applyChoice({ analytics: false, ads: false }); removeBanner();
+    });
+    document.getElementById('h3c-custom').addEventListener('click', function () {
+      document.getElementById('h3c-cats').classList.add('on');
+      document.getElementById('h3c-accept').textContent = 'Valider mes choix';
+    });
+  }
+  window.h3cConsent = { open: showBanner, status: readChoice };
+
+  function boot() {
+    var c = readChoice();
+    if (c) { applyChoice(c); addReopen(); } else { showBanner(); }
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
+})();
+</script>
+<!-- H3C-TRACKING:END -->
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

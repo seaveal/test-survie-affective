@@ -139,7 +139,7 @@ describe('Helpers de sélection (pont domain ↔ data)', () => {
     const p = getProfil('fantome')
     expect(p.id).toBe('fantome')
     expect(p.septSymptomes).toHaveLength(7)
-    expect(p.ambassadeur).toMatch(/Sylvie/)
+    expect(p.ambassadeur).toMatch(/Pascale/)
   })
 
   it('getRoadmap retourne la roadmap du couple (profilId, intensite)', () => {

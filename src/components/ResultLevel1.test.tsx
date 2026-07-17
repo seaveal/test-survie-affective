@@ -19,8 +19,8 @@ describe('<ResultLevel1> — Révélation', () => {
   it('affiche le profil dominant et son ambassadeur', () => {
     render(<ResultLevel1 resultat={baseResultat} />)
     expect(screen.getByText(/profil dominant/i)).toBeInTheDocument()
-    // Ambassadeur Sylvie pour fantome
-    expect(screen.getByText(/Sylvie/i)).toBeInTheDocument()
+    // Ambassadrice Pascale pour fantome
+    expect(screen.getByText(/Pascale/i)).toBeInTheDocument()
   })
 
   it("affiche l'intensité (modéré ici)", () => {
@@ -42,8 +42,8 @@ describe('<ResultLevel1> — Révélation', () => {
 
   it('description de base du profil rendue', () => {
     render(<ResultLevel1 resultat={baseResultat} />)
-    // Le profil fantome a "Vous disparaissez" dans sa description
-    expect(screen.getByText(/disparaissez/i)).toBeInTheDocument()
+    // Le profil fantome : phrase signature unique à la description de base
+    expect(screen.getByText(/présent de corps, absent d'âme/i)).toBeInTheDocument()
   })
 
   it('modulateur d\'intensité spécifique au croisement profil×intensité', () => {

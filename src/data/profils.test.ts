@@ -39,12 +39,12 @@ describe('Données profils — structure et invariants', () => {
     }
   })
 
-  it('Ambassadeurs canon : Vincent (mendiant), Damien (sauveur), Sébastien (controleur), Sylvie (fantome)', () => {
+  it('Ambassadeurs canon : Emeric (mendiant), Hélène (sauveur), Virginie (controleur), Pascale (fantome)', () => {
     const map = Object.fromEntries(profils.map((p) => [p.id, p.ambassadeur]))
-    expect(map.mendiant).toMatch(/Vincent/)
-    expect(map.sauveur).toMatch(/Damien/)
-    expect(map.controleur).toMatch(/Sébastien/)
-    expect(map.fantome).toMatch(/Sylvie/)
+    expect(map.mendiant).toMatch(/Emeric/)
+    expect(map.sauveur).toMatch(/Hélène/)
+    expect(map.controleur).toMatch(/Virginie/)
+    expect(map.fantome).toMatch(/Pascale/)
   })
 })
 
@@ -79,10 +79,10 @@ describe('CTA par statut livre', () => {
       expect(c.ctaPrincipal.url, `${statut}.ctaPrincipal.url`).not.toMatch(/cyrillenovou\.com/i)
       expect(c.ctaSecondaire.url, `${statut}.ctaSecondaire.url`).not.toMatch(/cyrillenovou\.com\//i)
     }
-    // pas_lu et lu_partiel : CTA principal cadeau-first (url=#), secondaire YCBM
-    expect(ctaParStatut.pas_lu.ctaSecondaire.url).toMatch(/youcanbook\.me/i)
-    expect(ctaParStatut.lu_partiel.ctaSecondaire.url).toMatch(/youcanbook\.me/i)
-    // lu_complet : CTA principal direct YCBM
-    expect(ctaParStatut.lu_complet.ctaPrincipal.url).toMatch(/youcanbook\.me/i)
+    // pas_lu et lu_partiel : CTA principal cadeau-first (url=#), secondaire séminaire No Phone
+    expect(ctaParStatut.pas_lu.ctaSecondaire.url).toMatch(/h3c\.fr\/solution/i)
+    expect(ctaParStatut.lu_partiel.ctaSecondaire.url).toMatch(/h3c\.fr\/solution/i)
+    // lu_complet : CTA principal direct séminaire No Phone
+    expect(ctaParStatut.lu_complet.ctaPrincipal.url).toMatch(/h3c\.fr\/solution/i)
   })
 })

@@ -40,10 +40,10 @@ describe('<ResultLevel3> — Roadmap + CTA', () => {
     for (const statut of ['pas_lu', 'lu_partiel', 'lu_complet'] as const) {
       const r = { ...baseResultat, statutLivre: statut }
       const { unmount } = render(<ResultLevel3 resultat={r} />)
-      const cta = screen.getByRole('link', { name: /réserver un appel/i })
+      const cta = screen.getByRole('link', { name: /découvrir le séminaire/i })
       expect(cta, `secondaire/${statut}`).toHaveAttribute(
         'href',
-        expect.stringMatching(/youcanbook\.me/i),
+        expect.stringMatching(/h3c\.fr\/solution/i),
       )
       unmount()
     }

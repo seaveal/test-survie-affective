@@ -5,14 +5,15 @@ interface Props {
   resultat: Resultat
 }
 
-// CTA aplati (décision Bloc 2 — 2026-05-25, mission corrections-parcours-bloc2).
-// Le livre est retiré du parcours ; tous les statutLivre basculent sur le même
-// chemin cadeau-descente + appel YCBM. statutLivre reste collecté pour
-// analytics/segmentation Brevo, mais ne pilote plus le routage.
+// CTA aplati (décision Bloc 2, 2026-05-25). CTA secondaire réalignée sur le
+// funnel No Phone (2026-07-17) : plus d'appel de qualification YouCanBookMe,
+// le séminaire Régénération se découvre et s'achète en direct via h3c.fr/solution.
+// statutLivre reste collecté pour analytics/segmentation Brevo, mais ne pilote
+// plus le routage.
 const ctaUnifie = {
   amorce: `Vous venez d'identifier votre profil. La suite arrive dans votre email : vos 20 séances audio guidées, calibrées sur votre profil, prêtes à écouter dès ce soir. Le corps se met au travail là où comprendre seul ne va pas.
 
-Et si vous voulez aller plus loin, vous réservez un appel de qualification de 45 minutes pour évaluer ensemble votre place dans le programme Régénération.
+Et si vous voulez aller plus loin, vous découvrez le séminaire Régénération, l'immersion qui transforme ce que la compréhension seule ne transforme pas.
 
 La tête comprend. Le corps répare.`,
   ctaPrincipal: {
@@ -20,8 +21,8 @@ La tête comprend. Le corps répare.`,
     url: `#`,
   },
   ctaSecondaire: {
-    texte: `Réserver un appel de qualification pour Régénération`,
-    url: `https://cyrillenovou-45mn.youcanbook.me/`,
+    texte: `Découvrir le séminaire Régénération`,
+    url: `https://h3c.fr/solution`,
   },
 }
 

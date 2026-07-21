@@ -179,7 +179,7 @@ Plus vous contrôlez, plus vous avez peur.
 
 Vous surveillez, vous anticipez, vous vérifiez. Votre stratégie tient en un réflexe : tout prévoir pour que rien ne vous surprenne. Sauf que le contrôle est un cercle, et il se referme sur vous. Plus vous contrôlez, plus la peur monte. Plus la peur monte, plus vous contrôlez. Le contrôle promet la sécurité. Il n'offre que la surveillance.
 
-Il est 23h41 et vous relisez un mail envoyé à 18h02. Trois fois. Vous cherchez la phrase qui pourrait être mal comprise, vous la trouvez, et le ventre se noue sur un message que rien ne peut plus rattraper. À 3h47, vous êtes réveillé, la nuque en béton, le cerveau qui ouvre les dossiers un par un et déroule chaque scénario jusqu'au pire. Prévoir la catastrophe ne l'a jamais empêchée. Ça vous use en l'attendant.
+Il est 23h41 et vous relisez un mail envoyé à 18h02. Trois fois. Vous cherchez la phrase qui pourrait être mal comprise, vous la trouvez, et le ventre se noue sur un message que rien ne peut plus rattraper. À 3h03, vous êtes réveillé, la nuque en béton, le cerveau qui ouvre les dossiers un par un et déroule chaque scénario jusqu'au pire. Prévoir la catastrophe ne l'a jamais empêchée. Ça vous use en l'attendant.
 
 Le danger que vous guettez n'est pourtant pas devant vous. Il est derrière, dans des mémoires d'enfance que vous prenez pour le présent. L'humeur d'un parent qui virait sans prévenir. Des pas dans un escalier qu'il fallait déchiffrer avant la porte, pour savoir quelle soirée on allait passer. Un enfant, devant l'imprévisible, n'a qu'une parade : tout anticiper, tout surveiller, ne jamais être pris au dépourvu. Si je contrôle tout, je survis. C'était vrai à l'époque. Ce ne l'est plus. Vous ne vérifiez pas votre vie d'adulte. Vous surveillez une maison d'enfance qui n'existe plus.
 
@@ -340,7 +340,7 @@ Si applicable (écart < 4 points avec dominant), ce paragraphe s'affiche entre l
 >
 > Vous savez aussi maintenant que comprendre ne suffit pas.
 >
-> Le travail réel commence dans le corps, dans un cadre encadré, avec un accompagnant. Le programme Régénération existe pour ça. Trois jours résidentiels, sept places, une transformation incarnée.
+> Le travail réel commence dans le corps, dans un cadre encadré, avec un accompagnant. Le programme Régénération existe pour ça. Trois jours résidentiels, huit places, une transformation incarnée.
 >
 > Si votre intensité est modérée ou profonde, et si vous êtes prêt à agir, c'est le pas suivant.
 

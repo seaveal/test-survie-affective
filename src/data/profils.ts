@@ -161,7 +161,7 @@ Si l'accompagnement corporel devient évident, vous découvrez le séminaire Ré
 
 Vous savez aussi maintenant que comprendre ne suffit pas.
 
-Le travail réel commence dans le corps, dans un cadre encadré, avec un accompagnant. Le programme Régénération existe pour ça. Trois jours résidentiels, sept places, une transformation incarnée.
+Le travail réel commence dans le corps, dans un cadre encadré, avec un accompagnant. Le programme Régénération existe pour ça. Trois jours résidentiels, huit places, une transformation incarnée.
 
 Si votre intensité est modérée ou profonde, et si vous êtes prêt à agir, c'est le pas suivant.`,
     ctaPrincipal: { texte: `Découvrir le séminaire Régénération`, url: `https://h3c.fr/solution` },

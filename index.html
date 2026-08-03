@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="fr">
   <head>
-<!-- H3C-TRACKING:BEGIN cfg=9bddd7ac58d5 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
+<!-- H3C-TRACKING:BEGIN cfg=da1e187d49e4 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
 <script>
 (function () {
   'use strict';
-  var GTM_ID = '';
+  var GTM_ID = 'GTM-KTVF95FP';
   var CONSENT_KEY = 'h3c_consent';
   var POLICY_VERSION = '2026-07-05';
   var DURATION_MS = 6 * 30.5 * 24 * 3600 * 1000;
@@ -21,10 +21,19 @@
     analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted'
   });
 
-  // --- Attribution first-touch (sessionStorage first-party — voyage jusqu'au Purchase serveur) ---
+  // --- Attribution first-touch (localStorage first-party, TTL 90 j — survit à la fermeture
+  // d'onglet et voyage jusqu'au Purchase serveur) ---
   var ATTR_KEY = 'h3c_attribution';
+  var ATTR_TTL_MS = 90 * 24 * 3600 * 1000;
+  function readAttribution() {
+    try {
+      var a = JSON.parse(localStorage.getItem(ATTR_KEY) || 'null');
+      if (!a || !a.ts || Date.now() - a.ts > ATTR_TTL_MS) return null;
+      return a;
+    } catch (e) { return null; }
+  }
   try {
-    if (!sessionStorage.getItem(ATTR_KEY)) {
+    if (!readAttribution()) {
       var q = new URLSearchParams(window.location.search), at = {};
       ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'gclid'].forEach(function (k) {
         var v = q.get(k); if (v) at[k] = v.slice(0, 200);
@@ -32,12 +41,12 @@
       at.landing = window.location.pathname;
       if (document.referrer) at.referrer = document.referrer.slice(0, 200);
       at.ts = Date.now();
-      sessionStorage.setItem(ATTR_KEY, JSON.stringify(at));
+      localStorage.setItem(ATTR_KEY, JSON.stringify(at));
     }
   } catch (e) {}
 
   window.h3cAttribution = function () {
-    try { return JSON.parse(sessionStorage.getItem(ATTR_KEY) || '{}'); } catch (e) { return {}; }
+    return readAttribution() || {};
   };
 
   // _fbp/_fbc (cookies posés par le Pixel après consentement) — qualité de match Meta CAPI.
@@ -69,7 +78,30 @@
     window.dataLayer.push(d);
   };
 
-  if (!GTM_ID) return; // conteneur GTM pas encore créé : helpers seuls, ni bannière ni tags
+  // --- Événements de PAGE : mis en file jusqu'à ce que le consentement soit tranché ---
+  // Un événement poussé au parse (view_content sur la page de vente, purchase sur la
+  // page de remerciement) arrivait AVANT gtag('consent','update'). GTM rejoue la file
+  // dans l'ordre : il évaluait ces événements sur l'état « refusé », bloquait les
+  // balises HTML personnalisées (Pixel Meta), puis ne les réévaluait jamais — leur
+  // déclencheur étant passé pour de bon. Les balises Google natives, elles, savent
+  // patienter, d'où GA4 qui fonctionnait et le Pixel qui se taisait.
+  // Diagnostic Cowork + DG, vérifié en production le 2026-07-28.
+  var pageEvents = [], consentSettled = false;
+  window.h3cTrackPage = function (event, params) {
+    if (consentSettled) { window.h3cTrack(event, params); return; }
+    pageEvents.push([event, params]);
+  };
+  function flushPageEvents() {
+    if (consentSettled) return;
+    consentSettled = true;
+    var q = pageEvents; pageEvents = [];
+    for (var i = 0; i < q.length; i++) { window.h3cTrack(q[i][0], q[i][1]); }
+  }
+
+  // Conteneur GTM pas encore créé : helpers seuls, ni bannière ni tags. On vide
+  // quand même la file (la dataLayer n'est alors lue par personne) pour que le
+  // comportement reste identique à celui d'avant la mise en file.
+  if (!GTM_ID) { flushPageEvents(); return; }
 
   // --- Choix stocké (6 mois max, invalidé si la version de politique change) ---
   function readChoice() {
@@ -92,6 +124,11 @@
       ad_user_data: c.ads ? 'granted' : 'denied',
       ad_personalization: c.ads ? 'granted' : 'denied'
     });
+    // Les événements de page partent APRÈS la mise à jour du consentement et AVANT
+    // le chargement de GTM : la file rejouée est alors consent:default →
+    // consent:update → view_content/purchase → gtm.js. Les balises sont évaluées
+    // sur l'état réel.
+    flushPageEvents();
     if ((c.analytics || c.ads) && !gtmLoaded) {
       gtmLoaded = true;
       window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
@@ -169,7 +206,7 @@
     <title>Test de dépendance affective gratuit : quel schéma rejouez-vous ?</title>
     <meta
       name="description"
-      content="Test de dépendance affective gratuit en 5 minutes par Cyrille NOVOU. Identifiez le schéma relationnel que vous rejouez en amour. 30 questions, confidentiel."
+      content="Test de dépendance affective gratuit en 3 minutes par Cyrille NOVOU. Identifiez le schéma relationnel que vous rejouez en amour. 30 questions, confidentiel."
     />
     <link rel="canonical" href="https://test.souverainauquotidien.com/" />
     <meta name="author" content="Cyrille NOVOU" />
@@ -185,7 +222,7 @@
     />
     <meta
       property="og:description"
-      content="Test gratuit en 5 minutes pour identifier le schéma relationnel que vous rejouez en amour. Par Cyrille NOVOU, coach et auteur du livre « Vous avez tout compris. Rien n'a changé. »"
+      content="Test gratuit en 3 minutes pour identifier le schéma relationnel que vous rejouez en amour. Par Cyrille NOVOU, coach et auteur du livre « Vous avez tout compris. Rien n'a changé. »"
     />
     <meta property="og:image" content="https://test.souverainauquotidien.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
@@ -200,7 +237,7 @@
     />
     <meta
       name="twitter:description"
-      content="Test gratuit en 5 minutes pour identifier le schéma relationnel que vous rejouez en amour. Par Cyrille NOVOU, coach et auteur du livre « Vous avez tout compris. Rien n'a changé. »"
+      content="Test gratuit en 3 minutes pour identifier le schéma relationnel que vous rejouez en amour. Par Cyrille NOVOU, coach et auteur du livre « Vous avez tout compris. Rien n'a changé. »"
     />
     <meta name="twitter:image" content="https://test.souverainauquotidien.com/og-image.png" />
 
@@ -222,7 +259,7 @@
             "@id": "https://test.souverainauquotidien.com/#website",
             "url": "https://test.souverainauquotidien.com/",
             "name": "Test de survie affective",
-            "description": "Test de dépendance affective gratuit en 5 minutes pour identifier le schéma relationnel que vous rejouez en amour.",
+            "description": "Test de dépendance affective gratuit en 3 minutes pour identifier le schéma relationnel que vous rejouez en amour.",
             "inLanguage": "fr-FR",
             "author": { "@id": "https://souverainauquotidien.com/#cyrille-novou" },
             "publisher": {
@@ -235,7 +272,7 @@
             "@type": "Quiz",
             "@id": "https://test.souverainauquotidien.com/#quiz",
             "name": "Test de survie affective",
-            "description": "30 questions, 5 minutes. Identifiez votre schéma relationnel dominant (Mendiant de Luxe, Sauveur Épuisé, Contrôleur Anxieux ou Fantôme Relationnel) et l'intensité avec laquelle il vous tient.",
+            "description": "30 questions, 3 minutes. Identifiez votre schéma relationnel dominant (Mendiant de Luxe, Sauveur Épuisé, Contrôleur Anxieux ou Fantôme Relationnel) et l'intensité avec laquelle il vous tient.",
             "url": "https://test.souverainauquotidien.com/",
             "inLanguage": "fr-FR",
             "about": [
@@ -328,7 +365,7 @@
           </article>
         </section>
 
-        <p><strong>30 questions, 5 minutes, confidentiel.</strong> Ce test n'est pas un quiz parmi d'autres : il identifie votre schéma relationnel dominant parmi quatre archétypes propriétaires, et l'intensité avec laquelle il vous tient.</p>
+        <p><strong>30 questions, 3 minutes, confidentiel.</strong> Ce test n'est pas un quiz parmi d'autres : il identifie votre schéma relationnel dominant parmi quatre archétypes propriétaires, et l'intensité avec laquelle il vous tient.</p>
 
         <p><a href="https://test.souverainauquotidien.com/">Commencer le test de dépendance affective</a></p>
 

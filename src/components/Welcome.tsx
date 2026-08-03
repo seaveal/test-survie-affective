@@ -330,7 +330,7 @@ export function Welcome({ onCommencer }: Props) {
             >
               <li>30 questions</li>
               <li aria-hidden>·</li>
-              <li>5 minutes</li>
+              <li>3 minutes</li>
               <li aria-hidden>·</li>
               <li>Gratuit</li>
               <li aria-hidden>·</li>

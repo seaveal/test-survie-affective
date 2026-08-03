@@ -204,7 +204,7 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
   })
 
   describe('Preuve sociale et meta CTA', () => {
-    it('affiche la ligne caractéristiques (30 questions, 5 minutes, gratuit, confidentiel)', () => {
+    it('affiche la ligne caractéristiques (30 questions, 3 minutes, gratuit, confidentiel)', () => {
       render(<Welcome onCommencer={() => {}} />)
       const liste = screen.getByRole('list', {
         name: /caractéristiques du test/i,
@@ -213,7 +213,7 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
       // Scope sur la liste pour éviter collision avec DisclaimerFooter
       // (qui mentionne "gratuit" pour le 3114).
       expect(liste).toHaveTextContent(/30 questions/i)
-      expect(liste).toHaveTextContent(/5 minutes/i)
+      expect(liste).toHaveTextContent(/3 minutes/i)
       expect(liste).toHaveTextContent(/gratuit/i)
       expect(liste).toHaveTextContent(/confidentiel/i)
     })

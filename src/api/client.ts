@@ -15,6 +15,10 @@ declare global {
     h3cFb?: () => { fbp?: string; fbc?: string }
     h3cEventId?: () => string
     h3cTrack?: (event: string, params?: Record<string, unknown>) => void
+    // Variante mise en file jusqu'à ce que le consentement soit tranché. Un
+    // événement poussé avant la décision est évalué sur l'état « refusé », et
+    // GTM ne le réévalue jamais : il est perdu pour de bon.
+    h3cTrackPage?: (event: string, params?: Record<string, unknown>) => void
   }
 }
 
@@ -139,7 +143,13 @@ export async function submitTestComplete(
         ? window.h3cEventId()
         : `h3c-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
     try {
-      window.h3cTrack?.('lead', { event_id: payload.event_id })
+      // Version mise en file : la fin du Test peut survenir avant que le visiteur
+      // ait tranché la bannière de consentement. Poussé brut, le `lead` était alors
+      // évalué sur « refusé » et jamais rejoué — le prospect disparaissait de la
+      // mesure alors même qu'il venait de finir le Test (audit 2026-08-04).
+      // Repli sur l'appel direct si la page ne sert pas la file (pages anciennes).
+      const suivre = window.h3cTrackPage ?? window.h3cTrack
+      suivre?.('lead', { event_id: payload.event_id })
     } catch {
       // tracking indisponible : sans impact sur la capture
     }

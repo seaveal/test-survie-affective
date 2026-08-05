@@ -188,6 +188,16 @@ export interface UtmParams {
   campaign?: string
   content?: string
   term?: string
+  /**
+   * Code du lien court h3c.fr qui a amené le visiteur (paramètre `h3c`).
+   *
+   * Distinct des UTM, et c'est délibéré : `utm_content` a déjà une collision
+   * dans le parc, et deux emplacements peuvent partager une campagne. Le code
+   * est la clé primaire de la table des liens — c'est le seul champ qui
+   * identifie sans ambiguïté d'où vient une inscription, et donc le seul qui
+   * permette de dire de quelle étape d'une séquence vient une vente.
+   */
+  code?: string
 }
 
 /**
@@ -212,13 +222,14 @@ export function extractUtmParams(search?: string): UtmParams {
   if (search === undefined && typeof window !== 'undefined' && window.h3cAttribution) {
     try {
       const at = window.h3cAttribution()
-      if (at && (at.utm_source || at.utm_medium || at.utm_campaign)) {
+      if (at && (at.utm_source || at.utm_medium || at.utm_campaign || at.h3c)) {
         return {
           source: normStr(at.utm_source),
           medium: normStr(at.utm_medium),
           campaign: normStr(at.utm_campaign),
           content: normStr(at.utm_content),
           term: normStr(at.utm_term),
+          code: normStr(at.h3c),
         }
       }
     } catch {
@@ -242,6 +253,7 @@ export function extractUtmParams(search?: string): UtmParams {
     campaign: normStr(params.get('utm_campaign')),
     content: normStr(params.get('utm_content')),
     term: normStr(params.get('utm_term')),
+    code: normStr(params.get('h3c')),
   }
 }
 

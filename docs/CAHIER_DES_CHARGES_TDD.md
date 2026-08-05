@@ -311,7 +311,7 @@ Sections en scroll (verticales, mobile-first 360px mini) :
 4. Les 4 profils (Mendiant / Sauveur / Contrôleur / Fantôme, icônes Crown/Shield/Eye/User)
 5. Ce que le test vous donne (4 livrables : profil dominant + secondaire, intensité, 7 symptômes, prochain pas)
 6. Réassurance (5 min, gratuit, confidentiel, pas de jugement)
-7. Preuve sociale (39 000 Instagram, 47 000 YouTube)
+7. Preuve sociale (39 000 Instagram, 48 000 YouTube)
 8. CTA final + signature
 
 Règles techniques : Lora titres / Inter UI (variables `--font-titre` / `--font-ui`). Framer Motion `whileInView` discret, `useReducedMotion` respecté. Bundle < 250 Ko gzippé. Contraste AA. 0 tiret cadratin, 0 point-virgule (charte voix v2). Les DEUX boutons "Commencer le test" appellent `onCommencer` (contrat préservé).

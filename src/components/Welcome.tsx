@@ -350,7 +350,7 @@ export function Welcome({ onCommencer }: Props) {
               <li aria-hidden>·</li>
               <li>
                 <strong style={{ color: 'var(--h3c-texte-principal)' }}>
-                  47&nbsp;000
+                  48&nbsp;000
                 </strong>{' '}
                 sur YouTube
               </li>

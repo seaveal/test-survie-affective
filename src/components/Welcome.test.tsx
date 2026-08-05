@@ -218,12 +218,12 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
       expect(liste).toHaveTextContent(/confidentiel/i)
     })
 
-    it('affiche la preuve sociale 3 réseaux (39 000 IG, 47 000 YT, 13 000 FB)', () => {
+    it('affiche la preuve sociale 3 réseaux (39 000 IG, 48 000 YT, 13 000 FB)', () => {
       render(<Welcome onCommencer={() => {}} />)
       const liste = screen.getByRole('list', { name: /communauté/i })
       expect(liste).toBeInTheDocument()
       expect(liste).toHaveTextContent(/39\s?000/)
-      expect(liste).toHaveTextContent(/47\s?000/)
+      expect(liste).toHaveTextContent(/48\s?000/)
       expect(liste).toHaveTextContent(/13\s?000/)
       expect(liste).toHaveTextContent(/instagram/i)
       expect(liste).toHaveTextContent(/youtube/i)

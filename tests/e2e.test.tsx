@@ -69,11 +69,17 @@ async function passerLecranCapture(
   user: ReturnType<typeof userEvent.setup>,
   email: string = 'cyrille+e2e@cyrillenovou.com',
 ) {
-  // CaptureScreen affiche un champ email + 2 cases consentement + bouton "Recevoir mon profil"
+  // CaptureScreen affiche un champ email + 3 cases consentement (marketing, SMS,
+  // donnees de sante) + bouton "Recevoir mon profil"
   expect(screen.getByTestId('capture-screen')).toBeInTheDocument()
   const emailInput = screen.getByRole('textbox', { name: /email/i })
   await user.type(emailInput, email)
-  // Marketing coche par defaut, sante decoche par defaut : on garde l'etat
+  // Les trois cases partent decochees depuis le correctif RGPD-VX34 (une case
+  // pre-cochee ne vaut pas consentement : recital 32, CJUE Planet49). Ce
+  // parcours coche donc explicitement le marketing, comme le visiteur devra le
+  // faire : le garde reste en place tant que le decouplage n'est pas decide,
+  // et il est tenu en accord avec le validateur serveur, qui refuse `false`.
+  await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
   await user.click(screen.getByRole('button', { name: /Recevoir mon profil/i }))
 }
 

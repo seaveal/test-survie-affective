@@ -25,17 +25,30 @@ describe('CaptureScreen — sprint 2', () => {
     render(<CaptureScreen onSubmit={onSubmit} />)
     const emailInput = screen.getByRole('textbox', { name: /email/i })
     await user.type(emailInput, '  ALICE@H3C.LIFE  ')
+    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
     await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ email: 'alice@h3c.life' }),
     )
   })
 
-  it('marketing coche par defaut, sante decoche par defaut', () => {
+  // Correctif RGPD-VX34 (audit emailing 2026-08-09). Deux vices avaient ete
+  // releves ; UN SEUL est corrige ici, et la distinction compte :
+  //   - case marketing PRE-COCHEE (recital 32 / CJUE Planet49) : corrige, elle
+  //     part decochee. Aucun arbitrage n'etait requis, c'est un vice pur.
+  //   - refus BLOQUANT la remise du profil (art. 7.4) : NON corrige. Le lever
+  //     coute des leads, donc c'est une decision de Cyrille (rang 3, decision 2),
+  //     et son jumeau serveur `require_marketing_consent` refuse `false` par un
+  //     422. Les deux gardes se levent ensemble, ou pas du tout.
+  // Les tests qui suivent verrouillent cet etat exact, des deux cotes.
+
+  it('les trois cases de consentement partent decochees', () => {
     render(<CaptureScreen onSubmit={vi.fn()} />)
-    const mktCheckbox = screen.getByLabelText(/recevoir mon profil et les emails/i) as HTMLInputElement
+    const mktCheckbox = screen.getByLabelText(/emails de Cyrille Novou/i) as HTMLInputElement
+    const smsCheckbox = screen.getByLabelText(/rappels et declics par sms/i) as HTMLInputElement
     const santeCheckbox = screen.getByLabelText(/etat emotionnel/i) as HTMLInputElement
-    expect(mktCheckbox.checked).toBe(true)
+    expect(mktCheckbox.checked).toBe(false)
+    expect(smsCheckbox.checked).toBe(false)
     expect(santeCheckbox.checked).toBe(false)
   })
 
@@ -46,25 +59,52 @@ describe('CaptureScreen — sprint 2', () => {
     const emailInput = screen.getByRole('textbox', { name: /email/i })
     await user.type(emailInput, 'a@b.fr')
     // sante reste decoche par defaut
+    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
     await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
         consentementDonneesSante: false,
-        consentementMarketing: true,
       }),
     )
   })
 
-  it('refus consentement marketing bloque le submit (canal email = livraison V1)', async () => {
+  it('refus du marketing : le submit est bloque, en accord avec le validateur serveur', async () => {
+    // Le decouplage (remettre le profil malgre un refus, art. 7.4) est une
+    // decision de Cyrille, pas un correctif : il coute des leads. Tant qu'elle
+    // n'est pas rendue, le garde reste, et il DOIT rester : son jumeau serveur
+    // `require_marketing_consent` refuse `false` par un 422. Le retirer ici seul
+    // remplacerait un message lisible par un echec dur, sans profil du tout.
+    // Le jour de la decision, les deux tombent ensemble et ce banc s'inverse.
     const user = userEvent.setup()
     const onSubmit = vi.fn()
     render(<CaptureScreen onSubmit={onSubmit} />)
     const emailInput = screen.getByRole('textbox', { name: /email/i })
     await user.type(emailInput, 'a@b.fr')
-    await user.click(screen.getByLabelText(/recevoir mon profil et les emails/i))
+    // la case marketing est laissee vide : c'est le refus
     await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
     expect(onSubmit).not.toHaveBeenCalled()
     expect(screen.getByRole('alert')).toBeInTheDocument()
+  })
+
+  it('acceptation du marketing : la case cochee remonte consentementMarketing=true', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn()
+    render(<CaptureScreen onSubmit={onSubmit} />)
+    await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
+    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
+    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ consentementMarketing: true }),
+    )
+  })
+
+  it("l'ecran dit vrai sur ce que la case conditionne", () => {
+    // Le texte ne doit RIEN promettre que le garde dement : tant que le refus
+    // bloque, ecrire « cette case ne conditionne rien » serait un mensonge a
+    // l'utilisateur. Ce banc verrouille l'accord entre le dire et le faire.
+    render(<CaptureScreen onSubmit={vi.fn()} />)
+    expect(screen.getByText(/cochez\s+cette case pour les recevoir/i)).toBeInTheDocument()
+    expect(screen.queryByText(/ne conditionne rien/i)).not.toBeInTheDocument()
   })
 
   it('bouton desactive et libelle change quand envoiEnCours=true', () => {
@@ -89,6 +129,7 @@ describe('CaptureScreen — sprint 2', () => {
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
     await user.type(screen.getByLabelText(/mobile/i), '06 12 34 56 78')
     await user.click(screen.getByLabelText(/rappels et declics par sms/i))
+    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
     await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ telephone: '+33612345678', consentementSms: true }),
@@ -102,6 +143,7 @@ describe('CaptureScreen — sprint 2', () => {
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
     await user.type(screen.getByLabelText(/mobile/i), '06 12 34 56 78')
     // case SMS volontairement laissee decochee
+    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
     await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ telephone: undefined, consentementSms: false }),
@@ -125,6 +167,7 @@ describe('CaptureScreen — sprint 2', () => {
     const onSubmit = vi.fn()
     render(<CaptureScreen onSubmit={onSubmit} />)
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
+    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
     await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ telephone: undefined, consentementSms: false }),

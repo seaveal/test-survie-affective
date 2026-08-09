@@ -51,6 +51,18 @@ describe('api/client', () => {
       expect(p.resultat.reponsesBrutes).toEqual({ q1: 'A' })
     })
 
+    it('un refus marketing part bien en false (RGPD-VX34)', () => {
+      // Le constructeur de payload doit porter le refus TEL QUEL, sans le
+      // corriger en silence. Aujourd'hui l'ecran bloque en amont et le
+      // validateur serveur refuse `false` par un 422, donc ce cas ne se produit
+      // pas en ligne : ce banc tient la marche pour le jour ou le decouplage
+      // sera decide (rang 3 de l'audit, decision de Cyrille). Le jour venu, la
+      // seule chose a ne PAS avoir a corriger est ce constructeur.
+      const p = buildPayload({ ...CAPTURE, consentementMarketing: false }, RESULTAT, {}, {})
+      expect(p.consentement_marketing).toBe(false)
+      expect(p.email).toBe('alice@h3c.life')
+    })
+
     it('omet prenom si vide', () => {
       const p = buildPayload(
         { ...CAPTURE, prenom: '' },
@@ -161,6 +173,68 @@ describe('api/client', () => {
         medium: undefined,
         campaign: undefined,
       })
+    })
+
+    // --- Le code du lien court : casse préservée, et jamais court-circuité ---
+    //
+    // Ces trois cas encadrent le défaut qui a laissé `contacts.origine_code`
+    // vide sur la totalité de la base pendant que tout le reste semblait câblé.
+
+    it('préserve la casse du code du lien court', () => {
+      // 125 des 326 codes du parc portent une majuscule ; la table des liens y
+      // est sensible. Un `httbc` en minuscules ne correspond à aucun lien.
+      expect(extractUtmParams('?h3c=HTTbC').code).toBe('HTTbC')
+      expect(extractUtmParams('?h3c=%20MceDn%20').code).toBe('MceDn')
+      expect(extractUtmParams('?h3c=%20%20').code).toBeUndefined()
+    })
+
+    it('lit le code dans l’URL quand l’attribution persistée n’en porte pas', () => {
+      // Le cas réel : un first-touch posé avant le 2026-08-06 porte les UTM
+      // sans le code, et il reste valable quatre-vingt-dix jours. Sans ce
+      // repli, la correction du bloc de tracking n'aurait produit ses premiers
+      // effets qu'en novembre.
+      const w = window as unknown as { h3cAttribution?: () => Record<string, string> }
+      const originalAttr = w.h3cAttribution
+      const originalSearch = window.location.search
+      w.h3cAttribution = () => ({ utm_source: 'instagram', utm_medium: 'social' })
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: { ...window.location, search: '?h3c=XyZ12' },
+      })
+      try {
+        const p = extractUtmParams()
+        expect(p.source).toBe('instagram')
+        expect(p.code).toBe('XyZ12')
+      } finally {
+        w.h3cAttribution = originalAttr
+        Object.defineProperty(window, 'location', {
+          configurable: true,
+          value: { ...window.location, search: originalSearch },
+        })
+      }
+    })
+
+    it('le code persisté en first-touch prime sur celui de l’URL courante', () => {
+      // Une fois le bloc corrigé, c'est la PREMIÈRE venue qui fait foi : un
+      // contact qui revient par un autre lien ne change pas d'origine, sinon la
+      // dernière publication s'attribuerait le travail de toutes les autres.
+      const w = window as unknown as { h3cAttribution?: () => Record<string, string> }
+      const originalAttr = w.h3cAttribution
+      const originalSearch = window.location.search
+      w.h3cAttribution = () => ({ utm_source: 'instagram', h3c: 'PreMier' })
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: { ...window.location, search: '?h3c=SecOnd' },
+      })
+      try {
+        expect(extractUtmParams().code).toBe('PreMier')
+      } finally {
+        w.h3cAttribution = originalAttr
+        Object.defineProperty(window, 'location', {
+          configurable: true,
+          value: { ...window.location, search: originalSearch },
+        })
+      }
     })
   })
 

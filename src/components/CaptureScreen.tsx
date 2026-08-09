@@ -13,7 +13,22 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
   const [email, setEmail] = useState('')
   const [prenom, setPrenom] = useState('')
   const [telephone, setTelephone] = useState('')
-  const [consMkt, setConsMkt] = useState(true)
+  // Consentement marketing : case DECOCHEE par defaut.
+  //
+  // Une case pre-cochee ne vaut pas acte positif clair (RGPD recital 32, CJUE
+  // Planet49 C-673/17). Ce vice-la n'appelle aucun arbitrage : il est corrige.
+  //
+  // Le SECOND vice — conditionner la remise du profil a l'opt-in, contraire a
+  // l'art. 7.4 — n'est PAS corrige ici, et c'est deliberé. Le lever coute des
+  // leads, donc c'est une decision de Cyrille (audit 2026-08-09, rang 3 et
+  // decision 2). Le garde ci-dessous reste donc en place.
+  //
+  // Il DOIT rester tant que la decision n'est pas rendue : son jumeau serveur
+  // `require_marketing_consent` (tsa-api models.py) refuse `false` par un 422.
+  // Retirer le garde ici sans retirer celui-la ne decouple rien — cela remplace
+  // un message clair par un echec dur, et le visiteur n'obtient plus de profil
+  // du tout. Les deux se levent ensemble, ou pas du tout.
+  const [consMkt, setConsMkt] = useState(false)
   const [consSms, setConsSms] = useState(false)
   const [consSante, setConsSante] = useState(false)
   const [erreur, setErreur] = useState<string | null>(null)
@@ -25,6 +40,9 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
       setErreur('Merci de saisir un email valide.')
       return
     }
+    // Garde tenu en accord avec le validateur serveur, qui refuse `false` par
+    // un 422 (cf. le commentaire de `consMkt`). Un message ici vaut mieux qu'un
+    // echec dur la-bas. Les deux tombent ensemble le jour de la decision.
     if (!consMkt) {
       setErreur("Le consentement marketing est requis pour recevoir votre profil par email.")
       return
@@ -148,9 +166,22 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
               className="mt-1 h-4 w-4"
             />
             <span>
-              J'accepte de recevoir mon profil et les emails suivants.
+              J'accepte de recevoir les emails de Cyrille Novou : ses textes, ses
+              séances guidées et ses propositions d'accompagnement. Je peux me
+              désinscrire en un clic, en bas de chaque email.
             </span>
           </label>
+
+          {/* Art. 7.4 : la gratuité du consentement doit être visible à l'écran,
+              pas seulement vraie dans le code. */}
+          <p
+            className="text-xs leading-relaxed"
+            style={{ color: 'var(--h3c-texte-secondaire)' }}
+          >
+            Votre profil et votre cadeau vous sont envoyés par email : cochez
+            cette case pour les recevoir. Vous pouvez vous désinscrire à tout
+            moment, en un clic, depuis n'importe lequel de ces emails.
+          </p>
 
           <label
             htmlFor="cap-cons-sms"

@@ -31,3 +31,6 @@ coverage
 .env
 .env.*
 !.env.example
+
+# Graphify artefact
+graphify-out/

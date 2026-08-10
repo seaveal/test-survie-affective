@@ -216,9 +216,43 @@ export function extractUtmParams(search?: string): UtmParams {
     return trimmed === '' ? undefined : trimmed
   }
 
+  // Le CODE ne se met pas en minuscules, contrairement aux UTM.
+  //
+  // Il est la clé primaire de la table des liens, et cette table est sensible à
+  // la casse : 125 des 326 codes du parc portent au moins une majuscule
+  // (`HTTbC`, `MceDn`, `3TV9C` — le raccourcisseur tire en base62). Abaisser la
+  // casse ici produit un code qui ne correspond à rien : la résolution le
+  // classerait « code inconnu » et l'origine resterait vide, ce qui est
+  // exactement l'inverse du but. Les UTM, elles, sont normalisées côté back et
+  // n'ont pas cette contrainte.
+  const normCode = (v: string | null | undefined): string | undefined => {
+    if (v === null || v === undefined) return undefined
+    const trimmed = v.trim()
+    return trimmed === '' ? undefined : trimmed
+  }
+
+  // Le code de la querystring COURANTE, quand l'attribution persistée n'en a
+  // pas. Deux raisons de le lire séparément, et elles se cumulent :
+  //
+  // 1. Le bloc H3C-TRACKING n'a persisté `h3c` qu'à partir du 2026-08-06. Les
+  //    visiteurs dont l'attribution a été posée avant portent un first-touch
+  //    sans code, valable quatre-vingt-dix jours. Sans ce repli, le correctif
+  //    du bloc ne produirait ses premiers effets qu'en novembre.
+  // 2. La condition d'entrée de la branche ci-dessous se satisfait d'une seule
+  //    UTM. Une attribution qui porte `utm_source` sans `h3c` renvoie donc un
+  //    résultat sans code, et le repli en fin de fonction n'est jamais atteint.
+  const codeDeLUrl = (): string | undefined => {
+    if (typeof window === 'undefined') return undefined
+    try {
+      return normCode(new URLSearchParams(window.location.search).get('h3c'))
+    } catch {
+      return undefined
+    }
+  }
+
   // Chantier 8 : préfère l'attribution FIRST-TOUCH persistée par le bloc
-  // H3C-TRACKING (sessionStorage) — survit aux navigations internes du SPA
-  // là où window.location.search se perd. Fallback : querystring courante.
+  // H3C-TRACKING (localStorage, TTL 90 j) — survit aux navigations internes du
+  // SPA là où window.location.search se perd. Fallback : querystring courante.
   if (search === undefined && typeof window !== 'undefined' && window.h3cAttribution) {
     try {
       const at = window.h3cAttribution()
@@ -229,7 +263,7 @@ export function extractUtmParams(search?: string): UtmParams {
           campaign: normStr(at.utm_campaign),
           content: normStr(at.utm_content),
           term: normStr(at.utm_term),
-          code: normStr(at.h3c),
+          code: normCode(at.h3c) ?? codeDeLUrl(),
         }
       }
     } catch {
@@ -253,7 +287,7 @@ export function extractUtmParams(search?: string): UtmParams {
     campaign: normStr(params.get('utm_campaign')),
     content: normStr(params.get('utm_content')),
     term: normStr(params.get('utm_term')),
-    code: normStr(params.get('h3c')),
+    code: normCode(params.get('h3c')),
   }
 }
 

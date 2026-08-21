@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="fr">
   <head>
-<!-- H3C-TRACKING:BEGIN cfg=f4c6123338ac site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
+<!-- H3C-TRACKING:BEGIN cfg=504d48e64cec site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
 <script>
 (function () {
   'use strict';
@@ -21,6 +21,7 @@
     analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted'
   });
 
+  // ATTRIBUTION:DEBUT — bornes lues par verifier-repli-attribution.mjs.
   // --- Attribution first-touch (localStorage first-party, TTL 90 j — survit à la fermeture
   // d'onglet et voyage jusqu'au Purchase serveur) ---
   var ATTR_KEY = 'h3c_attribution';
@@ -32,27 +33,45 @@
       return a;
     } catch (e) { return null; }
   }
+  // Ce que dit la visite EN COURS, calculé à la demande et sans jamais lire le
+  // stockage. Sert deux fois : à constituer le premier contact, et à répondre
+  // quand le stockage est muet.
+  function contexteVivant() {
+    var q = new URLSearchParams(window.location.search), at = {};
+    // `h3c` est le code du lien court, et il se persiste ici au même titre que
+    // les UTM. Sans lui dans cette liste, `window.h3cAttribution()` rend un
+    // objet sans code : le front voit une attribution non vide, s'en contente,
+    // et n'atteint jamais son repli sur la querystring. C'est ainsi que
+    // `contacts.origine_code` est resté vide sur la totalité de la base.
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'h3c', 'fbclid', 'gclid'].forEach(function (k) {
+      var v = q.get(k); if (v) at[k] = v.slice(0, 200);
+    });
+    at.landing = window.location.pathname;
+    if (document.referrer) at.referrer = document.referrer.slice(0, 200);
+    return at;
+  }
   try {
     if (!readAttribution()) {
-      var q = new URLSearchParams(window.location.search), at = {};
-      // `h3c` est le code du lien court, et il se persiste ici au même titre que
-      // les UTM. Sans lui dans cette liste, `window.h3cAttribution()` rend un
-      // objet sans code : le front voit une attribution non vide, s'en contente,
-      // et n'atteint jamais son repli sur la querystring. C'est ainsi que
-      // `contacts.origine_code` est resté vide sur la totalité de la base.
-      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'h3c', 'fbclid', 'gclid'].forEach(function (k) {
-        var v = q.get(k); if (v) at[k] = v.slice(0, 200);
-      });
-      at.landing = window.location.pathname;
-      if (document.referrer) at.referrer = document.referrer.slice(0, 200);
-      at.ts = Date.now();
-      localStorage.setItem(ATTR_KEY, JSON.stringify(at));
+      var premier = contexteVivant();
+      premier.ts = Date.now();
+      localStorage.setItem(ATTR_KEY, JSON.stringify(premier));
     }
   } catch (e) {}
 
   window.h3cAttribution = function () {
-    return readAttribution() || {};
+    // Repli sur le contexte vivant quand le stockage est indisponible : fenêtre
+    // privée, cookies refusés, stockage purgé entre l'arrivée et le paiement.
+    // Le premier contact reste prioritaire — ce repli ne le remplace jamais, il
+    // parle seulement quand le stockage se tait.
+    //
+    // Sans lui, un objet VIDE partait au paiement et la vente ressortait
+    // « directe » alors que `document.referrer` la nommait, en mémoire, au même
+    // instant. Signature de ce cas : `ab_livre` seul dans les metadata Stripe,
+    // sans `fbp` ni `landing` — le stockage était mort, pas la visite.
+    return readAttribution() || contexteVivant();
   };
+
+  // ATTRIBUTION:FIN
 
   // _fbp/_fbc (cookies posés par le Pixel après consentement) — qualité de match Meta CAPI.
   window.h3cFb = function () {

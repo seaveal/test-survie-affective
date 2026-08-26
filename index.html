@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="fr">
   <head>
-<!-- H3C-TRACKING:BEGIN cfg=504d48e64cec site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
+<!-- H3C-TRACKING:BEGIN cfg=5a12d973a439 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
 <script>
 (function () {
   'use strict';
@@ -73,13 +73,98 @@
 
   // ATTRIBUTION:FIN
 
+  // --- ID du clic Meta (`fbc`) : capté, gardé, et REPOSÉ en cookie `_fbc` ---
+  //
+  // Le Pixel ne fabrique `_fbc` que s'il voit `fbclid` dans l'URL à l'instant où il
+  // s'initialise. Trois situations courantes le lui interdisent, et chacune coûte
+  // l'attribution de la visite entière :
+  //   - le visiteur refuse d'abord les cookies puis accepte plus tard : au moment où
+  //     le Pixel charge enfin, l'URL n'a plus le `fbclid` ;
+  //   - il arrive par la pub puis navigue (CGV, page audio, merci.html) : le Pixel
+  //     se réinitialise sur chaque page, sans `fbclid` nulle part ;
+  //   - il était déjà venu en organique : le premier contact est figé et ne retient
+  //     jamais le clic publicitaire qui vient après.
+  // On garde donc le clic dans un magasin à part — DERNIER clic gagnant, comme le
+  // fait Meta, alors que `h3c_attribution` est du premier contact et ne doit pas le
+  // devenir — et on repose le cookie soi-même dès que la publicité est consentie,
+  // AVANT le chargement de GTM. Le Pixel le relit ensuite sur chaque page, donc
+  // PageView le porte. C'est la recommandation Meta du 2026-08-26 (« envoyer l'ID du
+  // clic (fbc) pour PageView »).
+  var FBC_KEY = 'h3c_fbc';
+  var FBC_TTL_MS = 90 * 24 * 3600 * 1000;   // fenêtre d'attribution Meta
+
+  // Domaine porteur du cookie ET index de sous-domaine du format
+  // `fb.<index>.<horodatage>.<id>` : les deux sortent du même calcul, sinon ils
+  // divergent. `livre.souverainauquotidien.com` → cookie sur
+  // `.souverainauquotidien.com` (2 étiquettes) → index 1, exactement ce que pose
+  // fbevents.js. Un index faux, ou deux cookies `_fbc` sur deux domaines, et
+  // l'appariement retombe à zéro au lieu de progresser.
+  function fbcPortee() {
+    var h = window.location.hostname.split('.');
+    if (h.length < 2) return { domaine: '', index: 0 };   // localhost, IP
+    return { domaine: '.' + h.slice(-2).join('.'), index: 1 };
+  }
+
+  function lireCookie(nom) {
+    try {
+      var m = document.cookie.match(new RegExp('(?:^|; )' + nom + '=([^;]*)'));
+      return m ? m[1] : '';
+    } catch (e) { return ''; }
+  }
+
+  function lireClic() {
+    try {
+      var c = JSON.parse(localStorage.getItem(FBC_KEY) || 'null');
+      if (c && c.id && c.ts && Date.now() - c.ts <= FBC_TTL_MS) return c;
+    } catch (e) {}
+    // Repli sur le premier contact, pour les visiteurs déjà dans la fenêtre
+    // d'attribution le jour où ce magasin est apparu. Il s'éteint tout seul.
+    try {
+      var a = window.h3cAttribution();
+      if (a && a.fbclid) return { id: a.fbclid, ts: a.ts || Date.now() };
+    } catch (e) {}
+    return null;
+  }
+
+  (function capterClic() {
+    try {
+      var id = new URLSearchParams(window.location.search).get('fbclid');
+      // 380 caractères : `fb.1.` + 13 chiffres + `.` occupent 19, et la valeur
+      // complète doit tenir dans les 400 admis par `tsa-api` (models.py) comme
+      // dans les 500 d'une metadata Stripe. Tronquer l'identifiant lui-même le
+      // rendrait inappariable — mieux vaut une borne haute qu'une coupe au milieu.
+      if (id) localStorage.setItem(FBC_KEY, JSON.stringify({ id: id.slice(0, 380), ts: Date.now() }));
+    } catch (e) {}
+  })();
+
+  // Valeur `_fbc` telle que Meta l'attend, horodatée à l'INSTANT DU CLIC.
+  // `Date.now()` à la lecture datait le clic du moment du paiement : sur un achat
+  // à trois jours, l'horodatage partait faux de trois jours et dégradait
+  // l'appariement au lieu de l'améliorer.
+  function valeurFbc() {
+    var c = lireClic();
+    return c ? 'fb.' + fbcPortee().index + '.' + c.ts + '.' + c.id : '';
+  }
+
+  // Repose `_fbc` sur le domaine racine, et seulement si le Pixel ne l'a pas déjà
+  // posé lui-même. Appelé APRÈS l'accord publicitaire et AVANT le chargement de GTM.
+  window.h3cPoserFbc = function () {
+    try {
+      if (lireCookie('_fbc')) return;      // le Pixel a vu le fbclid : rien à faire
+      var v = valeurFbc();
+      if (!v) return;
+      var p = fbcPortee();
+      document.cookie = '_fbc=' + v + ';path=/' + (p.domaine ? ';domain=' + p.domaine : '') +
+        ';max-age=' + Math.floor(FBC_TTL_MS / 1000) + ';SameSite=Lax';
+    } catch (e) {}
+  };
+
   // _fbp/_fbc (cookies posés par le Pixel après consentement) — qualité de match Meta CAPI.
   window.h3cFb = function () {
     var out = {};
     try {
-      var p = document.cookie.match(/(?:^|; )_fbp=([^;]+)/); if (p) out.fbp = p[1];
-      var c = document.cookie.match(/(?:^|; )_fbc=([^;]+)/); if (c) out.fbc = c[1];
-      if (!out.fbc) { var a = window.h3cAttribution(); if (a.fbclid) out.fbc = 'fb.1.' + Date.now() + '.' + a.fbclid; }
+      var p = lireCookie('_fbp'); if (p) out.fbp = p;
+      var c = lireCookie('_fbc') || valeurFbc(); if (c) out.fbc = c;
     } catch (e) {}
     return out;
   };
@@ -148,6 +233,12 @@
       ad_user_data: c.ads ? 'granted' : 'denied',
       ad_personalization: c.ads ? 'granted' : 'denied'
     });
+    // `_fbc` reposé ICI, entre l'accord et le chargement de GTM : le Pixel le lit
+    // à son initialisation et l'attache à PageView, puis à tous les événements de
+    // la page. Sous l'accord publicitaire seulement — c'est un cookie de publicité,
+    // et le Pixel navigateur reste bloqué sans consentement (l'envoi serveur, lui,
+    // part inconditionnellement : asymétrie assumée, décision du 2026-08-21).
+    if (c.ads) window.h3cPoserFbc();
     // Les événements de page partent APRÈS la mise à jour du consentement et AVANT
     // le chargement de GTM : la file rejouée est alors consent:default →
     // consent:update → view_content/purchase → gtm.js. Les balises sont évaluées

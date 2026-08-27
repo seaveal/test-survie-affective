@@ -38,15 +38,15 @@ export function DisclaimerFooter() {
         national de prévention du suicide, gratuit, 24/7).
       </p>
       <nav className="mt-4 flex flex-wrap justify-center gap-x-3 gap-y-2 text-xs">
-        <a href={URL_MENTIONS} className="underline">
+        <a href={URL_MENTIONS} className="tsa-lien-legal underline">
           Mentions légales
         </a>
         <span aria-hidden>·</span>
-        <a href={URL_CGV} className="underline">
+        <a href={URL_CGV} className="tsa-lien-legal underline">
           CGV
         </a>
         <span aria-hidden>·</span>
-        <a href={URL_PRIVACY} className="underline">
+        <a href={URL_PRIVACY} className="tsa-lien-legal underline">
           Politique de confidentialité
         </a>
       </nav>

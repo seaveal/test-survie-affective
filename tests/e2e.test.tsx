@@ -14,11 +14,10 @@ import App from '../src/App'
  */
 
 async function commencerLeTest(user: ReturnType<typeof userEvent.setup>) {
-  // Welcome v2 (2026-05-25) : un seul bouton "Commencer le test" sur le hero
-  // (les sections de vente du 24/05 ont été supprimées). getAllByRole reste
-  // tolérant si un autre bouton du même libellé réapparaissait un jour.
-  const boutons = screen.getAllByRole('button', { name: /commencer le test/i })
-  await user.click(boutons[0])
+  // Audit conversion 2026-08-27 : deux boutons « Découvrir mon masque »,
+  // l'un au-dessus de la ligne de flottaison, l'autre en bas de page. Le
+  // parcours part du premier.
+  await user.click(screen.getByTestId('cta-haut'))
 }
 
 async function repondreToutTypage(

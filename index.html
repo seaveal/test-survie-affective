@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="fr">
   <head>
-<!-- H3C-TRACKING:BEGIN cfg=5a12d973a439 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
+    <meta charset="UTF-8" />
+<!-- H3C-TRACKING:BEGIN cfg=7b3f789db55a site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
 <script>
 (function () {
   'use strict';
@@ -254,7 +255,7 @@
   }
 
   // --- Bannière CNIL : refuser aussi simple qu'accepter, choix révocable (bouton Cookies) ---
-  var STYLE = '#h3c-cmp{position:fixed;left:0;right:0;bottom:0;z-index:2147483000;background:#fff;border-top:1px solid #e4ddd4;box-shadow:0 -4px 24px rgba(0,0,0,.12);padding:16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}#h3c-cmp .h3c-cmp-in{max-width:760px;margin:0 auto;}#h3c-cmp p{margin:0 0 10px;font-size:.86rem;line-height:1.5;color:#4a4a4a;}#h3c-cmp a{color:#A8432B;}#h3c-cmp .h3c-cmp-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}#h3c-cmp button{font:inherit;font-size:.85rem;font-weight:600;border-radius:9px;padding:10px 16px;cursor:pointer;border:1px solid #cbb6a6;background:#fff;color:#333;}#h3c-cmp .h3c-ok{background:#A8432B;border-color:#A8432B;color:#fff;}#h3c-cmp label{font-size:.82rem;color:#4a4a4a;margin-right:10px;display:inline-flex;align-items:center;gap:5px;}#h3c-cmp .h3c-cats{display:none;margin:6px 0 4px;}#h3c-cmp .h3c-cats.on{display:block;}#h3c-reopen{position:fixed;left:10px;bottom:10px;z-index:2147482999;font-size:.72rem;background:rgba(255,255,255,.92);border:1px solid #e4ddd4;border-radius:8px;padding:4px 9px;cursor:pointer;color:#6a6a6a;font-family:system-ui,sans-serif;}';
+  var STYLE = '#h3c-cmp{position:fixed;left:0;right:0;bottom:0;z-index:2147483000;background:#fff;border-top:1px solid #e4ddd4;box-shadow:0 -4px 24px rgba(0,0,0,.12);padding:16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}#h3c-cmp .h3c-cmp-in{max-width:760px;margin:0 auto;}#h3c-cmp p{margin:0 0 10px;font-size:.86rem;line-height:1.5;color:#4a4a4a;}#h3c-cmp a{color:#A8432B;text-decoration:underline;}#h3c-cmp .h3c-cmp-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}#h3c-cmp button{font:inherit;font-size:.85rem;font-weight:600;border-radius:9px;padding:10px 16px;cursor:pointer;border:1px solid #cbb6a6;background:#fff;color:#333;}#h3c-cmp .h3c-ok{background:#A8432B;border-color:#A8432B;color:#fff;}#h3c-cmp label{font-size:.82rem;color:#4a4a4a;margin-right:10px;display:inline-flex;align-items:center;gap:5px;}#h3c-cmp .h3c-cats{display:none;margin:6px 0 4px;}#h3c-cmp .h3c-cats.on{display:block;}#h3c-reopen{position:fixed;left:10px;bottom:10px;z-index:2147482999;font-size:.72rem;background:rgba(255,255,255,.92);border:1px solid #e4ddd4;border-radius:8px;padding:4px 9px;cursor:pointer;color:#6a6a6a;font-family:system-ui,sans-serif;}';
 
   function addReopen() {
     if (document.getElementById('h3c-reopen')) return;
@@ -310,10 +311,9 @@
 })();
 </script>
 <!-- H3C-TRACKING:END -->
-    <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#8b7355" />
+    <meta name="theme-color" content="#A8432B" />
     <meta name="robots" content="index,follow" />
 
     <!-- SEO primaire : cluster « dépendance affective » (Règle 12 : zéro vocabulaire clinique côté indexable) -->
@@ -356,13 +356,14 @@
     />
     <meta name="twitter:image" content="https://test.souverainauquotidien.com/og-image.png" />
 
-    <!-- Polices Google Fonts (non bloquant via display=swap) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:wght@400;500;600&family=Oswald:wght@500;600&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Polices auto-hébergées depuis le 2026-08-27 (audit conversion).
+         La feuille Google Fonts bloquait le rendu 785 ms sur la chaîne du LCP,
+         qui est le H1 en Lora. Les @font-face vivent dans src/index.css, les
+         fichiers dans public/fonts/. On précharge les trois sous-ensembles
+         latins réellement peints au-dessus de la ligne de flottaison. -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/lora-400-normal-latin.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/inter-400-normal-latin.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/oswald-500-normal-latin.woff2" />
 
     <!-- Données structurées JSON-LD : WebSite + Quiz + Person (Cyrille NOVOU) + Book (cluster « dépendance affective » + signal d'autorité auteur) -->
     <script type="application/ld+json">
@@ -445,6 +446,10 @@
     <!--
       Pré-rendu SEO statique pour crawlers no-JS (Perplexity, ChatGPT, Claude, Bingbot legacy).
       Le contenu doit mirror Welcome.tsx. À synchroniser manuellement si refonte design.
+      Resynchronisé le 2026-08-27 (audit conversion) : libellé du CTA aligné sur
+      « Découvrir mon masque », liens légaux ramenés sur /legal/* (ils pointaient
+      encore vers /mentions-legales, /cgv et /privacy, corrigés côté React le
+      2026-06-15 mais pas ici).
       Google rend le JS donc verra le contenu React enrichi.
       Pattern <noscript> = conforme guidelines SEO, pas de cloaking.
     -->
@@ -482,7 +487,7 @@
 
         <p><strong>30 questions, 3 minutes, confidentiel.</strong> Ce test n'est pas un quiz parmi d'autres : il identifie votre schéma relationnel dominant parmi quatre archétypes propriétaires, et l'intensité avec laquelle il vous tient.</p>
 
-        <p><a href="https://test.souverainauquotidien.com/">Commencer le test de dépendance affective</a></p>
+        <p><a href="https://test.souverainauquotidien.com/">Découvrir mon masque, le test de dépendance affective</a></p>
 
         <section aria-label="L'auteur">
           <h2>Cyrille NOVOU, coach en dépendance affective</h2>
@@ -491,7 +496,7 @@
         </section>
       </main>
       <footer>
-        <p><a href="/mentions-legales">Mentions légales</a> · <a href="/cgv">CGV</a> · <a href="/privacy">Politique de confidentialité</a></p>
+        <p><a href="/legal/terms">Mentions légales</a> · <a href="/legal/terms">CGV</a> · <a href="/legal/privacy">Politique de confidentialité</a></p>
       </footer>
     </noscript>
 

@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { MasquesHero } from './MasquesHero'
 import { DisclaimerFooter } from './DisclaimerFooter'
 
@@ -18,25 +17,36 @@ interface Props {
  *   tension du descriptionBase canonique)
  * - Échelle typo affirmée (eyebrow Oswald MAJ → H1 Lora large → corps Inter)
  * - CTA terracotta #A8432B (token --h3c-accent-terracotta) avec hover/active/focus nets
- * - Preuve sociale en points distincts (3 réseaux + 700 témoignages)
+ * - Preuve sociale en points distincts (3 réseaux + témoignages)
  * - Longueur resserrée : hero + masques + CTA + preuve, c'est tout
  * - visage → masque (3 occurrences remplacées)
  * - DisclaimerFooter Règle 12 préservé sur route welcome
  *
+ * Audit conversion 2026-08-27 :
+ * - Le hero, l'eyebrow, le H1 et la signature ne sont PLUS animés. Le H1 est
+ *   l'élément LCP de la page : le faire naître à `opacity: 0` derrière un
+ *   stagger framer-motion coûtait ~600 ms de LCP, et faisait voir à axe un
+ *   texte à mi-fondu, donc un contraste mélangé (les 27 nœuds « serious »
+ *   du rapport Landing Doctor, non reproductibles au repos). Le fondu ne
+ *   commence qu'à partir du corps de texte.
+ * - Un CTA vit désormais au-dessus de la ligne de flottaison, précédé de la
+ *   demande explicite (doctrine : le corps demande, le bouton exécute) et
+ *   suivi de ce que le visiteur obtient vraiment, mur email compris.
+ *
  * Apparition staggered respecte `useReducedMotion`. Contrat `onCommencer`
- * préservé : seul appelant des 1 boutons CTA.
+ * préservé : les deux boutons CTA passent par `lancer()`, seul appelant.
  *
  * Charte voix v2 : 0 tiret cadratin, 0 point-virgule.
  */
 
-const STACK_VARIANTS: Variants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-}
-
-const ITEM_VARIANTS: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+/**
+ * Décalage d'apparition des blocs sous la ligne de flottaison. L'animation
+ * elle-même vit dans src/index.css (.tsa-apparition), en CSS pure : c'est un
+ * glissement, sans fondu d'opacité, pour qu'aucun texte ne soit jamais mesuré
+ * à mi-transparence. `prefers-reduced-motion` est honoré par media query.
+ */
+function apparition(delai: number) {
+  return { style: { animationDelay: `${delai}s` } }
 }
 
 /**
@@ -132,12 +142,61 @@ const CARTES: CarteMasque[] = [
   },
 ]
 
+/**
+ * Bouton unique des deux emplacements CTA. `emplacement` ne change rien au
+ * rendu : il part avec l'événement de suivi, pour savoir lequel des deux
+ * déclenche réellement les tests.
+ */
+function BoutonTest({
+  onClick,
+  emplacement,
+}: {
+  onClick: (emplacement: 'haut' | 'bas') => void
+  emplacement: 'haut' | 'bas'
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onClick(emplacement)}
+      data-testid={`cta-${emplacement}`}
+      className="tsa-cta-terracotta rounded-lg px-10 py-4 text-base font-medium text-white shadow-md md:text-lg"
+    >
+      Découvrir mon masque
+    </button>
+  )
+}
+
+function CaracteristiquesTest() {
+  return (
+    <ul
+      className="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm"
+      style={{ color: 'var(--h3c-texte-secondaire)' }}
+      aria-label="Caractéristiques du test"
+    >
+      <li>30 questions</li>
+      <li aria-hidden>·</li>
+      <li>3 minutes</li>
+      <li aria-hidden>·</li>
+      <li>Gratuit</li>
+      <li aria-hidden>·</li>
+      <li>Confidentiel</li>
+    </ul>
+  )
+}
+
 export function Welcome({ onCommencer }: Props) {
-  const reduceMotion = useReducedMotion()
-  const stackProps = reduceMotion
-    ? {}
-    : { initial: 'hidden' as const, animate: 'visible' as const, variants: STACK_VARIANTS }
-  const itemProps = reduceMotion ? {} : { variants: ITEM_VARIANTS }
+  /**
+   * Seul chemin vers `onCommencer`. Le clic CTA était le trou de mesure du
+   * funnel : ce front n'émettait que `lead`, à la capture email, tout en bas.
+   * Sans numérateur ici, le taux de clic de la page d'accueil n'existait pas.
+   * `h3cTrackPage` met en file jusqu'au tranchage du consentement, `h3cTrack`
+   * sert de repli.
+   */
+  function lancer(emplacement: 'haut' | 'bas') {
+    const suivre = window.h3cTrackPage ?? window.h3cTrack
+    suivre?.('cta_commencer_test', { emplacement })
+    onCommencer()
+  }
 
   return (
     <>
@@ -145,21 +204,14 @@ export function Welcome({ onCommencer }: Props) {
         className="mx-auto w-full max-w-3xl px-5 pb-10 pt-10 sm:px-6 md:px-8 md:pt-14"
         style={{ color: 'var(--h3c-texte-principal)' }}
       >
-        <motion.section
-          {...stackProps}
-          className="flex flex-col items-stretch"
-        >
-          {/* Hero visuel */}
-          <motion.div
-            {...itemProps}
-            className="mx-auto mb-6 w-full max-w-2xl md:mb-8"
-          >
+        <section className="flex flex-col items-stretch">
+          {/* Hero visuel — hors stagger : chaîne LCP */}
+          <div className="mx-auto mb-6 w-full max-w-2xl md:mb-8">
             <MasquesHero />
-          </motion.div>
+          </div>
 
-          {/* Eyebrow centré */}
-          <motion.p
-            {...itemProps}
+          {/* Eyebrow centré — hors stagger */}
+          <p
             className="mb-3 text-center text-xs uppercase md:text-sm"
             style={{
               color: 'var(--h3c-accent-terracotta)',
@@ -169,21 +221,39 @@ export function Welcome({ onCommencer }: Props) {
             }}
           >
             Test de survie affective
-          </motion.p>
+          </p>
 
-          {/* H1 centré, hiérarchie affirmée */}
-          <motion.h1
-            {...itemProps}
+          {/* H1 centré — élément LCP, jamais animé */}
+          <h1
             className="mx-auto mb-7 max-w-2xl text-center text-3xl leading-tight sm:text-4xl md:mb-9 md:text-5xl"
             style={{ fontFamily: 'var(--font-titre)', fontWeight: 500 }}
           >
             En amour, vous rejouez toujours le même scénario
-          </motion.h1>
+          </h1>
+
+          {/* CTA primaire, au-dessus de la ligne de flottaison */}
+          <div className="mb-10 flex flex-col items-center md:mb-14">
+            <p
+              className="mb-4 text-center text-base md:text-lg"
+              style={{ color: 'var(--h3c-texte-principal)' }}
+            >
+              Faites le test maintenant.
+            </p>
+            <BoutonTest onClick={lancer} emplacement="haut" />
+            <CaracteristiquesTest />
+            <p
+              className="mt-4 max-w-md text-center text-sm leading-relaxed"
+              style={{ color: 'var(--h3c-texte-secondaire)' }}
+            >
+              Vous répondez, vous donnez votre email, votre masque s&apos;affiche.
+              Le rapport complet et vos 20 séances audio guidées partent dans
+              votre boîte. Sans carte bancaire.
+            </p>
+          </div>
 
           {/* Signature auteur — colophon éditorial (filet + nom caps + référence livre italique) */}
           {/* Signal E-E-A-T pour Google/LLM + cohérence JSON-LD Person/Book */}
-          <motion.div
-            {...itemProps}
+          <div
             className="mx-auto mb-10 flex flex-col items-center md:mb-14"
             data-testid="signature-auteur"
           >
@@ -215,10 +285,13 @@ export function Welcome({ onCommencer }: Props) {
             >
               auteur de «&nbsp;Vous avez tout compris. Rien n&apos;a changé.&nbsp;»
             </p>
-          </motion.div>
+          </div>
 
           {/* Bloc corps aligné gauche */}
-          <motion.div {...itemProps} className="mx-auto mb-10 max-w-xl md:mb-12">
+          <div
+            {...apparition(0)}
+            className="tsa-apparition mx-auto mb-10 max-w-xl md:mb-12"
+          >
             <p
               className="mb-4 text-base leading-relaxed md:text-lg"
               style={{ color: 'var(--h3c-texte-secondaire)' }}
@@ -247,19 +320,17 @@ export function Welcome({ onCommencer }: Props) {
               Le test ne vous donnera pas une compréhension de plus. Il vous
               donnera un nom, un masque, et la prochaine action.
             </p>
-          </motion.div>
+          </div>
 
           {/* Bloc 4 cartes masques — centre de gravité visuel */}
-          <motion.div
-            {...itemProps}
-            className="mx-auto mb-12 grid w-full max-w-2xl grid-cols-1 gap-4 md:mb-14 md:grid-cols-2 md:gap-5"
-            role="list"
+          <ul
+            {...apparition(0.08)}
+            className="tsa-apparition mx-auto mb-12 grid w-full max-w-2xl list-none grid-cols-1 gap-4 p-0 md:mb-14 md:grid-cols-2 md:gap-5"
             aria-label="Les quatre masques du test"
           >
             {CARTES.map((c) => (
-              <article
+              <li
                 key={c.id}
-                role="listitem"
                 data-testid={`carte-masque-${c.id}`}
                 className="flex flex-col gap-3 rounded-lg p-5 md:p-6"
                 style={{
@@ -307,35 +378,24 @@ export function Welcome({ onCommencer }: Props) {
                 >
                   {c.punch}
                 </p>
-              </article>
+              </li>
             ))}
-          </motion.div>
+          </ul>
 
           {/* Bloc CTA centré, dense, avec hover/active/focus marqués */}
-          <motion.div
-            {...itemProps}
-            className="flex flex-col items-center"
+          <div
+            {...apparition(0.16)}
+            className="tsa-apparition flex flex-col items-center"
           >
-            <button
-              type="button"
-              onClick={onCommencer}
-              className="tsa-cta-terracotta rounded-lg px-10 py-4 text-base font-medium text-white shadow-md md:text-lg"
+            <p
+              className="mb-4 text-center text-base md:text-lg"
+              style={{ color: 'var(--h3c-texte-principal)' }}
             >
-              Commencer le test
-            </button>
-            <ul
-              className="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm"
-              style={{ color: 'var(--h3c-texte-secondaire)' }}
-              aria-label="Caractéristiques du test"
-            >
-              <li>30 questions</li>
-              <li aria-hidden>·</li>
-              <li>3 minutes</li>
-              <li aria-hidden>·</li>
-              <li>Gratuit</li>
-              <li aria-hidden>·</li>
-              <li>Confidentiel</li>
-            </ul>
+              Vous vous reconnaissez dans l&apos;un des quatre. Allez chercher
+              lequel.
+            </p>
+            <BoutonTest onClick={lancer} emplacement="bas" />
+            <CaracteristiquesTest />
             <ul
               className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm"
               style={{ color: 'var(--h3c-texte-secondaire)' }}
@@ -369,8 +429,20 @@ export function Welcome({ onCommencer }: Props) {
               En cinq ans, plus de 700 femmes et hommes ont écrit pour la même
               raison. La vôtre y est sans doute aussi.
             </p>
-          </motion.div>
-        </motion.section>
+            {/* Preuve d'accompagnement — déjà affirmée dans le bloc noscript de
+                index.html depuis la refonte SEO, mais invisible à l'écran, donc
+                absente de tout ce que lit un visiteur. Remontée ici le
+                2026-08-27 : la durée et le nombre de personnes accompagnées
+                sont la seule preuve de résultat que porte la page. */}
+            <p
+              className="mt-3 max-w-xl text-center text-sm leading-relaxed"
+              style={{ color: 'var(--h3c-texte-secondaire)' }}
+            >
+              Treize ans d&apos;accompagnement. Plus de 1700 femmes et hommes
+              à ce jour.
+            </p>
+          </div>
+        </section>
       </main>
       <DisclaimerFooter />
     </>

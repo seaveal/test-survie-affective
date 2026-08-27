@@ -177,39 +177,69 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
     })
   })
 
-  describe('Bouton "Commencer le test"', () => {
-    it('a exactement UN bouton "Commencer le test" (hero seul, plus de CTA final)', () => {
+  describe('Boutons "Découvrir mon masque"', () => {
+    // Audit conversion 2026-08-27 : deux emplacements désormais, un au-dessus
+    // de la ligne de flottaison (le seul CTA vivait sous quatre paragraphes et
+    // quatre cartes, invisible sur mobile) et un en bas de page.
+    it('a exactement DEUX boutons, un en haut et un en bas', () => {
       render(<Welcome onCommencer={() => {}} />)
       const boutons = screen.getAllByRole('button', {
-        name: /commencer le test/i,
+        name: /découvrir mon masque/i,
       })
-      expect(boutons).toHaveLength(1)
+      expect(boutons).toHaveLength(2)
+      expect(screen.getByTestId('cta-haut')).toBeInTheDocument()
+      expect(screen.getByTestId('cta-bas')).toBeInTheDocument()
     })
 
-    it('le bouton appelle onCommencer au clic', async () => {
+    it('chaque bouton appelle onCommencer au clic', async () => {
       const user = userEvent.setup()
       const onCommencer = vi.fn()
       render(<Welcome onCommencer={onCommencer} />)
-      const bouton = screen.getByRole('button', { name: /commencer le test/i })
-      await user.click(bouton)
+      await user.click(screen.getByTestId('cta-haut'))
       expect(onCommencer).toHaveBeenCalledTimes(1)
+      await user.click(screen.getByTestId('cta-bas'))
+      expect(onCommencer).toHaveBeenCalledTimes(2)
+    })
+
+    it('le clic émet l\'événement de suivi avec son emplacement', async () => {
+      const user = userEvent.setup()
+      const suivre = vi.fn()
+      window.h3cTrackPage = suivre
+      render(<Welcome onCommencer={() => {}} />)
+      await user.click(screen.getByTestId('cta-haut'))
+      expect(suivre).toHaveBeenCalledWith('cta_commencer_test', {
+        emplacement: 'haut',
+      })
+      delete window.h3cTrackPage
     })
 
     it('le bouton est focusable au clavier', () => {
       render(<Welcome onCommencer={() => {}} />)
-      const bouton = screen.getByRole('button', { name: /commencer le test/i })
+      const bouton = screen.getByTestId('cta-haut')
       bouton.focus()
       expect(bouton).toHaveFocus()
+    })
+
+    it('annonce ce que le visiteur reçoit, mur email compris', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(
+        screen.getByText(
+          /vous donnez votre email, votre masque s'affiche/i,
+        ),
+      ).toBeInTheDocument()
+      expect(screen.getByText(/sans carte bancaire/i)).toBeInTheDocument()
     })
   })
 
   describe('Preuve sociale et meta CTA', () => {
     it('affiche la ligne caractéristiques (30 questions, 3 minutes, gratuit, confidentiel)', () => {
       render(<Welcome onCommencer={() => {}} />)
-      const liste = screen.getByRole('list', {
+      // Une liste par emplacement CTA depuis le 2026-08-27.
+      const listes = screen.getAllByRole('list', {
         name: /caractéristiques du test/i,
       })
-      expect(liste).toBeInTheDocument()
+      expect(listes).toHaveLength(2)
+      const liste = listes[0]
       // Scope sur la liste pour éviter collision avec DisclaimerFooter
       // (qui mentionne "gratuit" pour le 3114).
       expect(liste).toHaveTextContent(/30 questions/i)

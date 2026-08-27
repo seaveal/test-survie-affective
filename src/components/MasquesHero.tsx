@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion'
+import type { CSSProperties } from 'react'
 
 /**
  * MasquesHero : visuel décoratif de l'écran d'accueil (mission refonte 2026-05-29).
@@ -12,9 +12,11 @@ import { motion, useReducedMotion } from 'framer-motion'
  * référence fournie dans la mission (viewBox 680×300, opacités croissantes
  * 0.22 / 0.40 / 0.62 / plein, baseline hairline + ancrages).
  *
- * Apparition séquentielle gauche → droite si motion autorisé. `useReducedMotion`
- * respecté : si réduit, les 4 masques apparaissent directement aux opacités
- * finales sans animation.
+ * Apparition séquentielle gauche → droite, en CSS pure depuis le 2026-08-27
+ * (audit conversion) : framer-motion ne servait plus qu'à ce fondu et à celui
+ * de Welcome, pour une centaine de kilooctets sur la chaîne critique.
+ * `prefers-reduced-motion` reste respecté, en media query cette fois : les 4
+ * masques s'affichent alors directement à leur opacité finale.
  *
  * Décoratif accessible : role="img" + title + desc pour lecteurs d'écran.
  * Responsive 100% largeur. Pas de bitmap, pas de dépendance ajoutée.
@@ -29,18 +31,17 @@ interface MasqueProps {
   opacity: number
   filled?: boolean
   delay: number
-  reduceMotion: boolean
 }
 
-function MasqueGroup({ opacity, filled = false, delay, reduceMotion }: MasqueProps) {
+function MasqueGroup({ opacity, filled = false, delay }: MasqueProps) {
   return (
-    <motion.g
-      initial={reduceMotion ? false : { opacity: 0 }}
-      animate={{ opacity: filled ? 1 : opacity }}
-      transition={
-        reduceMotion
-          ? { duration: 0 }
-          : { duration: 0.55, ease: 'easeOut', delay }
+    <g
+      className="tsa-masque"
+      style={
+        {
+          '--tsa-opacite-cible': filled ? 1 : opacity,
+          animationDelay: `${delay}s`,
+        } as CSSProperties
       }
     >
       {filled ? (
@@ -71,13 +72,11 @@ function MasqueGroup({ opacity, filled = false, delay, reduceMotion }: MasquePro
           <ellipse cx="10" cy="-20" rx="2.6" ry="4.2" fill={TERRA} />
         </>
       )}
-    </motion.g>
+    </g>
   )
 }
 
 export function MasquesHero() {
-  const reduceMotion = useReducedMotion() ?? false
-
   return (
     <svg
       viewBox="0 0 680 300"
@@ -104,16 +103,16 @@ export function MasquesHero() {
         opacity="0.35"
       />
       <g transform="translate(118,205) rotate(-4) scale(0.78)">
-        <MasqueGroup opacity={0.22} delay={0.05} reduceMotion={reduceMotion} />
+        <MasqueGroup opacity={0.22} delay={0.03} />
       </g>
       <g transform="translate(262,200) rotate(3) scale(0.92)">
-        <MasqueGroup opacity={0.4} delay={0.22} reduceMotion={reduceMotion} />
+        <MasqueGroup opacity={0.4} delay={0.1} />
       </g>
       <g transform="translate(408,196) rotate(-2) scale(1.02)">
-        <MasqueGroup opacity={0.62} delay={0.4} reduceMotion={reduceMotion} />
+        <MasqueGroup opacity={0.62} delay={0.18} />
       </g>
       <g transform="translate(560,188) scale(1.2)">
-        <MasqueGroup opacity={1} filled delay={0.6} reduceMotion={reduceMotion} />
+        <MasqueGroup opacity={1} filled delay={0.26} />
       </g>
       <circle cx="118" cy="236" r="1.6" fill={TERRA} opacity="0.3" />
       <circle cx="262" cy="236" r="1.6" fill={TERRA} opacity="0.45" />

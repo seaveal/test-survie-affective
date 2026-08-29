@@ -7,14 +7,20 @@
 //
 // Fix 2026-06-15 : les liens pointaient vers l'apex souverainauquotidien.com
 // (/cgv, /mentions-legales, /privacy) — non servi par Caddy → 403 (liens cassés).
-// On pointe désormais vers les pages légales réelles servies sur le même domaine
-// (test.souverainauquotidien.com/legal/*, HTML statique /var/www/legal). Chemins
-// relatifs = domain-agnostic. terms.html (« Conditions de service ») contient
-// aussi l'Éditeur → sert de CGV ET de mentions légales.
+// Chemins relatifs = domain-agnostic.
+//
+// Correction 2026-08-29 : les trois liens pointaient vers /legal/*, qui sert les
+// documents d'AUTRES produits — /legal/terms rend « Conditions de service — H3C
+// Analytics » (outil interne) et /legal/privacy « Politique de confidentialité —
+// Chat-clients (H3C) » (application Instagram). Mentions légales et CGV menaient
+// en plus à la MÊME page. Les documents du site existent et sont servis :
+// /mentions-legales/, /cgv/ et /privacy/ (vérifié en HTTP 200, titres « Souverain
+// au Quotidien (Cyrille NOVOU) »). Ne pas viser /confidentialite/ : ce chemin
+// n'existe pas et retombe sur la SPA par le try_files de Caddy.
 
-const URL_MENTIONS = '/legal/terms'
-const URL_CGV = '/legal/terms'
-const URL_PRIVACY = '/legal/privacy'
+const URL_MENTIONS = '/mentions-legales/'
+const URL_CGV = '/cgv/'
+const URL_PRIVACY = '/privacy/'
 
 export function DisclaimerFooter() {
   return (

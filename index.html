@@ -2,7 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-<!-- H3C-TRACKING:BEGIN cfg=57225b28feeb site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
+<!-- H3C-TRACKING:BEGIN cfg=ad127f7559c5 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
 <script>
 (function () {
   'use strict';
@@ -44,8 +44,18 @@
     // objet sans code : le front voit une attribution non vide, s'en contente,
     // et n'atteint jamais son repli sur la querystring. C'est ainsi que
     // `contacts.origine_code` est resté vide sur la totalité de la base.
+    // `fbclid` a sa propre borne, et ce n'est pas un détail de confort. Coupé à
+    // 200 comme les autres, il redevenait inappariable par le repli de
+    // `lireClic()` : quand l'écriture localStorage échoue (Safari « bloquer tous
+    // les cookies », bloqueur en mode strict, quota plein), `lireClic()` retombe
+    // sur CE premier contact, et `valeurFbc()` en fabriquait un `_fbc` tronqué —
+    // que le faisceau serveur relayait tel quel à Meta. Le visiteur concerné est
+    // exactement celui pour qui ce faisceau a été construit : celui dont le Pixel
+    // se tait. 380 : même borne que `capterClic()`, `fb.1.` + 13 chiffres + `.`
+    // occupent 19, et le tout doit tenir dans les 400 admis par tsa-api.
+    var BORNES = { fbclid: 380 };
     ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'h3c', 'fbclid', 'gclid'].forEach(function (k) {
-      var v = q.get(k); if (v) at[k] = v.slice(0, 200);
+      var v = q.get(k); if (v) at[k] = v.slice(0, BORNES[k] || 200);
     });
     at.landing = window.location.pathname;
     if (document.referrer) at.referrer = document.referrer.slice(0, 200);

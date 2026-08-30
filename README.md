@@ -127,3 +127,14 @@ intégration dans Circle.
 - Questions / scoring : `docs/QUESTIONS_30_SCORING.md`
 - Profils + textes par intensité : `docs/PROFILS_RESULTATS_TEXTES.md`
 - Roadmaps personnalisées : `docs/ROADMAPS_PERSONNALISEES.md`
+
+## Après un clone — obligatoire
+
+```bash
+git config core.hooksPath .git-hooks
+```
+
+Sans cette ligne, `.git-hooks/pre-commit` est présent et exécutable mais Git ne
+l'appelle jamais : le filet anti-secret est muet. Git n'active jamais un crochet
+à la volée, par sécurité — aucun commit ne peut fermer cette moitié-là, seule la
+consigne le peut. Mesuré au banc le 2026-08-30 (audit système tour 4, SOCLE-T4-02).

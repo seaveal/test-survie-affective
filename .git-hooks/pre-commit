@@ -1,0 +1,149 @@
+#!/usr/bin/env bash
+# Pre-commit hook anti-secret
+# Cherche des patterns connus de secrets dans les fichiers stagés.
+#
+# Deux familles de motifs, traitées différemment (refonte 2026-08-12, faux
+# positif CONSENT_KEY) :
+#   · VENDOR : une VALEUR de secret reconnaissable à son préfixe (sk_live_…,
+#     xkeysib-…, DSN avec mot de passe). Contrôlés sur le fichier BRUT, jamais
+#     filtrés — si la valeur est là, on bloque, peu importe la ligne.
+#   · GENERIC : un NOM sensible suivi d'une valeur (password: …, X_KEY=…).
+#     Par construction bruyants, donc filtrés par l'ALLOWLIST des idiomes de
+#     code qui ne peuvent pas porter une valeur de secret.
+#
+# Mode test : `.git-hooks/pre-commit --check FICHIER…` analyse les fichiers
+# donnés au lieu des fichiers stagés (mêmes motifs, même sortie).
+
+set -e
+
+VENDOR_PATTERNS=(
+    'sk-[a-zA-Z0-9]{20,}'                    # OpenAI/Anthropic API keys
+    'sk-ant-[0-9A-Za-z_-]{24,}'              # Anthropic API key (spécifique)
+    'sk_live_[0-9a-zA-Z]{16,}'               # Stripe live
+    'sk_test_[0-9a-zA-Z]{16,}'               # Stripe test
+    'rk_live_[0-9a-zA-Z]{16,}'               # Stripe restricted
+    'whsec_[0-9A-Za-z]{20,}'                 # Stripe webhook signing secret
+    'xkeysib-[0-9a-f]{32,}'                  # Brevo API key
+    'apify_api_[A-Za-z0-9]{20}'              # Apify API token
+    'ghp_[a-zA-Z0-9]{20,}'                   # GitHub personal access token
+    'gho_[a-zA-Z0-9]{20,}'                   # GitHub OAuth token
+    'GOCSPX-[0-9A-Za-z_-]{20,}'              # Google OAuth client secret
+    'AKIA[A-Z0-9]{16}'                        # AWS access key
+    'AIza[a-zA-Z0-9_-]{35}'                  # Google API key
+    'xox[bp]-[a-zA-Z0-9-]{20,}'              # Slack token
+    '[0-9]{8,10}:AA[A-Za-z0-9_-]{33}'        # Telegram bot token
+    '-----BEGIN [A-Z ]*PRIVATE KEY-----'     # clé privée PEM
+    'Bearer [a-zA-Z0-9._~+/-]{20,}'          # Bearer tokens
+    'postgres(ql)?://[^:@/]+:[^@/]{6,}@'     # DSN Postgres avec mot de passe
+    'mysql://[^:@/]+:[^@/]{6,}@'             # DSN MySQL
+)
+
+GENERIC_PATTERNS=(
+    # --- Motifs GÉNÉRIQUES (ajoutés 2026-08-04, audit emailing 2.5) ---
+    # Aucun préfixe vendeur ne couvrait un mot de passe root en clair : c'est
+    # exactement ainsi que la fuite du 23/05 est passée. Ces motifs l'auraient
+    # bloquée. On accepte le bruit — un faux positif se contourne d'un
+    # --no-verify conscient, une fuite ne se rattrape pas.
+    # Un secret nommé suivi de sa valeur en clair. Deux formes de valeur bloquées :
+    #   · entre guillemets : `secret: "abc123…"`
+    #   · nue mais SANS parenthèse ni point de méthode : `password root: 4EE47xKq`
+    # La seconde attrape le mot de passe root sans guillemet (le cas de la fuite),
+    # la restriction `[^(.]` en tête épargne le code qui LIT un secret
+    # (`token = depuis_env(…)`, `token: mail.preheader`) — corrigé 2026-08-04.
+    '(password|passwd|pwd|mot.de.passe|secret|token|api.?key)([[:space:]][a-zA-Z]+)?[[:space:]]*[:=][[:space:]]*(["'\''`][A-Za-z0-9._/+=@!%-]{10,}|[A-Za-z0-9][A-Za-z0-9/+=_-]{9,}[[:space:]]*$)'
+    # Variable d'environnement dont le NOM finit par un mot sensible, = valeur.
+    # Attrape TSA_BREVO_API_KEY=…, DB_PASSWORD=…, X_TOKEN=… en majuscules, que
+    # le motif ci-dessus (mot-clé en minuscules) manque. Préfixe OPTIONNEL
+    # depuis 2026-08-12 : `PASSWORD=…` nu était invisible (l'ancien motif
+    # exigeait au moins un caractère avant le mot sensible).
+    '[A-Z0-9_]*(KEY|TOKEN|SECRET|PASSWORD|PASSWD|PWD)[[:space:]]*=[[:space:]]*["'\''`]?[A-Za-z0-9._/+=@!%-]{10,}'
+)
+
+# Lignes qui ne peuvent PAS porter un secret, retirées avant l'analyse des
+# motifs GÉNÉRIQUES (les motifs VENDOR, eux, voient toujours le fichier brut).
+# Audit systeme tour 3 (2026-08-04), constat HOOK-04 : le motif
+# « NOM_SENSIBLE = valeur » matchait la LECTURE de l environnement
+# (`os.environ.get` fait 14 caracteres tous admis par la classe). 12 fichiers
+# du depot etaient bloques depuis le 27/05, et le seul contournement offert
+# par le hook est --no-verify : un filet qui crie au loup finit desarme.
+#
+# Branche « nom de clé de stockage » (2026-08-12, faux positif CONSENT_KEY) :
+# `var CONSENT_KEY = 'h3c_consent'` nomme une clé localStorage — la VALEUR est
+# un identifiant public en minuscules, pas un secret. On épargne uniquement :
+# nom en majuscules finissant par KEY, valeur ENTRE GUILLEMETS, minuscule en
+# tête, classe [a-z0-9_.-], 30 caractères max. Toute valeur à majuscule, non
+# citée ou plus longue reste analysée ; les valeurs vendeur (sk_live_…)
+# restent bloquées par les motifs VENDOR qui ne passent pas par ce filtre.
+# Branches « code qui MANIPULE un secret sans en écrire la valeur » (2026-08-12) :
+#   · valeur = appel de fonction (`X_TOKEN = _load_token()`) — un littéral de
+#     secret ne contient pas de parenthèse ouvrante après un identifiant ;
+#   · valeur = simple identifiant minuscule en fin de ligne, avec espaces
+#     autour du `=` (`self._access_token = access_token`, `token = chemin`) —
+#     c'est une référence de variable, pas un littéral. Le style .env
+#     (`PASSWORD=valeur`, sans espace) reste analysé, et la forme `clé: valeur`
+#     des fuites en prose (`password root: XXXX`) n'utilise pas `=`.
+ALLOWLIST='=[[:space:]]*(os\.environ|os\.getenv|getenv\(|environ\.get|config\.|settings\.|Field\(|None|""|'"''"')|[A-Z0-9_]*KEY[[:space:]]*=[[:space:]]*["'\''`][a-z][a-z0-9_.-]{2,30}["'\''`]|[[:space:]]=[[:space:]]*[A-Za-z_][A-Za-z0-9_.]*\(|[[:space:]]=[[:space:]]*[a-z_][a-z0-9_]*[[:space:]]*$'
+
+# Fichiers à analyser : stagés par défaut, ou passés en argument (mode --check)
+CHECK_MODE=0
+if [ "${1:-}" = "--check" ]; then
+    CHECK_MODE=1
+    shift
+    FICHIERS=( "$@" )
+else
+    # TABLEAU separe par des octets NULS, jamais une chaine : bash ne peut PAS
+    # stocker un octet nul dans une variable — une substitution de commande les
+    # mange, et un `for FILE in $FILES` non quote decoupe en plus sur les espaces.
+    # Reproduit en depot jetable le 2026-08-30 : « secret.py » etait bloque,
+    # « mon secret.py » PASSAIT avec la cle dedans, et le crochet annoncait
+    # « aucun secret detecte ». Une garde qui s'ouvre quand elle ne sait pas ne
+    # garde rien — et un premier correctif par variable a rendu le crochet
+    # totalement aveugle, ce qui etait pire. Le tableau est la seule forme juste.
+    mapfile -d '' FICHIERS < <(git diff --cached --name-only --diff-filter=ACM -z)
+fi
+if [ ${#FICHIERS[@]} -eq 0 ]; then
+    exit 0
+fi
+
+# Cherche dans chaque fichier (uniquement les fichiers texte tracked)
+EXIT_CODE=0
+for FILE in "${FICHIERS[@]}"; do
+    if [ -z "$FILE" ] || [ ! -f "$FILE" ]; then continue; fi
+    # Skip binary files
+    if file "$FILE" | grep -q "text"; then
+        for PATTERN in "${VENDOR_PATTERNS[@]}"; do
+            if grep -E "$PATTERN" "$FILE" >/dev/null 2>&1; then
+                echo "❌ Pre-commit FAILED: pattern de secret détecté dans $FILE"
+                echo "   Pattern: $PATTERN"
+                echo "   Commit BLOQUÉ. Retire le secret avant de commiter."
+                EXIT_CODE=1
+            fi
+        done
+        for PATTERN in "${GENERIC_PATTERNS[@]}"; do
+            if grep -Ev "$ALLOWLIST" "$FILE" | grep -E "$PATTERN" >/dev/null 2>&1; then
+                echo "❌ Pre-commit FAILED: pattern de secret détecté dans $FILE"
+                echo "   Pattern: $PATTERN"
+                echo "   Commit BLOQUÉ. Retire le secret avant de commiter."
+                EXIT_CODE=1
+            fi
+        done
+    fi
+done
+
+# Garde par DENSITÉ d'adresses de personnes réelles (audit tour 12, RECUR-T12-03 ;
+# étendu à ce dépôt au tour 13 — il ne couvrait qu'un dépôt sur neuf). Il ne bloque
+# JAMAIS : il désindexe le fichier fautif et laisse le commit passer. Ce dépôt ne
+# porte aujourd'hui aucun fichier au-dessus du seuil : le garde est préventif.
+# (Sauté en mode --check : il agit sur l'index git, pas sur des fichiers passés.)
+if [ "$CHECK_MODE" = "0" ]; then
+    "$(dirname "$0")/densite-adresses.sh" || true
+fi
+
+if [ $EXIT_CODE -ne 0 ]; then
+    echo ""
+    echo "Pour bypasser exceptionnellement (au péril du déploiement) : git commit --no-verify"
+    exit 1
+fi
+
+echo "✅ Pre-commit OK : aucun secret détecté dans les fichiers stagés."
+exit 0

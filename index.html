@@ -460,6 +460,14 @@
       « Découvrir mon masque », liens légaux ramenés sur /legal/* (ils pointaient
       encore vers /mentions-legales, /cgv et /privacy, corrigés côté React le
       2026-06-15 mais pas ici).
+      Corrigé le 2026-08-31 (WEB-T1-04/07, question de la classe) : ce ramenage
+      du 27/08 visait les MAUVAIS documents, et ce pied-là est le seul que lisent
+      les robots et les visiteurs sans JS. /legal/terms rend « Conditions de
+      service — H3C Analytics » (outil interne) et /legal/privacy « Politique de
+      confidentialité — Chat-clients (H3C) » (application Instagram) : vérifié en
+      HTTP 200 le 2026-08-31. « Mentions légales » et « CGV » y menaient en plus à
+      la MÊME page. Le pied pointe désormais les trois documents du site, comme
+      DisclaimerFooter.tsx — dont il doit rester le miroir exact.
       Google rend le JS donc verra le contenu React enrichi.
       Pattern <noscript> = conforme guidelines SEO, pas de cloaking.
     -->
@@ -506,7 +514,7 @@
         </section>
       </main>
       <footer>
-        <p><a href="/legal/terms">Mentions légales</a> · <a href="/legal/terms">CGV</a> · <a href="/legal/privacy">Politique de confidentialité</a></p>
+        <p><a href="/mentions-legales/">Mentions légales</a> · <a href="https://livre.souverainauquotidien.com/cgv.html">CGV</a> · <a href="/privacy/">Politique de confidentialité</a></p>
       </footer>
     </noscript>
 

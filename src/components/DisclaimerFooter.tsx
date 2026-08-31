@@ -17,9 +17,30 @@
 // /mentions-legales/, /cgv/ et /privacy/ (vérifié en HTTP 200, titres « Souverain
 // au Quotidien (Cyrille NOVOU) »). Ne pas viser /confidentialite/ : ce chemin
 // n'existe pas et retombe sur la SPA par le try_files de Caddy.
+//
+// Correction 2026-08-31 (WEB-T1-04, âge 97 j) : /cgv/ servait des CGV « v1 —
+// 2026-05-25 », que huit publications ont remplacées. Les CGV maintenues sont
+// la v3.4.1 du 24 août 2026 et elles couvrent l'EI entière (livre, formats
+// cumulables, séminaires au Titre II section C) : elles sont transverses, pas
+// propres au site livre. Le lien vise donc le document maintenu, en URL
+// complète et JAMAIS par un raccourcisseur — un lien légal doit mener à la page
+// légale et ne se mesure pas (garde h3c_links.CHEMINS_LEGAUX). /cgv/ reste servi
+// et redirige vers la même cible, pour les liens déjà indexés.
+//
+// Ce qui NE change pas, et pourquoi :
+//  - URL_MENTIONS reste local. La page de `livre` porte un « Objet du site » qui
+//    dit « le site livre.souverainauquotidien.com présente et commercialise
+//    l'ouvrage » : la publier ici identifierait le mauvais site, alors que la
+//    LCEN (loi 2004-575, art. 6 III) demande l'identification du site consulté.
+//    Elle a été COMPLÉTÉE sur place (RCS, APE, téléphone, médiation CM2C).
+//  - URL_PRIVACY reste local. La politique du Test SA est déjà à jour (v2 du
+//    2026-08-21, même date que celle de `livre`) et elle est la seule à décrire
+//    le traitement propre à ce site : réponses au test chiffrées sous
+//    consentement « données de santé » (RGPD art. 9). Rediriger la remplacerait
+//    par un document plus récent en apparence, plus pauvre en fait.
 
 const URL_MENTIONS = '/mentions-legales/'
-const URL_CGV = '/cgv/'
+const URL_CGV = 'https://livre.souverainauquotidien.com/cgv.html'
 const URL_PRIVACY = '/privacy/'
 
 export function DisclaimerFooter() {

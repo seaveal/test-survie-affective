@@ -158,13 +158,13 @@ const CARTES: CarteMasque[] = [
 /**
  * Témoignages de repli, identiques mot pour mot à ceux de la page du livre
  * (agents-workers/sites/livre-sq-front/index.html) : même personne, même pseudonyme,
- * partout. Jean-Luc témoigne sous son prénom, en vidéo aussi.
+ * même âge, partout. Jean-Luc témoigne sous son prénom, en vidéo aussi.
  */
 const TEMOIGNAGES: { qui: string; texte: string }[] = [
   {
-    qui: 'Hélène',
+    qui: 'Léa, 41 ans',
     texte:
-      'J’ai mis deux jours à demander. C’était compliqué, difficile. J’ai refait plusieurs fois le SMS. À la seconde, j’ai eu une réponse très positive. Je n’y croyais pas.',
+      'J’ai rencontré quelqu’un il y a trois semaines. Je me sens en sécurité émotionnelle avec lui. Ça fait tout. C’est quelqu’un qui me dit « écoute-toi ». Je crois que je n’ai jamais été avec quelqu’un qui me disait de m’écouter.',
   },
   {
     qui: 'Marc',

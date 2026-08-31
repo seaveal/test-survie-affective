@@ -167,7 +167,7 @@ const TEMOIGNAGES: { qui: string; texte: string }[] = [
       'J’ai rencontré quelqu’un il y a trois semaines. Je me sens en sécurité émotionnelle avec lui. Ça fait tout. C’est quelqu’un qui me dit « écoute-toi ». Je crois que je n’ai jamais été avec quelqu’un qui me disait de m’écouter.',
   },
   {
-    qui: 'Marc',
+    qui: 'Marc, 47 ans',
     texte:
       'J’ai compris que mon père n’était pas tout-puissant. Il a fait ce qu’il a pu avec ce qu’il avait. Pour la première fois, je m’autorise à dire : la vie est belle, tout va bien.',
   },

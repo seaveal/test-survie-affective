@@ -36,6 +36,19 @@ interface Props {
  * Apparition staggered respecte `useReducedMotion`. Contrat `onCommencer`
  * préservé : les deux boutons CTA passent par `lancer()`, seul appelant.
  *
+ * Audit conversion 2026-08-30 (Landing Doctor, 58/100) :
+ * - La demande avant le CTA porte le bénéfice et le temps (« Découvrez lequel en
+ *   3 minutes ») et le bouton aussi : c'est la variante n°1 du rapport.
+ * - Bloc « Après le test » entre les cartes et le second CTA : ce que le visiteur
+ *   reçoit, et que Régénération lui sera présenté ensuite, sans obligation. Le
+ *   rapport voyait une « arrière-pensée cachée » dans un programme payant nommé
+ *   seulement dans l'avertissement du pied.
+ * - Trois témoignages, les mêmes mots et les mêmes prénoms d'emprunt que sur la
+ *   page du livre (un pseudonyme par personne, partout). Jamais de citation
+ *   inventée : le rapport en proposait une, elle n'existe pas.
+ * - Pas d'urgence ajoutée : le test n'a aucune contrainte réelle, et une rareté
+ *   fabriquée est refusée (arbitrage du 27/08, reconduit).
+ *
  * Charte voix v2 : 0 tiret cadratin, 0 point-virgule.
  */
 
@@ -143,6 +156,29 @@ const CARTES: CarteMasque[] = [
 ]
 
 /**
+ * Témoignages de repli, identiques mot pour mot à ceux de la page du livre
+ * (agents-workers/sites/livre-sq-front/index.html) : même personne, même pseudonyme,
+ * partout. Jean-Luc témoigne sous son prénom, en vidéo aussi.
+ */
+const TEMOIGNAGES: { qui: string; texte: string }[] = [
+  {
+    qui: 'Hélène',
+    texte:
+      'J’ai mis deux jours à demander. C’était compliqué, difficile. J’ai refait plusieurs fois le SMS. À la seconde, j’ai eu une réponse très positive. Je n’y croyais pas.',
+  },
+  {
+    qui: 'Marc',
+    texte:
+      'J’ai compris que mon père n’était pas tout-puissant. Il a fait ce qu’il a pu avec ce qu’il avait. Pour la première fois, je m’autorise à dire : la vie est belle, tout va bien.',
+  },
+  {
+    qui: 'Jean-Luc, 70 ans',
+    texte:
+      'Comment être calme quand le corps n’est pas calme ? […] J’avais le sentiment d’avoir le corps beaucoup plus léger. […] C’est ma femme qui m’a dit hier soir : c’est étonnant, tout se passe bien entre nous, là maintenant.',
+  },
+]
+
+/**
  * Bouton unique des deux emplacements CTA. `emplacement` ne change rien au
  * rendu : il part avec l'événement de suivi, pour savoir lequel des deux
  * déclenche réellement les tests.
@@ -161,7 +197,7 @@ function BoutonTest({
       data-testid={`cta-${emplacement}`}
       className="tsa-cta-terracotta rounded-lg px-10 py-4 text-base font-medium text-white shadow-md md:text-lg"
     >
-      Découvrir mon masque
+      Découvrir mon masque en 3 minutes
     </button>
   )
 }
@@ -237,7 +273,7 @@ export function Welcome({ onCommencer }: Props) {
               className="mb-4 text-center text-base md:text-lg"
               style={{ color: 'var(--h3c-texte-principal)' }}
             >
-              Faites le test maintenant.
+              Découvrez lequel en 3 minutes. Faites le test maintenant.
             </p>
             <BoutonTest onClick={lancer} emplacement="haut" />
             <CaracteristiquesTest />
@@ -382,6 +418,35 @@ export function Welcome({ onCommencer }: Props) {
             ))}
           </ul>
 
+          {/* Après le test : ce qui arrive, et ce qui sera proposé ensuite. Rien de caché. */}
+          <div
+            {...apparition(0.12)}
+            className="tsa-apparition mx-auto mb-10 max-w-xl md:mb-12"
+            data-testid="apres-le-test"
+          >
+            <h2
+              className="mb-3 text-xl md:text-2xl"
+              style={{ fontFamily: 'var(--font-titre)', fontWeight: 500 }}
+            >
+              Après le test
+            </h2>
+            <p
+              className="mb-3 text-base leading-relaxed md:text-lg"
+              style={{ color: 'var(--h3c-texte-secondaire)' }}
+            >
+              Votre profil détaillé et vos 20 séances audio guidées arrivent
+              gratuitement dans votre boîte email. Aucune carte bancaire, aucun
+              engagement.
+            </p>
+            <p
+              className="text-base leading-relaxed md:text-lg"
+              style={{ color: 'var(--h3c-texte-secondaire)' }}
+            >
+              Si vous voulez aller plus loin, je vous présenterai ensuite le
+              programme Régénération. À vous de décider.
+            </p>
+          </div>
+
           {/* Bloc CTA centré, dense, avec hover/active/focus marqués */}
           <div
             {...apparition(0.16)}
@@ -440,6 +505,46 @@ export function Welcome({ onCommencer }: Props) {
             >
               Treize ans d&apos;accompagnement. Plus de 1700 femmes et hommes
               à ce jour.
+            </p>
+            <ul
+              className="mt-6 grid w-full max-w-xl list-none gap-4 p-0 text-left"
+              aria-label="Témoignages"
+              data-testid="temoignages"
+            >
+              {TEMOIGNAGES.map((t) => (
+                <li
+                  key={t.qui}
+                  className="rounded-lg p-4 md:p-5"
+                  style={{
+                    background: 'var(--h3c-fond-card)',
+                    border: '1px solid var(--h3c-bordure)',
+                  }}
+                >
+                  <p
+                    className="text-sm leading-relaxed md:text-base"
+                    style={{
+                      fontFamily: 'var(--font-titre)',
+                      fontStyle: 'italic',
+                      color: 'var(--h3c-texte-principal)',
+                    }}
+                  >
+                    «&nbsp;{t.texte}&nbsp;»
+                  </p>
+                  <p
+                    className="mt-2 text-xs md:text-sm"
+                    style={{ color: 'var(--h3c-texte-secondaire)' }}
+                  >
+                    {t.qui}
+                  </p>
+                </li>
+              ))}
+            </ul>
+            <p
+              className="mt-3 max-w-xl text-center text-xs leading-relaxed"
+              style={{ color: 'var(--h3c-texte-secondaire)' }}
+            >
+              Les prénoms sont des pseudonymes, sauf Jean-Luc qui témoigne sous le
+              sien. Les mots sont les leurs.
             </p>
           </div>
         </section>

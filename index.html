@@ -375,7 +375,7 @@
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/inter-400-normal-latin.woff2" />
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/oswald-500-normal-latin.woff2" />
 
-    <!-- Données structurées JSON-LD : WebSite + Quiz + Person (Cyrille NOVOU) + Book (cluster « dépendance affective » + signal d'autorité auteur) -->
+    <!-- Données structurées JSON-LD : WebSite + Quiz + Person (Cyrille NOVOU) + Book + Service (programme Régénération, audit Landing Doctor 2026-08-31) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -447,32 +447,26 @@
             "author": { "@id": "https://souverainauquotidien.com/#cyrille-novou" },
             "inLanguage": "fr-FR",
             "abstract": "La méthode corporelle pour sortir de la dépendance affective. Comprendre et réparer les schémas relationnels qui se rejouent en amour : mendicité affective, sauvetage compulsif, contrôle anxieux, retrait fantôme."
+          },
+          {
+            "@type": "Service",
+            "@id": "https://regeneration.souverainauquotidien.com/#service",
+            "name": "Programme Régénération",
+            "serviceType": "Coaching en dépendance affective et schémas relationnels",
+            "description": "Programme de coaching à médiation corporelle pour sortir de la dépendance affective : une séance de départ en tête à tête, le Cercle somatique en visio, trois jours d'immersion à Angers, un mois d'intégration. Présenté après le Test de survie affective, sans obligation.",
+            "url": "https://regeneration.souverainauquotidien.com/",
+            "provider": { "@id": "https://souverainauquotidien.com/#cyrille-novou" },
+            "areaServed": { "@type": "Country", "name": "France" },
+            "availableLanguage": "fr",
+            "isRelatedTo": { "@id": "https://test.souverainauquotidien.com/#quiz" }
           }
         ]
       }
     </script>
   </head>
   <body>
-    <!--
-      Pré-rendu SEO statique pour crawlers no-JS (Perplexity, ChatGPT, Claude, Bingbot legacy).
-      Le contenu doit mirror Welcome.tsx. À synchroniser manuellement si refonte design.
-      Resynchronisé le 2026-08-27 (audit conversion) : libellé du CTA aligné sur
-      « Découvrir mon masque », liens légaux ramenés sur /legal/* (ils pointaient
-      encore vers /mentions-legales, /cgv et /privacy, corrigés côté React le
-      2026-06-15 mais pas ici).
-      Corrigé le 2026-08-31 (WEB-T1-04/07, question de la classe) : ce ramenage
-      du 27/08 visait les MAUVAIS documents, et ce pied-là est le seul que lisent
-      les robots et les visiteurs sans JS. /legal/terms rend « Conditions de
-      service — H3C Analytics » (outil interne) et /legal/privacy « Politique de
-      confidentialité — Chat-clients (H3C) » (application Instagram) : vérifié en
-      HTTP 200 le 2026-08-31. « Mentions légales » et « CGV » y menaient en plus à
-      la MÊME page. Le pied pointe désormais les trois documents du site, comme
-      DisclaimerFooter.tsx — dont il doit rester le miroir exact.
-      Miroir étendu le 2026-08-31 (audit Landing Doctor du 30/08) : « Après le test »,
-      trois témoignages, et le message sans JavaScript à la place du lien vers la page elle-même.
-      Google rend le JS donc verra le contenu React enrichi.
-      Pattern <noscript> = conforme guidelines SEO, pas de cloaking.
-    -->
+    <!-- Pré-rendu statique pour les visiteurs sans JavaScript et les robots. Miroir exact de
+         Welcome.tsx et de DisclaimerFooter.tsx : à resynchroniser à chaque changement de copie. -->
     <noscript>
       <header>
         <p style="text-transform:uppercase;font-size:0.875rem;letter-spacing:0.14em;color:#A8432B;">Test de survie affective</p>
@@ -507,7 +501,9 @@
 
         <p><strong>30 questions, 3 minutes, confidentiel.</strong> Ce test n'est pas un quiz parmi d'autres : il identifie votre schéma relationnel dominant parmi quatre archétypes propriétaires, et l'intensité avec laquelle il vous tient.</p>
 
-        <p><strong>Après le test</strong> : votre profil détaillé et vos 20 séances audio guidées arrivent gratuitement dans votre boîte email. Aucune carte bancaire, aucun engagement. Si vous voulez aller plus loin, le programme Régénération vous sera présenté ensuite. À vous de décider.</p>
+        <p>À la fin des 30 questions, vous laissez votre email : votre masque s'affiche à l'écran, votre profil complet et vos 20 séances audio guidées arrivent dans votre boîte. Sans carte bancaire.</p>
+
+        <p><strong>Après le test</strong> : votre profil détaillé et vos 20 séances audio guidées arrivent gratuitement dans votre boîte email. Aucune carte bancaire, aucun engagement. Si vous voulez aller plus loin, le programme Régénération vous sera présenté ensuite. À vous de décider. Ensuite : huit emails en trois semaines, jamais plus d'un par jour, puis les textes de Cyrille si vous restez. Désinscription en un clic, en bas de chaque email, à tout moment.</p>
 
         <!-- Sans JavaScript, le test ne peut pas se faire : on le dit, au lieu d'un lien vers
              la page elle-même (audit Landing Doctor 2026-08-30, fix n°5). -->

@@ -49,6 +49,23 @@ interface Props {
  * - Pas d'urgence ajoutée : le test n'a aucune contrainte réelle, et une rareté
  *   fabriquée est refusée (arbitrage du 27/08, reconduit).
  *
+ * Audit conversion 2026-08-31 (Landing Doctor u3yv4wxe6g6q, 63/100) :
+ * - L'échange « email contre résultat » est dit sous CHAQUE bouton, juste après
+ *   lui (composant EchangeEmail), tel qu'il se passe vraiment : le masque
+ *   s'affiche à l'écran, le profil complet et les 20 séances partent par email.
+ *   Le rapport croyait le résultat livré par email seulement : faux, mais la
+ *   phrase existante arrivait après la liste des caractéristiques et ne suivait
+ *   que le premier bouton.
+ * - Ce qui suit l'email est annoncé avant de le demander (bloc « Après le test ») :
+ *   huit emails en trois semaines (séquence J0 → J21, garde « au plus un par
+ *   jour »), puis les textes de Cyrille, désinscription en un clic. Source :
+ *   Funnel-VSL-Emails/_SPEC-TUNNEL-LIVRE-FIRST.md.
+ * - Urgence : refusée pour la troisième fois (27/08, 30/08, 31/08). La phrase
+ *   proposée faisait du test gratuit un filtre d'entrée pour Régénération.
+ * - CTA : « Découvrir mon masque en 3 minutes » conservé (variante n°1 du rapport,
+ *   témoin). La variante « résultat immédiat » décrit un flux qui n'est pas le
+ *   nôtre (l'email vient avant l'écran de résultat).
+ *
  * Charte voix v2 : 0 tiret cadratin, 0 point-virgule.
  */
 
@@ -202,6 +219,25 @@ function BoutonTest({
   )
 }
 
+/**
+ * Ce que le bouton déclenche vraiment, dit juste sous lui, aux deux emplacements.
+ * Le masque s'affiche à l'écran une fois l'email donné (App.tsx : capture, puis
+ * ResultPreview) ; le profil complet et le cadeau partent par email.
+ */
+function EchangeEmail() {
+  return (
+    <p
+      className="mt-4 max-w-md text-center text-sm leading-relaxed"
+      style={{ color: 'var(--h3c-texte-secondaire)' }}
+      data-testid="echange-email"
+    >
+      À la fin des 30 questions, vous laissez votre email&nbsp;: votre masque
+      s&apos;affiche à l&apos;écran, votre profil complet et vos 20 séances
+      audio guidées arrivent dans votre boîte. Sans carte bancaire.
+    </p>
+  )
+}
+
 function CaracteristiquesTest() {
   return (
     <ul
@@ -276,15 +312,8 @@ export function Welcome({ onCommencer }: Props) {
               Découvrez lequel en 3 minutes. Faites le test maintenant.
             </p>
             <BoutonTest onClick={lancer} emplacement="haut" />
+            <EchangeEmail />
             <CaracteristiquesTest />
-            <p
-              className="mt-4 max-w-md text-center text-sm leading-relaxed"
-              style={{ color: 'var(--h3c-texte-secondaire)' }}
-            >
-              Vous répondez, vous donnez votre email, votre masque s&apos;affiche.
-              Le rapport complet et vos 20 séances audio guidées partent dans
-              votre boîte. Sans carte bancaire.
-            </p>
           </div>
 
           {/* Signature auteur — colophon éditorial (filet + nom caps + référence livre italique) */}
@@ -445,6 +474,15 @@ export function Welcome({ onCommencer }: Props) {
               Si vous voulez aller plus loin, je vous présenterai ensuite le
               programme Régénération. À vous de décider.
             </p>
+            <p
+              className="mt-3 text-sm leading-relaxed"
+              style={{ color: 'var(--h3c-texte-secondaire)' }}
+              data-testid="apres-le-test-emails"
+            >
+              Ensuite&nbsp;: huit emails en trois semaines, jamais plus d&apos;un
+              par jour, puis mes textes si vous restez. Désinscription en un clic,
+              en bas de chaque email, à tout moment.
+            </p>
           </div>
 
           {/* Bloc CTA centré, dense, avec hover/active/focus marqués */}
@@ -460,6 +498,7 @@ export function Welcome({ onCommencer }: Props) {
               lequel.
             </p>
             <BoutonTest onClick={lancer} emplacement="bas" />
+            <EchangeEmail />
             <CaracteristiquesTest />
             <ul
               className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm"

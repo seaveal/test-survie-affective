@@ -220,14 +220,27 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
       expect(bouton).toHaveFocus()
     })
 
-    it('annonce ce que le visiteur reçoit, mur email compris', () => {
+    it('annonce l’échange email contre résultat sous CHAQUE bouton (audit 2026-08-31)', () => {
       render(<Welcome onCommencer={() => {}} />)
-      expect(
-        screen.getByText(
-          /vous donnez votre email, votre masque s'affiche/i,
-        ),
-      ).toBeInTheDocument()
-      expect(screen.getByText(/sans carte bancaire/i)).toBeInTheDocument()
+      const lignes = screen.getAllByTestId('echange-email')
+      expect(lignes).toHaveLength(2)
+      for (const l of lignes) {
+        expect(l).toHaveTextContent(/vous laissez votre email/i)
+        expect(l).toHaveTextContent(/votre masque s'affiche à l'écran/i)
+        expect(l).toHaveTextContent(/20 séances audio guidées arrivent dans votre boîte/i)
+        expect(l).toHaveTextContent(/sans carte bancaire/i)
+      }
+      // La ligne suit immédiatement le bouton, avant la liste des caractéristiques.
+      const bouton = screen.getByTestId('cta-haut')
+      expect(bouton.nextElementSibling).toBe(lignes[0])
+    })
+
+    it('dit ce qui suit l’email avant de le demander : huit emails, désinscription en un clic (audit 2026-08-31)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      const bloc = screen.getByTestId('apres-le-test-emails')
+      expect(bloc).toHaveTextContent(/huit emails en trois semaines/i)
+      expect(bloc).toHaveTextContent(/jamais plus d'un par jour/i)
+      expect(bloc).toHaveTextContent(/désinscription en un clic/i)
     })
   })
 

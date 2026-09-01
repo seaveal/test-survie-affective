@@ -2,7 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-<!-- H3C-TRACKING:BEGIN cfg=ad127f7559c5 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
+<!-- H3C-TRACKING:BEGIN cfg=8f5aa6845014 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
 <script>
 (function () {
   'use strict';
@@ -123,11 +123,39 @@
     } catch (e) { return ''; }
   }
 
-  function lireClic() {
+  // Le magasin est DOUBLE depuis le 2026-09-01 (recommandation Meta « envoyer l'ID
+  // du clic (fbc) pour Prospect ») : `localStorage` ne vaut que pour UN sous-domaine,
+  // or la pub atterrit sur `livre.` et le Lead se produit sur `test.` ou
+  // `regeneration.` — sans accord publicitaire, `_fbc` n'est jamais reposé et le
+  // clic se perdait entre deux sous-domaines. Un cookie de premier niveau `h3c_fbc`
+  // sur le domaine racine (même portée que `_fbc`) suit le visiteur partout. Les
+  // deux sources sont lues, le clic le plus récent gagne.
+  function lireClicCookie() {
     try {
-      var c = JSON.parse(localStorage.getItem(FBC_KEY) || 'null');
-      if (c && c.id && c.ts && Date.now() - c.ts <= FBC_TTL_MS) return c;
+      var v = lireCookie('h3c_fbc');
+      var m = v && v.match(/^(\d{13})\.([A-Za-z0-9_-]{1,380})$/);
+      if (m) return { id: m[2], ts: Number(m[1]) };
     } catch (e) {}
+    return null;
+  }
+
+  function ecrireClicCookie(c) {
+    try {
+      var p = fbcPortee();
+      document.cookie = 'h3c_fbc=' + c.ts + '.' + c.id + ';path=/' + (p.domaine ? ';domain=' + p.domaine : '') +
+        ';max-age=' + Math.floor(FBC_TTL_MS / 1000) + ';SameSite=Lax';
+    } catch (e) {}
+  }
+
+  function lireClic() {
+    var c = null;
+    try {
+      c = JSON.parse(localStorage.getItem(FBC_KEY) || 'null');
+      if (!(c && c.id && c.ts && Date.now() - c.ts <= FBC_TTL_MS)) c = null;
+    } catch (e) { c = null; }
+    var k = lireClicCookie();
+    if (k && Date.now() - k.ts <= FBC_TTL_MS && (!c || k.ts > c.ts)) c = k;
+    if (c) return c;
     // Repli sur le premier contact, pour les visiteurs déjà dans la fenêtre
     // d'attribution le jour où ce magasin est apparu. Il s'éteint tout seul.
     try {
@@ -144,7 +172,11 @@
       // complète doit tenir dans les 400 admis par `tsa-api` (models.py) comme
       // dans les 500 d'une metadata Stripe. Tronquer l'identifiant lui-même le
       // rendrait inappariable — mieux vaut une borne haute qu'une coupe au milieu.
-      if (id) localStorage.setItem(FBC_KEY, JSON.stringify({ id: id.slice(0, 380), ts: Date.now() }));
+      if (id) {
+        var clic = { id: id.slice(0, 380), ts: Date.now() };
+        localStorage.setItem(FBC_KEY, JSON.stringify(clic));
+        ecrireClicCookie(clic);          // même clic, visible de tous les sous-domaines
+      }
     } catch (e) {}
   })();
 

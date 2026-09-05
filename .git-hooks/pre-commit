@@ -109,10 +109,19 @@ fi
 EXIT_CODE=0
 for FILE in "${FICHIERS[@]}"; do
     if [ -z "$FILE" ] || [ ! -f "$FILE" ]; then continue; fi
-    # Skip binary files
-    if file "$FILE" | grep -q "text"; then
+    # Skip binary files — par ENCODAGE (us-ascii/utf-8 vs binary), jamais par
+    # description : `file` decrit un fichier de cle comme « PEM RSA private
+    # key », SANS le mot « text », si bien que l'ancien filtre (`file | grep -q
+    # text`) skippait precisement les fichiers de cles privees. Prouve en depot
+    # jetable le 2026-09-01 (GO Cyrille) sur agents-workers, rejoue ici le
+    # 2026-09-05 (audit T15, SOCLE-T15-02) : un .pem stage passait, annonce
+    # « aucun secret detecte ». Ne pas « simplifier » : le trou se rouvre.
+    if file -b --mime-encoding "$FILE" | grep -qv '^binary$'; then
         for PATTERN in "${VENDOR_PATTERNS[@]}"; do
-            if grep -E "$PATTERN" "$FILE" >/dev/null 2>&1; then
+            # `--` obligatoire : le motif PEM commence par des tirets — sans lui
+            # grep le lit comme une OPTION, sort en rc=2 et le detecteur de cle
+            # privee n'a jamais rien cherche (audit T15, SOCLE-T15-02).
+            if grep -E -- "$PATTERN" "$FILE" >/dev/null 2>&1; then
                 echo "❌ Pre-commit FAILED: pattern de secret détecté dans $FILE"
                 echo "   Pattern: $PATTERN"
                 echo "   Commit BLOQUÉ. Retire le secret avant de commiter."
@@ -120,7 +129,7 @@ for FILE in "${FICHIERS[@]}"; do
             fi
         done
         for PATTERN in "${GENERIC_PATTERNS[@]}"; do
-            if grep -Ev "$ALLOWLIST" "$FILE" | grep -E "$PATTERN" >/dev/null 2>&1; then
+            if grep -Ev -- "$ALLOWLIST" "$FILE" | grep -E -- "$PATTERN" >/dev/null 2>&1; then
                 echo "❌ Pre-commit FAILED: pattern de secret détecté dans $FILE"
                 echo "   Pattern: $PATTERN"
                 echo "   Commit BLOQUÉ. Retire le secret avant de commiter."

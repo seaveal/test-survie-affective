@@ -227,7 +227,7 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
       for (const l of lignes) {
         expect(l).toHaveTextContent(/vous laissez votre email/i)
         expect(l).toHaveTextContent(/votre masque s'affiche à l'écran/i)
-        expect(l).toHaveTextContent(/20 séances audio guidées arrivent dans votre boîte/i)
+        expect(l).toHaveTextContent(/une séance de descente dans le corps, offerte, arrivent dans votre boîte/i)
         expect(l).toHaveTextContent(/sans carte bancaire/i)
       }
       // La ligne suit immédiatement le bouton, avant la liste des caractéristiques.

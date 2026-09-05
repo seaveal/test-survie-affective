@@ -11,13 +11,13 @@ interface Props {
 // statutLivre reste collecté pour analytics/segmentation Brevo, mais ne pilote
 // plus le routage.
 const ctaUnifie = {
-  amorce: `Vous venez d'identifier votre profil. La suite arrive dans votre email : vos 20 séances audio guidées, calibrées sur votre profil, prêtes à écouter dès ce soir. Le corps se met au travail là où comprendre seul ne va pas.
+  amorce: `Vous venez d'identifier votre profil. La suite arrive dans votre email : une séance de descente dans le corps, guidée par ma voix, prête à écouter dès ce soir. Le corps se met au travail là où comprendre seul ne va pas.
 
 Et si vous voulez aller plus loin, vous découvrez le séminaire Régénération, l'immersion qui transforme ce que la compréhension seule ne transforme pas.
 
 La tête comprend. Le corps répare.`,
   ctaPrincipal: {
-    texte: `Ouvrir mon email et récupérer mes 20 séances`,
+    texte: `Ouvrir mon email et recevoir ma séance offerte`,
     url: `#`,
   },
   ctaSecondaire: {

@@ -52,7 +52,7 @@ interface Props {
  * Audit conversion 2026-08-31 (Landing Doctor u3yv4wxe6g6q, 63/100) :
  * - L'échange « email contre résultat » est dit sous CHAQUE bouton, juste après
  *   lui (composant EchangeEmail), tel qu'il se passe vraiment : le masque
- *   s'affiche à l'écran, le profil complet et les 20 séances partent par email.
+ *   s'affiche à l'écran, le profil complet et la séance offerte partent par email (une descente, décision Cyrille 2026-09-05).
  *   Le rapport croyait le résultat livré par email seulement : faux, mais la
  *   phrase existante arrivait après la liste des caractéristiques et ne suivait
  *   que le premier bouton.
@@ -232,8 +232,8 @@ function EchangeEmail() {
       data-testid="echange-email"
     >
       À la fin des 30 questions, vous laissez votre email&nbsp;: votre masque
-      s&apos;affiche à l&apos;écran, votre profil complet et vos 20 séances
-      audio guidées arrivent dans votre boîte. Sans carte bancaire.
+      s&apos;affiche à l&apos;écran, votre profil complet et une séance de
+      descente dans le corps, offerte, arrivent dans votre boîte. Sans carte bancaire.
     </p>
   )
 }
@@ -463,9 +463,9 @@ export function Welcome({ onCommencer }: Props) {
               className="mb-3 text-base leading-relaxed md:text-lg"
               style={{ color: 'var(--h3c-texte-secondaire)' }}
             >
-              Votre profil détaillé et vos 20 séances audio guidées arrivent
-              gratuitement dans votre boîte email. Aucune carte bancaire, aucun
-              engagement.
+              Votre profil détaillé et une séance de descente dans le corps, offerte,
+              arrivent gratuitement dans votre boîte email. Aucune carte bancaire,
+              aucun engagement.
             </p>
             <p
               className="text-base leading-relaxed md:text-lg"

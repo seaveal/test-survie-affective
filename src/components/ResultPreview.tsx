@@ -50,8 +50,8 @@ export function ResultPreview({ resultat, envoiReussi }: Props) {
         <h2 className="text-xl">Votre rapport complet est en chemin</h2>
         <p className="mt-3 text-base leading-relaxed">
           Le détail de votre profil, les sept symptômes que vous reconnaissez sans
-          doute, votre feuille de route, et votre cadeau (vos 20 séances audio
-          guidées, calibrées sur votre profil) arrivent dans votre boîte.
+          doute, votre feuille de route, et votre cadeau (une séance de descente dans le
+          corps, guidée par ma voix) arrivent dans votre boîte.
         </p>
         <p
           className="mt-3 text-sm"

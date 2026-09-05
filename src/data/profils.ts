@@ -139,21 +139,21 @@ export const ctaParStatut: Record<StatutLivre, CtaParStatut> = {
   pas_lu: {
     amorce: `Vous venez de découvrir votre profil. Vous reconnaissez le mécanisme. C'est un premier pas.
 
-Vous recevez maintenant par email **vos 20 séances audio guidées**, calibrées sur votre profil. Vous commencez ce soir, à votre rythme. Le corps se met au travail là où la lecture seule ne va pas.
+Vous recevez maintenant par email **une séance de descente dans le corps, offerte**, guidée par ma voix. Vous commencez ce soir, à votre rythme. Le corps se met au travail là où la lecture seule ne va pas.
 
 Et si vous voulez aller plus loin, vous découvrez le séminaire Régénération, l'immersion qui transforme ce que la compréhension seule ne transforme pas.
 
 La tête comprend. Le corps répare.`,
-    ctaPrincipal: { texte: `Ouvrir mon email et récupérer mes 20 séances`, url: `#` },
+    ctaPrincipal: { texte: `Ouvrir mon email et recevoir ma séance offerte`, url: `#` },
     ctaSecondaire: { texte: `Découvrir le séminaire Régénération`, url: `https://h3c.fr/solution` },
   },
   lu_partiel: {
     amorce: `Votre profil est maintenant identifié. Votre carte intérieure se précise.
 
-Vous recevez par email **vos 20 séances audio guidées** calibrées sur votre profil. Elles vous accompagnent dès ce soir. Le corps se met au travail là où comprendre seul ne va pas.
+Vous recevez par email **une séance de descente dans le corps, offerte**, guidée par ma voix. Elle vous accompagne dès ce soir. Le corps se met au travail là où comprendre seul ne va pas.
 
 Si l'accompagnement corporel devient évident, vous découvrez le séminaire Régénération, l'immersion qui transforme ce que la compréhension seule ne transforme pas.`,
-    ctaPrincipal: { texte: `Ouvrir mon email et récupérer mes 20 séances`, url: `#` },
+    ctaPrincipal: { texte: `Ouvrir mon email et recevoir ma séance offerte`, url: `#` },
     ctaSecondaire: { texte: `Découvrir le séminaire Régénération`, url: `https://h3c.fr/solution` },
   },
   lu_complet: {

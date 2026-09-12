@@ -1,6 +1,7 @@
 import { act, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-import { KitVsl } from './ResultPreview'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { KitVsl, ResultPreview } from './ResultPreview'
+import type { Resultat } from '../domain/types'
 
 // Le bloc VSL du kit doit rendre correctement AVANT que la vidéo soit tournée :
 // texte et bouton présents, et aucun emplacement de lecteur (ni iframe, ni
@@ -73,5 +74,47 @@ describe('<KitVsl> — bloc kit sur la page de livraison du profil', () => {
 
     expect(texte).toMatch(/trois semaines/)
     expect(texte).not.toMatch(/quinze jours|15 jours/)
+  })
+})
+
+// C5-05 — la vente fermée ne met AUCUN chemin d'achat sur la page de livraison du
+// profil : le bloc n'est pas rendu du tout. `VITE_KIT_VENTE_OUVERTE` est posée au
+// build par le script de mise en production, à OUVRIR_LA_VENTE="oui" seulement.
+const RESULTAT: Resultat = {
+  profilDominant: 'mendiant',
+  profilSecondaire: null,
+  scoreProfils: { mendiant: 20, sauveur: 10, controleur: 10, fantome: 10 },
+  intensite: 'profond',
+  scoreIntensite: 24,
+  statutLivre: 'pas_lu',
+  situation: 'couple_difficile',
+  etatEmotionnel: 'tendu',
+  pretAAgir: 'maintenant',
+}
+
+describe('bloc kit et état de la vente', () => {
+  function rendre(valeur: string) {
+    vi.stubEnv('VITE_KIT_VENTE_OUVERTE', valeur)
+    return render(<ResultPreview resultat={RESULTAT} envoiReussi />)
+  }
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('vente fermée (variable absente) : aucun bloc kit, aucun lien vers la caisse', () => {
+    rendre('')
+
+    expect(screen.queryByTestId('kit-vsl')).toBeNull()
+    expect(screen.queryByText(/Je commence, 48/)).toBeNull()
+  })
+
+  it('vente ouverte : le bloc kit et son bouton sont là', () => {
+    rendre('oui')
+
+    expect(screen.getByTestId('kit-vsl')).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: /Je commence, 48/ }),
+    ).toHaveAttribute('href', 'https://h3c.fr/kit-test-profil')
   })
 })

@@ -183,7 +183,17 @@ export function ResultPreview({ resultat, envoiReussi }: Props) {
         )}
       </section>
 
-      <KitVsl />
+      {/* C5-05 (audit cycle 5) — LE BLOC D'ACHAT NE PART PAS EN LIGNE QUAND LA
+          VENTE EST FERMÉE. Il était rendu sans condition : pendant toute la fenêtre
+          de rejeu (vente fermée), cette page proposait « Je commence, 48 € » vers une
+          page /kit qui n'a aucun chemin d'achat. Les pages du livre ont leurs
+          sentinelles pour cette raison exacte (C2-11) ; le front du Test n'avait rien.
+          `VITE_KIT_VENTE_OUVERTE` est posée au BUILD par le script de mise en
+          production, à OUVRIR_LA_VENTE="oui" seulement. Lue ici telle quelle, et non
+          derrière une constante : Vite la replie, et tout le bloc — bouton et lien de
+          caisse compris — DISPARAÎT du bundle quand elle est vide, ce qu'un grep
+          prouve (mémoire `test-sa-spa-greper-le-bundle`). */}
+      {import.meta.env.VITE_KIT_VENTE_OUVERTE ? <KitVsl /> : null}
 
       <DisclaimerFooter />
     </article>

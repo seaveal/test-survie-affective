@@ -19,6 +19,65 @@ interface Props {
   envoiReussi: boolean
 }
 
+// VSL du kit (mission kit evergreen §9) : une seule constante de config.
+// Renseigner VITE_VSL_KIT_URL le jour où la vidéo est tournée. Vide = pas de
+// lecteur, le texte et le bouton restent. Aucun emplacement visible entre-temps.
+export const VSL_KIT_URL: string = import.meta.env.VITE_VSL_KIT_URL ?? ''
+
+export function KitVsl({ url = VSL_KIT_URL }: { url?: string }) {
+  return (
+    <section
+      className="mx-6 mb-6 rounded-xl p-6"
+      style={{
+        background: 'var(--h3c-fond-card)',
+        borderLeft: '4px solid var(--h3c-accent-primaire)',
+      }}
+      data-testid="kit-vsl"
+    >
+      <h2 className="text-xl">Et maintenant&nbsp;?</h2>
+
+      {url ? (
+        <iframe
+          src={url}
+          title="Le Kit de démarrage"
+          loading="lazy"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+          className="mt-4 block w-full rounded-lg"
+          style={{ aspectRatio: '16 / 9', border: 0 }}
+          data-testid="kit-vsl-lecteur"
+        />
+      ) : null}
+
+      <p className="mt-4 text-base leading-relaxed">
+        Ce nom, votre tête vient de l'apprendre. Votre corps, lui, il le connaît
+        depuis trente ans, et de tout ce que vous venez de lire, il n'a rien lu.
+      </p>
+      <p className="mt-3 text-base leading-relaxed">
+        Cette distance ne se franchit pas en comprenant mieux, sinon vous seriez
+        arrivé depuis longtemps. Elle se franchit dans le corps, et dans un
+        ordre&nbsp;: ressentir, libérer, s'ouvrir à recevoir.
+      </p>
+      <p className="mt-3 text-base leading-relaxed">
+        Le Kit de démarrage, ce sont ces trois semaines. Chaque matin, une séance
+        guidée pour descendre dans votre corps, moins d'une demi-heure. Les
+        dimanches soir, une libération en direct. Le mercredi soir, vos questions.
+      </p>
+      <p className="mt-3 text-base font-medium leading-relaxed">
+        Le tarif est de 48&nbsp;€.
+      </p>
+
+      <a
+        href="https://h3c.fr/kit-test-profil"
+        className="mt-5 block rounded-lg px-6 py-4 text-center text-base font-medium text-white shadow-md transition hover:scale-[1.02]"
+        style={{ background: 'var(--h3c-accent-primaire)' }}
+      >
+        Je commence, 48&nbsp;€
+      </a>
+    </section>
+  )
+}
+
 export function ResultPreview({ resultat, envoiReussi }: Props) {
   const profil = getProfil(resultat.profilDominant)
 
@@ -77,6 +136,8 @@ export function ResultPreview({ resultat, envoiReussi }: Props) {
           </p>
         )}
       </section>
+
+      <KitVsl />
 
       <DisclaimerFooter />
     </article>

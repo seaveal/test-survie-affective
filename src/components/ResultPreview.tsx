@@ -10,6 +10,7 @@
 // Les composants ResultLevel1/2/3 sont conservés dans le code (tests passent)
 // mais ne sont plus rendus dans le parcours principal.
 
+import { useEffect, useRef, useState } from 'react'
 import { getProfil } from '../domain/result'
 import type { Resultat } from '../domain/types'
 import { DisclaimerFooter } from './DisclaimerFooter'
@@ -24,7 +25,46 @@ interface Props {
 // lecteur, le texte et le bouton restent. Aucun emplacement visible entre-temps.
 export const VSL_KIT_URL: string = import.meta.env.VITE_VSL_KIT_URL ?? ''
 
-export function KitVsl({ url = VSL_KIT_URL }: { url?: string }) {
+// Délai avant l'apparition du bouton d'achat et de son prix, en secondes.
+// Règle de calcul : durée de la vidéo x 0,6, en secondes. Cyrille la pose à la
+// main : le navigateur ne connaît pas la durée d'un lecteur tiers. Vide ou 0, ou
+// VSL_KIT_URL vide (pas de lecteur) : le bouton est là tout de suite.
+export const VSL_KIT_BOUTON_APRES_S: string =
+  import.meta.env.VITE_VSL_KIT_BOUTON_APRES_S ?? ''
+
+export function KitVsl({
+  url = VSL_KIT_URL,
+  boutonApresS = VSL_KIT_BOUTON_APRES_S,
+}: {
+  url?: string
+  boutonApresS?: string
+}) {
+  const delai = Number.parseFloat(boutonApresS) || 0
+  const [boutonVisible, setBoutonVisible] = useState(!url || delai <= 0)
+  const lecteur = useRef<HTMLIFrameElement>(null)
+
+  // La lecture réelle d'un iframe tiers n'est pas lisible par le navigateur : le
+  // compte part du moment où le lecteur entre dans l'écran, pas du chargement de
+  // la page.
+  useEffect(() => {
+    const cible = lecteur.current
+    if (boutonVisible || !cible) return
+    let minuteur: ReturnType<typeof setTimeout>
+    const partir = () => {
+      minuteur = setTimeout(() => setBoutonVisible(true), delai * 1000)
+    }
+    const io = new IntersectionObserver((entrees) => {
+      if (!entrees[0].isIntersecting) return
+      io.disconnect()
+      partir()
+    })
+    io.observe(cible)
+    return () => {
+      io.disconnect()
+      clearTimeout(minuteur)
+    }
+  }, [boutonVisible, delai])
+
   return (
     <section
       className="mx-6 mb-6 rounded-xl p-6"
@@ -38,6 +78,7 @@ export function KitVsl({ url = VSL_KIT_URL }: { url?: string }) {
 
       {url ? (
         <iframe
+          ref={lecteur}
           src={url}
           title="Le Kit de démarrage"
           loading="lazy"
@@ -63,17 +104,21 @@ export function KitVsl({ url = VSL_KIT_URL }: { url?: string }) {
         guidée pour descendre dans votre corps, moins d'une demi-heure. Les
         dimanches soir, une libération en direct. Le mercredi soir, vos questions.
       </p>
-      <p className="mt-3 text-base font-medium leading-relaxed">
-        Le tarif est de 48&nbsp;€.
-      </p>
+      {boutonVisible ? (
+        <div data-testid="kit-achat">
+          <p className="mt-3 text-base font-medium leading-relaxed">
+            Le tarif est de 48&nbsp;€.
+          </p>
 
-      <a
-        href="https://h3c.fr/kit-test-profil"
-        className="mt-5 block rounded-lg px-6 py-4 text-center text-base font-medium text-white shadow-md transition hover:scale-[1.02]"
-        style={{ background: 'var(--h3c-accent-primaire)' }}
-      >
-        Je commence, 48&nbsp;€
-      </a>
+          <a
+            href="https://h3c.fr/kit-test-profil"
+            className="mt-5 block rounded-lg px-6 py-4 text-center text-base font-medium text-white shadow-md transition hover:scale-[1.02]"
+            style={{ background: 'var(--h3c-accent-primaire)' }}
+          >
+            Je commence, 48&nbsp;€
+          </a>
+        </div>
+      ) : null}
     </section>
   )
 }

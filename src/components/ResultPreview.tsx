@@ -100,9 +100,10 @@ export function KitVsl({
         ordre&nbsp;: ressentir, libérer, s'ouvrir à recevoir.
       </p>
       <p className="mt-3 text-base leading-relaxed">
-        Le Kit de démarrage, ce sont ces trois semaines. Chaque matin, une séance
-        guidée pour descendre dans votre corps, moins d'une demi-heure. Les
-        dimanches soir, une libération en direct. Le mercredi soir, vos questions.
+        Le Kit de démarrage, ce sont ces trois semaines. Un jour, une action&nbsp;:
+        une séance guidée pour descendre dans votre corps, à l'heure que vous
+        voulez, moins d'une demi-heure. Jusqu'à deux dimanches soir, une
+        libération en direct. Le mercredi soir, vos questions.
       </p>
       {boutonVisible ? (
         <div data-testid="kit-achat">

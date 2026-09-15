@@ -32,7 +32,7 @@ describe('Données roadmaps — structure et couverture', () => {
     }
   })
 
-  it('chapitresLivreCibles : tableau de numéros entre 1 et 12, sans doublon', () => {
+  it('chapitresLivreCibles : tableau de numéros entre 1 et 14 (livre publié), sans doublon', () => {
     for (const r of roadmaps) {
       const tag = `${r.profilId}×${r.intensite}`
       expect(r.chapitresLivreCibles.length, `${tag} non vide`).toBeGreaterThan(0)
@@ -41,8 +41,29 @@ describe('Données roadmaps — structure et couverture', () => {
       )
       for (const c of r.chapitresLivreCibles) {
         expect(c, `${tag} chapitre ${c}`).toBeGreaterThanOrEqual(1)
-        expect(c, `${tag} chapitre ${c}`).toBeLessThanOrEqual(12)
+        expect(c, `${tag} chapitre ${c}`).toBeLessThanOrEqual(14)
       }
+    }
+  })
+
+  it('chapitresLivreCibles : la table du livre publié (Redacteur-Agent, 15/09)', () => {
+    const attendu: Record<string, number[]> = {
+      'mendiant|surface': [2, 4, 10],
+      'mendiant|modere': [2, 3, 4, 10, 12],
+      'mendiant|profond': [2, 3, 4, 7, 10, 11, 12],
+      'sauveur|surface': [2, 10, 11, 13],
+      'sauveur|modere': [2, 3, 10, 11, 13, 14],
+      'sauveur|profond': [2, 3, 7, 10, 11, 13, 14],
+      'controleur|surface': [1, 2, 8, 10],
+      'controleur|modere': [1, 2, 3, 8, 9, 10],
+      'controleur|profond': [1, 2, 3, 7, 8, 9, 10],
+      'fantome|surface': [2, 5, 10, 11],
+      'fantome|modere': [2, 3, 5, 6, 10, 11],
+      'fantome|profond': [2, 3, 5, 6, 7, 10, 11],
+    }
+    for (const r of roadmaps) {
+      const cle = `${r.profilId}|${r.intensite}`
+      expect(r.chapitresLivreCibles, cle).toEqual(attendu[cle])
     }
   })
 

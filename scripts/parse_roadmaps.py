@@ -24,19 +24,25 @@ INTENSITE_FROM_TITLE = {
 # Les mappings sont conservés ici, gelés. Réactivés quand VITE_LIVRE_DISPONIBLE=true
 # (front, cf. ResultLevel3.tsx) ou TSA_LIVRE_DISPONIBLE=true (back, cf. profil_renderer.py).
 # Source originale : docs/_archive/ROADMAPS_PERSONNALISEES_pre-bloc2.md
+# 2026-09-15 (registre kit, point 19) : numéros réalignés sur le livre publié (14 chapitres),
+# table du Redacteur-Agent `Livre-H3C/00_GOUVERNANCE/table_chapitres_roadmaps_test_sa_2026-09-15.md`.
+# Même table dans tsa-api `profils_data.py`, émise par le même pipeline.
+# Script historique : le pipeline canonique est vault `99-Meta/test-survie-affective/tools/build-all.sh`
+# (build_canonical.py porte la même table). Ne pas relancer celui-ci : docs/ROADMAPS_PERSONNALISEES.md
+# nomme encore Sylvie là où roadmaps.ts nomme Pascale (ambassadrice canonique).
 CHAPITRES_LIVRE_BY_ROADMAP = {
-    ("mendiant", "surface"):  [3, 6, 12],
-    ("mendiant", "modere"):   [3, 5, 6, 12],
-    ("mendiant", "profond"):  [3, 5, 6, 8, 12],
-    ("sauveur", "surface"):   [3, 6, 11, 12],
-    ("sauveur", "modere"):    [3, 5, 6, 8, 11, 12],
-    ("sauveur", "profond"):   [3, 5, 6, 8, 11, 12],
-    ("controleur", "surface"):[3, 6, 10, 12],
-    ("controleur", "modere"): [3, 5, 6, 8, 10, 12],
-    ("controleur", "profond"):[3, 5, 6, 8, 10, 12],
-    ("fantome", "surface"):   [3, 6, 12],
-    ("fantome", "modere"):    [3, 5, 6, 8, 12],
-    ("fantome", "profond"):   [3, 5, 6, 8, 11, 12],
+    ("mendiant", "surface"): [2, 4, 10],
+    ("mendiant", "modere"): [2, 3, 4, 10, 12],
+    ("mendiant", "profond"): [2, 3, 4, 7, 10, 11, 12],
+    ("sauveur", "surface"): [2, 10, 11, 13],
+    ("sauveur", "modere"): [2, 3, 10, 11, 13, 14],
+    ("sauveur", "profond"): [2, 3, 7, 10, 11, 13, 14],
+    ("controleur", "surface"): [1, 2, 8, 10],
+    ("controleur", "modere"): [1, 2, 3, 8, 9, 10],
+    ("controleur", "profond"): [1, 2, 3, 7, 8, 9, 10],
+    ("fantome", "surface"): [2, 5, 10, 11],
+    ("fantome", "modere"): [2, 3, 5, 6, 10, 11],
+    ("fantome", "profond"): [2, 3, 5, 6, 7, 10, 11],
 }
 
 

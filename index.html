@@ -2,15 +2,18 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-<!-- H3C-TRACKING:BEGIN cfg=414edc242ab6 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
+<!-- H3C-TRACKING:BEGIN cfg=2f0647e3e3e6 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
 <script>
 (function () {
   'use strict';
   var GTM_ID = 'GTM-KTVF95FP';
   var CONSENT_KEY = 'h3c_consent';
-  var POLICY_VERSION = '2026-07-05';
+  var POLICY_VERSION = '2026-09-18';
   var DURATION_MS = 6 * 30.5 * 24 * 3600 * 1000;
-  var PRIVACY_URL = 'https://test.souverainauquotidien.com/legal/privacy';
+  var PRIVACY_URL = 'https://test.souverainauquotidien.com/privacy/';
+  var PH_PROJET = 'phc_zFtb4XY2PpNQTrJDX4zLj9AUyhkCsmCUjHgmbPScX4Cm';
+  var PH_HOST = 'https://eu.i.posthog.com';
+  var PH_OPTS = {"autocapture": false, "session_recording": false};
 
   window.dataLayer = window.dataLayer || [];
   function gtag() { window.dataLayer.push(arguments); }
@@ -228,7 +231,76 @@
       if (at[k] && d[k] === undefined) d[k] = at[k];
     });
     window.dataLayer.push(d);
+    // Même événement vers PostHog, sous le même accord que GA4 (mesure d'audience).
+    if (phActif && window.posthog && window.posthog.capture) {
+      var ph = {};
+      for (var j in d) { if (j !== 'event' && Object.prototype.hasOwnProperty.call(d, j)) ph[j] = d[j]; }
+      window.posthog.capture(event, ph);
+    }
   };
+
+  // --- PostHog (Cloud EU, offre gratuite — décision Cyrille 2026-09-18) ---
+  // Chargé SEULEMENT après l'accord « mesure d'audience », coupé s'il est retiré.
+  // Les URL partent réduites à leurs paramètres de campagne : aucun identifiant de
+  // paiement, rien de saisi. Sur le Test, ni autocapture ni enregistrement de
+  // session (PH_OPTS) : les réponses et le profil ne quittent jamais la page.
+  var phLoaded = false, phActif = false;
+  var PH_PARAMS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'h3c', 'produit', 'offre'];
+  function urlPropre(u) {
+    try {
+      var x = new URL(u), q = new URLSearchParams();
+      PH_PARAMS.forEach(function (k) { var v = x.searchParams.get(k); if (v) q.set(k, v); });
+      var s = q.toString();
+      return x.origin + x.pathname + (s ? '?' + s : '');
+    } catch (e) { return ''; }
+  }
+  function posthogActiver(oui) {
+    phActif = !!(oui && PH_PROJET);
+    if (!PH_PROJET) return;
+    if (!phActif) {
+      if (phLoaded && window.posthog.opt_out_capturing) window.posthog.opt_out_capturing();
+      return;
+    }
+    if (phLoaded) { window.posthog.opt_in_capturing(); return; }
+    phLoaded = true;
+    // File d'attente (même principe que l'extrait officiel) : les appels faits avant
+    // le chargement d'array.js sont rejoués par lui.
+    var p = window.posthog = window.posthog || [];
+    p._i = p._i || [];
+    ['capture', 'opt_in_capturing', 'opt_out_capturing', 'register', 'reset'].forEach(function (m) {
+      p[m] = function () { p.push([m].concat(Array.prototype.slice.call(arguments))); };
+    });
+    p.init = function (k, o, n) { p._i.push([k, o, n]); };
+    p.__SV = 1;
+    var s = document.createElement('script'); s.async = true; s.crossOrigin = 'anonymous';
+    s.src = PH_HOST.replace('.i.posthog.com', '-assets.i.posthog.com') + '/static/array.js';
+    document.head.appendChild(s);
+    p.init(PH_PROJET, {
+      api_host: PH_HOST,
+      defaults: '2026-05-30',   // instantané de réglages recommandé par posthog.com/docs/libraries/js
+      person_profiles: 'identified_only',
+      capture_pageview: 'history_change',
+      autocapture: !!PH_OPTS.autocapture,
+      disable_session_recording: !PH_OPTS.session_recording,
+      session_recording: { maskAllInputs: true },
+      // Un refus antérieur est mémorisé par PostHog : un accord redonné le lève.
+      loaded: function (ph) { if (ph.has_opted_out_capturing()) ph.opt_in_capturing(); },
+      // TOUTE propriété qui porte une URL est nettoyée, pas une liste de noms :
+      // PostHog en ajoute d'une version à l'autre ($session_entry_url a laissé
+      // passer un session_id et un email au premier essai, 2026-09-18).
+      before_send: function (ev) {
+        (function nettoyer(o, prof) {
+          if (!o || typeof o !== 'object' || prof > 3) return;
+          for (var k in o) {
+            if (!Object.prototype.hasOwnProperty.call(o, k)) continue;
+            if (typeof o[k] === 'string' && /^https?:\/\//.test(o[k])) o[k] = urlPropre(o[k]);
+            else nettoyer(o[k], prof + 1);
+          }
+        })(ev, 0);
+        return ev;
+      }
+    });
+  }
 
   // --- Événements de PAGE : mis en file jusqu'à ce que le consentement soit tranché ---
   // Un événement poussé au parse (view_content sur la page de vente, purchase sur la
@@ -282,6 +354,8 @@
     // et le Pixel navigateur reste bloqué sans consentement (l'envoi serveur, lui,
     // part inconditionnellement : asymétrie assumée, décision du 2026-08-21).
     if (c.ads) window.h3cPoserFbc();
+    // PostHog avant la file d'événements de page : ils lui parviennent aussi.
+    posthogActiver(c.analytics);
     // Les événements de page partent APRÈS la mise à jour du consentement et AVANT
     // le chargement de GTM : la file rejouée est alors consent:default →
     // consent:update → view_content/purchase → gtm.js. Les balises sont évaluées
@@ -318,7 +392,7 @@
     w.id = 'h3c-cmp'; w.setAttribute('role', 'dialog'); w.setAttribute('aria-label', 'Consentement cookies');
     w.innerHTML =
       '<div class="h3c-cmp-in">' +
-      '<p>Avec votre accord, ce site utilise des cookies de mesure d\'audience (Google Analytics) et de publicité (Meta, Google Ads) pour comprendre ce qui vous aide vraiment. Sans action de votre part, aucun de ces cookies n\'est déposé. <a href="' + PRIVACY_URL + '">En savoir plus</a>.</p>' +
+      '<p>Avec votre accord, ce site utilise des cookies de mesure d\'audience (Google Analytics, PostHog) et de publicité (Meta, Google Ads) pour comprendre ce qui vous aide vraiment. Sans action de votre part, aucun de ces cookies n\'est déposé. <a href="' + PRIVACY_URL + '">En savoir plus</a>.</p>' +
       '<div class="h3c-cats" id="h3c-cats">' +
       '<label><input type="checkbox" id="h3c-cat-analytics" checked> Mesure d\'audience</label>' +
       '<label><input type="checkbox" id="h3c-cat-ads" checked> Publicité et réseaux sociaux</label>' +

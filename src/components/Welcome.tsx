@@ -292,7 +292,7 @@ export function Welcome({ onCommencer }: Props) {
               letterSpacing: '0.14em',
             }}
           >
-            Test de survie affective
+            Test de Survie Affective
           </p>
 
           {/* H1 centré — élément LCP, jamais animé */}

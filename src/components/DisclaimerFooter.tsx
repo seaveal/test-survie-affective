@@ -53,7 +53,7 @@ export function DisclaimerFooter() {
       }}
     >
       <p className="text-xs leading-relaxed">
-        <strong>Avertissement.</strong> Le Test de survie affective et le programme
+        <strong>Avertissement.</strong> Le Test de Survie Affective et le programme
         Régénération relèvent du coaching et du développement personnel. Ils ne
         constituent pas un soin médical, ni une psychothérapie au sens de la loi
         du 25 juillet 1985. Ils ne se substituent pas à un suivi par un

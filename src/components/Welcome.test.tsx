@@ -5,10 +5,10 @@ import { Welcome } from './Welcome'
 
 describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cartes)', () => {
   describe('Hero', () => {
-    it('affiche l\'eyebrow "Test de survie affective" (distinct du disclaimer footer qui mentionne aussi "Le Test de survie affective et le programme Régénération...")', () => {
+    it('affiche l\'eyebrow "Test de Survie Affective", nom canonique en capitales (distinct du disclaimer footer qui mentionne aussi "Le Test de Survie Affective et le programme Régénération...")', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
-        screen.getByText(/^test de survie affective$/i),
+        screen.getByText(/^Test de Survie Affective$/),
       ).toBeInTheDocument()
     })
 
@@ -287,6 +287,11 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
     it('affiche le mot "Avertissement" en tête du disclaimer', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(screen.getByText(/avertissement/i)).toBeInTheDocument()
+    })
+
+    it('écrit le nom du test en capitales dans le disclaimer (DEST-07)', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      expect(screen.getByText(/Le Test de Survie Affective et le programme/)).toBeInTheDocument()
     })
 
     it('rappelle que Régénération n\'est pas une psychothérapie au sens de la loi de 1985', () => {

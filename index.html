@@ -2,7 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-<!-- H3C-TRACKING:BEGIN cfg=0d48e03c4e34 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
+<!-- H3C-TRACKING:BEGIN cfg=2aadf019fd63 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
 <script>
 (function () {
   'use strict';
@@ -18,6 +18,43 @@
   window.dataLayer = window.dataLayer || [];
   function gtag() { window.dataLayer.push(arguments); }
   window.gtag = window.gtag || gtag;
+
+  // CONTACT:DEBUT — « pitch vu » (décision Cyrille du 24/09/2026). Un lien de courriel
+  // vers la page Régénération porte `?c=h1.<…>` : jeton chiffré et authentifié par tsa-api, qui
+  // désigne le contact sans révéler son adresse et ne donne aucun droit. Il est retiré
+  // de la barre d'adresse ICI, avant tout pixel (GTM, Pixel et PostHog lisent l'URL),
+  // comme `?sortie`. Gardé pour la SESSION sans condition : c'est la suite du clic dans
+  // le courriel, que l'outil d'emailing attribue déjà au contact. Gardé 90 jours
+  // SEULEMENT avec l'accord « mesure d'audience » (`garderContact`, dans applyChoice).
+  var CONTACT_KEY = 'h3c_contact', CONTACT_TTL_MS = 90 * 24 * 3600 * 1000;
+  var RE_JETON_CONTACT = /^h1\.[A-Za-z0-9_-]{30,480}$/, contactMemoire = null;
+  (function capterContact() {
+    try {
+      var u = new URL(window.location.href), j = u.searchParams.get('c');
+      if (!j || !RE_JETON_CONTACT.test(j)) return;
+      contactMemoire = j;
+      u.searchParams.delete('c');
+      history.replaceState(history.state, '', u.pathname + u.search + u.hash);
+      try { sessionStorage.setItem(CONTACT_KEY, j); } catch (e) {}
+    } catch (e) {}
+  })();
+  window.h3cContact = function () {
+    if (contactMemoire) return contactMemoire;
+    try { var s = sessionStorage.getItem(CONTACT_KEY); if (s && RE_JETON_CONTACT.test(s)) return s; } catch (e) {}
+    try {
+      var l = JSON.parse(localStorage.getItem(CONTACT_KEY) || 'null');
+      if (l && RE_JETON_CONTACT.test(l.j) && Date.now() - l.ts < CONTACT_TTL_MS) return l.j;
+    } catch (e) {}
+    return undefined;
+  };
+  function garderContact(accord) {
+    try {
+      if (!accord) { localStorage.removeItem(CONTACT_KEY); return; }
+      var j = window.h3cContact();
+      if (j) localStorage.setItem(CONTACT_KEY, JSON.stringify({ j: j, ts: Date.now() }));
+    } catch (e) {}
+  }
+  // CONTACT:FIN
 
   // Consent Mode v2 : tout refusé par défaut, déclaré AVANT tout chargement de tag.
   gtag('consent', 'default', {
@@ -168,17 +205,17 @@
     return null;
   }
 
+  // Un clic en mémoire survit aussi au refus de localStorage. Les écritures
+  // cookie et stockage sont indépendantes ; un échec ne supprime pas l'autre.
+  var clicMemoire = null;
   (function capterClic() {
     try {
       var id = new URLSearchParams(window.location.search).get('fbclid');
-      // 380 caractères : `fb.1.` + 13 chiffres + `.` occupent 19, et la valeur
-      // complète doit tenir dans les 400 admis par `tsa-api` (models.py) comme
-      // dans les 500 d'une metadata Stripe. Tronquer l'identifiant lui-même le
-      // rendrait inappariable — mieux vaut une borne haute qu'une coupe au milieu.
-      if (id) {
-        var clic = { id: id.slice(0, 380), ts: Date.now() };
-        localStorage.setItem(FBC_KEY, JSON.stringify(clic));
-        ecrireClicCookie(clic);          // même clic, visible de tous les sous-domaines
+      if (id && /^[A-Za-z0-9_-]{1,380}$/.test(id)) {
+        var precedent = lireClic();
+        clicMemoire = precedent && precedent.id === id ? precedent : { id: id, ts: Date.now() };
+        try { localStorage.setItem(FBC_KEY, JSON.stringify(clicMemoire)); } catch (e) {}
+        ecrireClicCookie(clicMemoire);
       }
     } catch (e) {}
   })();
@@ -188,29 +225,34 @@
   // à trois jours, l'horodatage partait faux de trois jours et dégradait
   // l'appariement au lieu de l'améliorer.
   function valeurFbc() {
-    var c = lireClic();
+    var c = clicMemoire || lireClic();
     return c ? 'fb.' + fbcPortee().index + '.' + c.ts + '.' + c.id : '';
   }
 
-  // Repose `_fbc` sur le domaine racine, et seulement si le Pixel ne l'a pas déjà
-  // posé lui-même. Appelé APRÈS l'accord publicitaire et AVANT le chargement de GTM.
+  function fbcCourant() {
+    var pixel = lireCookie('_fbc'), capture = valeurFbc();
+    var p = pixel.match(/^fb\.\d+\.(\d{13})\.[A-Za-z0-9_-]{1,380}$/);
+    var c = capture.match(/^fb\.\d+\.(\d{13})\.[A-Za-z0-9_-]{1,380}$/);
+    // Le dernier clic connu gagne, y compris si le Pixel a gardé un ancien clic.
+    return c && (!p || Number(c[1]) > Number(p[1])) ? capture : (p ? pixel : '');
+  }
+
+  // Cookie publicitaire posé seulement après accord, avant le chargement de GTM.
   window.h3cPoserFbc = function () {
     try {
-      if (lireCookie('_fbc')) return;      // le Pixel a vu le fbclid : rien à faire
-      var v = valeurFbc();
-      if (!v) return;
+      var v = fbcCourant();
+      if (!v || v === lireCookie('_fbc')) return;
       var p = fbcPortee();
       document.cookie = '_fbc=' + v + ';path=/' + (p.domaine ? ';domain=' + p.domaine : '') +
-        ';max-age=' + Math.floor(FBC_TTL_MS / 1000) + ';SameSite=Lax';
+        ';max-age=' + Math.floor(FBC_TTL_MS / 1000) + ';SameSite=Lax;Secure';
     } catch (e) {}
   };
 
-  // _fbp/_fbc (cookies posés par le Pixel après consentement) — qualité de match Meta CAPI.
   window.h3cFb = function () {
     var out = {};
     try {
       var p = lireCookie('_fbp'); if (p) out.fbp = p;
-      var c = lireCookie('_fbc') || valeurFbc(); if (c) out.fbc = c;
+      var c = fbcCourant(); if (c) out.fbc = c;
     } catch (e) {}
     return out;
   };
@@ -261,13 +303,13 @@
       if (phLoaded && window.posthog.opt_out_capturing) window.posthog.opt_out_capturing();
       return;
     }
-    if (phLoaded) { window.posthog.opt_in_capturing(); return; }
+    if (phLoaded) { window.posthog.opt_in_capturing(); identifier(); return; }
     phLoaded = true;
     // File d'attente (même principe que l'extrait officiel) : les appels faits avant
     // le chargement d'array.js sont rejoués par lui.
     var p = window.posthog = window.posthog || [];
     p._i = p._i || [];
-    ['capture', 'opt_in_capturing', 'opt_out_capturing', 'register', 'reset'].forEach(function (m) {
+    ['capture', 'identify', 'opt_in_capturing', 'opt_out_capturing', 'register', 'reset'].forEach(function (m) {
       p[m] = function () { p.push([m].concat(Array.prototype.slice.call(arguments))); };
     });
     p.init = function (k, o, n) { p._i.push([k, o, n]); };
@@ -300,7 +342,32 @@
         return ev;
       }
     });
+    identifier();
   }
+
+  // --- Visiteur identifié (jeton `?c=` d'un lien de courriel, cf. CONTACT:DEBUT) ---
+  // Page vue enregistrée par tsa-api (mesure first-party, sans condition), qui rend un
+  // identifiant OPAQUE du contact. PostHog ne le reçoit (`identify`) que sous l'accord
+  // « mesure d'audience » ; Meta ne reçoit l'adresse hachée (par le serveur, avec le
+  // ViewContent) que sous l'accord « publicité » (`h3cAccordPub`).
+  var TSA_API = 'https://api.souverainauquotidien.com', idOpaque = null;
+  window.h3cAccordPub = function () { var c = readChoice(); return !!(c && c.ads); };
+  function identifier() {
+    if (idOpaque && phActif && window.posthog && window.posthog.identify) window.posthog.identify(idOpaque);
+  }
+  (function pageVue() {
+    var j = window.h3cContact();
+    if (!j || !TSA_API) return;
+    try {
+      fetch(TSA_API + '/api/capi/page-vue', { method: 'POST', keepalive: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contact: j, url: location.origin + location.pathname }) })
+        .then(function (r) { return r.ok ? r.json() : {}; })
+        .then(function (r) {
+          if (r && /^h3c_[0-9a-f]{20}$/.test(r.id || '')) { idOpaque = r.id; identifier(); }
+        }).catch(function () {});
+    } catch (e) {}
+  })();
 
   // --- Événements de PAGE : mis en file jusqu'à ce que le consentement soit tranché ---
   // Un événement poussé au parse (view_content sur la page de vente, purchase sur la
@@ -354,6 +421,7 @@
     // et le Pixel navigateur reste bloqué sans consentement (l'envoi serveur, lui,
     // part inconditionnellement : asymétrie assumée, décision du 2026-08-21).
     if (c.ads) window.h3cPoserFbc();
+    garderContact(c.analytics);
     // PostHog avant la file d'événements de page : ils lui parviennent aussi.
     posthogActiver(c.analytics);
     // Les événements de page partent APRÈS la mise à jour du consentement et AVANT
@@ -371,7 +439,7 @@
   }
 
   // --- Bannière CNIL : refuser aussi simple qu'accepter, choix révocable (bouton Cookies) ---
-  var STYLE = '#h3c-cmp{position:fixed;left:0;right:0;bottom:0;z-index:2147483000;background:#fff;border-top:1px solid #e4ddd4;box-shadow:0 -4px 24px rgba(0,0,0,.12);padding:16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}#h3c-cmp .h3c-cmp-in{max-width:760px;margin:0 auto;}#h3c-cmp p{margin:0 0 10px;font-size:.86rem;line-height:1.5;color:#4a4a4a;}#h3c-cmp a{color:#A8432B;text-decoration:underline;}#h3c-cmp .h3c-cmp-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}#h3c-cmp button{font:inherit;font-size:.85rem;font-weight:600;border-radius:9px;padding:10px 16px;cursor:pointer;border:1px solid #cbb6a6;background:#fff;color:#333;}#h3c-cmp .h3c-ok{background:#A8432B;border-color:#A8432B;color:#fff;}#h3c-cmp label{font-size:.82rem;color:#4a4a4a;margin-right:10px;display:inline-flex;align-items:center;gap:5px;}#h3c-cmp .h3c-cats{display:none;margin:6px 0 4px;}#h3c-cmp .h3c-cats.on{display:block;}#h3c-reopen{position:fixed;left:10px;bottom:10px;z-index:2147482999;font-size:.72rem;background:rgba(255,255,255,.92);border:1px solid #e4ddd4;border-radius:8px;padding:4px 9px;cursor:pointer;color:#6a6a6a;font-family:system-ui,sans-serif;}';
+  var STYLE = '#h3c-cmp{position:fixed;left:0;right:0;bottom:0;z-index:2147483000;background:#fff;border-top:1px solid #e4ddd4;box-shadow:0 -4px 24px rgba(0,0,0,.12);padding:16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}#h3c-cmp .h3c-cmp-in{max-width:760px;margin:0 auto;}#h3c-cmp p{margin:0 0 10px;font-size:.86rem;line-height:1.5;color:#4a4a4a;}#h3c-cmp a{color:#A8432B;text-decoration:underline;}#h3c-cmp .h3c-cmp-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}#h3c-cmp button{font:inherit;font-size:.85rem;font-weight:600;border-radius:9px;padding:10px 16px;cursor:pointer;border:1px solid #cbb6a6;background:#fff;color:#333;}#h3c-cmp #h3c-accept{margin-left:auto;}#h3c-cmp .h3c-ok{background:#A8432B;border-color:#A8432B;color:#fff;}#h3c-cmp label{font-size:.82rem;color:#4a4a4a;margin-right:10px;display:inline-flex;align-items:center;gap:5px;}#h3c-cmp .h3c-cats{display:none;margin:6px 0 4px;}#h3c-cmp .h3c-cats.on{display:block;}#h3c-reopen{position:fixed;left:10px;bottom:10px;z-index:2147482999;font-size:.72rem;background:rgba(255,255,255,.92);border:1px solid #e4ddd4;border-radius:8px;padding:4px 9px;cursor:pointer;color:#6a6a6a;font-family:system-ui,sans-serif;}';
 
   function addReopen() {
     if (document.getElementById('h3c-reopen')) return;
@@ -398,9 +466,9 @@
       '<label><input type="checkbox" id="h3c-cat-ads" checked> Publicité et réseaux sociaux</label>' +
       '</div>' +
       '<div class="h3c-cmp-row">' +
-      '<button type="button" class="h3c-ok" id="h3c-accept">Tout accepter</button>' +
       '<button type="button" id="h3c-refuse">Continuer sans accepter</button>' +
       '<button type="button" id="h3c-custom">Personnaliser</button>' +
+      '<button type="button" class="h3c-ok" id="h3c-accept">Tout accepter</button>' +
       '</div></div>';
     document.body.appendChild(w);
     document.getElementById('h3c-accept').addEventListener('click', function () {

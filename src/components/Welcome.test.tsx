@@ -1,6 +1,8 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { Welcome } from './Welcome'
 
 describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cartes)', () => {
@@ -411,5 +413,22 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
       expect(text).not.toMatch(/—/)
       expect(text).not.toMatch(/;/)
     })
+  })
+})
+
+// DEST-07, reprise après vérification (2026-09-24) : le balayage du nom ne s'arrête pas au
+// composant React. Toute page statique servie depuis public/ (copiée telle quelle dans dist/)
+// porte la graphie canonique ; la graphie en minuscules est refusée, casse comprise.
+describe('DEST-07 — pages statiques servies (public/*.html)', () => {
+  const PUBLIC = join(__dirname, '..', '..', 'public')
+  const pages = readdirSync(PUBLIC).filter((f) => f.endsWith('.html'))
+
+  it('trouve au moins une page, dont iframe-test.html (contrôle positif du balayage)', () => {
+    expect(pages).toContain('iframe-test.html')
+  })
+
+  it.each(pages)('%s n\'écrit jamais « Test de survie affective » en minuscules', (page) => {
+    const html = readFileSync(join(PUBLIC, page), 'utf-8')
+    expect(html).not.toMatch(/Test de survie affective/)
   })
 })

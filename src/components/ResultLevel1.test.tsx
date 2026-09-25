@@ -43,7 +43,7 @@ describe('<ResultLevel1> — Révélation', () => {
   it('description de base du profil rendue', () => {
     render(<ResultLevel1 resultat={baseResultat} />)
     // Le profil fantome : phrase signature unique à la description de base
-    expect(screen.getByText(/présent de corps, absent d'âme/i)).toBeInTheDocument()
+    expect(screen.getByText(/le corps présent, l'âme absente/i)).toBeInTheDocument()
   })
 
   it('modulateur d\'intensité spécifique au croisement profil×intensité', () => {

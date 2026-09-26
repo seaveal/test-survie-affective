@@ -164,12 +164,6 @@ export function ResultPreview({ resultat, envoiReussi }: Props) {
         >
           Vérifiez vos messages dans les prochaines minutes. Pensez aux spams.
         </p>
-        <p
-          className="mt-3 text-sm"
-          style={{ color: 'var(--h3c-texte-secondaire)' }}
-        >
-          Votre cadeau reste accessible pendant 3 jours.
-        </p>
         {!envoiReussi && (
           <p
             role="status"

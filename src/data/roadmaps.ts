@@ -8,9 +8,9 @@ export const roadmaps: Roadmap[] = [
   {
     profilId: 'mendiant',
     intensite: 'surface',
-    pasNumeroUn: `Pendant 7 jours, observez sans intervenir chaque fois que la voix "ai-je bien fait" ou "ai-je été à la hauteur" se manifeste en vous. Notez l'heure, la situation, ce que faisait le corps à ce moment-là. N'essayez pas de modifier la voix. Vous l'observez. C'est tout.`,
-    pasNumeroDeux: `Choisissez une chose par semaine pour laquelle vous demandez de l'aide. Pas une chose que vous savez faire. Une chose pour laquelle vous avez besoin de quelqu'un. Demandez. Recevez. Observez ce que cela fait dans le corps.`,
-    pasNumeroTrois: `Vivez une expérience structurée de réception sans contrepartie. Un séminaire de ressourcement, une retraite, un accompagnement où l'on s'occupe de vous sans rien attendre en retour. Le corps a besoin de cette expérience pour apprendre que recevoir ne tue pas.`,
+    pasNumeroUn: `Écoutez d'abord la séance offerte, plus bas dans cet email. Pendant 7 jours, observez sans intervenir chaque fois que la voix "ai-je bien fait" ou "ai-je été à la hauteur" se manifeste en vous. Notez l'heure, la situation, ce que faisait le corps à ce moment-là. N'essayez pas de modifier la voix. Vous l'observez. C'est tout.`,
+    pasNumeroDeux: `Choisissez une tâche par semaine pour laquelle vous demandez de l'aide. Une tâche que vous savez faire ne compte pas : il vous en faut une pour laquelle vous avez besoin de quelqu'un. Demandez. Recevez. Observez ce que cela fait dans le corps.`,
+    pasNumeroTrois: `Prolongez ce que vous avez observé par un travail du corps, puis de la relation : recevoir sans rendre, de quelqu'un qui n'attend rien en retour. Le corps a besoin de cette expérience pour apprendre que recevoir ne tue pas.`,
     exerciceCorporel: `Quand la voix "pas à la hauteur" se manifeste, portez votre attention sur le ventre. Pas pour le contrôler. Pour observer ce qui s'y passe. Une chaleur ? Une crispation ? Une vibration ? Restez 30 secondes en observation, sans rien changer.
 
 ---`,
@@ -19,9 +19,9 @@ export const roadmaps: Roadmap[] = [
   {
     profilId: 'mendiant',
     intensite: 'modere',
-    pasNumeroUn: `Tenez un journal du soir pendant 7 jours. Chaque soir, notez un moment de la journée où vous avez performé sans nécessité réelle. Une réponse trop brillante. Un effort de séduction superflu. Une démonstration de compétence non sollicitée. Vous notez. Vous ne jugez pas.`,
+    pasNumeroUn: `Écoutez d'abord la séance offerte, plus bas dans cet email. Écrivez un journal du soir pendant 7 jours. Chaque soir, notez un moment de la journée où vous avez performé sans nécessité réelle. Une réponse trop brillante. Un effort de séduction superflu. Une démonstration de compétence non sollicitée. Vous notez. Vous ne jugez pas.`,
     pasNumeroDeux: `Testez pendant 30 jours de ne pas répondre à un compliment par une démonstration supplémentaire. Quelqu'un vous félicite ? Vous dites merci. Vous laissez le compliment exister sans le "mériter" davantage. Observez ce que cela soulève dans le corps.`,
-    pasNumeroTrois: `Engagez un travail somatique encadré. Le schéma est devenu suffisamment structurel pour que la lecture seule ne suffise plus. Le corps a besoin d'un cadre pour apprendre à reposer la performance. Le programme Régénération existe pour ce niveau d'intensité.`,
+    pasNumeroTrois: `Engagez un travail par le corps, dans un cadre. Le schéma est assez ancré pour que la tête seule n'y change rien. Le corps a besoin d'un cadre pour apprendre à reposer la performance, puis de vos relations pour s'y exercer.`,
     exerciceCorporel: `Quand vous sentez monter l'envie de briller, portez votre attention sur la gorge. Sentez si elle est ouverte ou serrée. Si elle est serrée, ralentissez. La gorge serrée raconte une vieille histoire. Le silence l'écoute.
 
 ---`,
@@ -30,9 +30,9 @@ export const roadmaps: Roadmap[] = [
   {
     profilId: 'mendiant',
     intensite: 'profond',
-    pasNumeroUn: `Prenez rendez-vous avec votre médecin traitant cette semaine. Décrivez l'épuisement, les insomnies, les symptômes physiques s'il y en a. Faites évaluer médicalement votre état. Ce pas n'est pas négociable. La performance prolongée à ce niveau d'intensité a un coût biologique.`,
+    pasNumeroUn: `Prenez rendez-vous avec votre médecin traitant. Décrivez l'épuisement, les insomnies, les symptômes physiques s'il y en a. Faites évaluer médicalement votre état. Ce pas n'est pas négociable. La performance prolongée à ce niveau d'intensité a un coût biologique. Écoutez ensuite la séance offerte, plus bas dans cet email.`,
     pasNumeroDeux: `Réduisez de moitié vos engagements professionnels et sociaux pendant 3 mois. Pas symboliquement. Pour de bon. Annulez. Reportez. Déléguez. Le corps n'a pas besoin de plus de performance. Il a besoin de moins.`,
-    pasNumeroTrois: `Engagez un programme corporel intensif et encadré. À ce niveau, le travail seul ne suffit plus. Le système nerveux a besoin d'un groupe, d'un cadre, et d'un facilitateur formé. Régénération est conçu pour cette intensité.`,
+    pasNumeroTrois: `Engagez un travail par le corps, intensif et encadré : un groupe, un cadre, une présence en face. À ce niveau, le travail seul ne suffit plus. Le corps a besoin d'autres présences pour apprendre à reposer la performance, puis de vos relations pour s'y exercer.`,
     exerciceCorporel: `Asseyez-vous 10 minutes chaque matin et posez-vous cette question : "Où est-ce que mon corps porte l'épuisement aujourd'hui ?" Vous ne cherchez pas à le résoudre. Vous le rencontrez. Le corps a besoin d'être vu avant de pouvoir reposer.
 
 ---`,
@@ -41,9 +41,9 @@ export const roadmaps: Roadmap[] = [
   {
     profilId: 'sauveur',
     intensite: 'surface',
-    pasNumeroUn: `Faites la liste des 5 personnes que vous portez en ce moment dans votre vie. Pour chacune, écrivez : qu'est-ce que je porte exactement ? Et de son côté, qu'est-ce qu'elle porte de moi ? La symétrie ou son absence est l'information.`,
+    pasNumeroUn: `Écoutez d'abord la séance offerte, plus bas dans cet email. Faites la liste des 5 personnes dont vous vous chargez en ce moment dans votre vie. Pour chacune, écrivez : de quoi est-ce que je me charge exactement ? Et de son côté, de quoi se charge-t-elle pour moi ? La symétrie ou son absence est l'information.`,
     pasNumeroDeux: `Refusez une demande d'aide par semaine. Pas pour vous endurcir. Pour observer ce qui monte en vous quand vous dites non. La culpabilité ? La peur ? Le vide ? C'est précisément ce que le schéma a recouvert pendant des années.`,
-    pasNumeroTrois: `Invitez dans votre vie une personne qui sait recevoir et donner sans condition. Un facilitateur, un accompagnant. Vous avez besoin de modéliser une nouvelle façon d'être en relation, et cela passe par l'exposition à des relations où la réciprocité existe pour de bon.`,
+    pasNumeroTrois: `Prolongez ce que vous avez observé par un travail du corps, puis de la relation : recevoir, de quelqu'un qui donne sans condition. Vous avez besoin de modéliser une nouvelle façon d'être en relation, et cela passe par l'exposition à des relations où la réciprocité existe pour de bon.`,
     exerciceCorporel: `Quand vous dites "oui" par automatisme à une demande, portez votre attention sur le plexus solaire. Sentez s'il y a un acquiescement réel ou une compression. Le corps sait avant la tête.
 
 ---`,
@@ -52,9 +52,9 @@ export const roadmaps: Roadmap[] = [
   {
     profilId: 'sauveur',
     intensite: 'modere',
-    pasNumeroUn: `Tenez pendant 7 jours un journal de tout ce que vous donnez sans le savoir. Une attention. Un service rendu. Une écoute prolongée. Un accommodement. Tout. Vous comptabilisez. Vous ne jugez pas. La quantité va vous surprendre.`,
-    pasNumeroDeux: `S'autoriser à recevoir une chose par semaine sans la rendre. Sans envoyer un cadeau de remerciement. Sans rendre la pareille à la prochaine occasion. Recevoir et garder. Observer ce que cela soulève corporellement.`,
-    pasNumeroTrois: `Engagez un travail somatique encadré pour apprendre à recevoir corporellement. À ce niveau, le mental sait. Le corps n'est pas encore disponible. Le travail corporel encadré est le passage obligé.`,
+    pasNumeroUn: `Écoutez d'abord la séance offerte, plus bas dans cet email. Notez pendant 7 jours tout ce que vous donnez sans le savoir. Une attention. Un service rendu. Une écoute prolongée. Un accommodement. Tout. Vous comptabilisez. Vous ne jugez pas. La quantité va vous surprendre.`,
+    pasNumeroDeux: `Autorisez-vous à recevoir un geste par semaine sans le rendre. Sans envoyer un cadeau de remerciement. Sans rendre la pareille à la prochaine occasion. Recevez et gardez. Observez ce que cela soulève corporellement.`,
+    pasNumeroTrois: `Engagez un travail par le corps, dans un cadre, pour apprendre à recevoir corporellement. À ce niveau, le mental sait. Le corps n'est pas encore disponible. Le travail par le corps est le passage obligé.`,
     exerciceCorporel: `Quand quelqu'un vous offre quelque chose, portez votre attention sur les bras. Sentez s'ils s'ouvrent ou s'ils se ferment. Le mouvement spontané est l'information à connaître.
 
 ---`,
@@ -63,9 +63,9 @@ export const roadmaps: Roadmap[] = [
   {
     profilId: 'sauveur',
     intensite: 'profond',
-    pasNumeroUn: `Prenez rendez-vous avec votre médecin traitant cette semaine pour faire le point sur votre état. Le corps a porté plus que sa part pendant trop longtemps. Cet avis médical pose le cadre, avant le travail d'accompagnement.`,
-    pasNumeroDeux: `Déléguez ou abandonnez 30% de vos engagements pendant 3 mois. Identifiez ce qui peut tomber. Ce qui peut être confié. Ce qui peut tout simplement disparaître. Le système qui s'écroule autour de vous quand vous lâchez n'était pas le vôtre à porter.`,
-    pasNumeroTrois: `Engagez un programme corporel encadré. À ce niveau, le travail individuel et la lecture sont insuffisants. Le corps a besoin du groupe et du cadre. Régénération est conçu pour ce niveau d'épuisement et de schéma cristallisé.`,
+    pasNumeroUn: `Prenez rendez-vous avec votre médecin traitant pour faire le point sur votre état. Le corps a supporté plus que sa part pendant trop longtemps. Cet avis médical pose le cadre, avant le travail d'accompagnement. Écoutez ensuite la séance offerte, plus bas dans cet email.`,
+    pasNumeroDeux: `Déléguez ou abandonnez 30% de vos engagements pendant 3 mois. Identifiez ce qui peut tomber. Ce qui peut être confié. Ce qui peut tout simplement disparaître. Le système qui s'écroule autour de vous quand vous lâchez n'était pas le vôtre à assumer.`,
+    pasNumeroTrois: `Engagez un travail par le corps, encadré : un groupe, un cadre, une présence en face. À ce niveau, le travail seul ne suffit plus. Le corps a besoin du groupe et du cadre pour apprendre à recevoir, puis de vos relations pour s'y exercer.`,
     exerciceCorporel: `Chaque matin, demandez-vous : "Où est-ce que mon corps porte les autres aujourd'hui ?" Sentez la zone. Restez avec elle 10 minutes. Vous ne cherchez pas à libérer. Vous reconnaissez.
 
 ---`,
@@ -74,9 +74,9 @@ export const roadmaps: Roadmap[] = [
   {
     profilId: 'controleur',
     intensite: 'surface',
-    pasNumeroUn: `Observez pendant 7 jours les moments où vous vérifiez ou anticipez sans nécessité. Un message relu cinq fois. Une heure de coucher prévue à la minute près. Une conversation rejouée mentalement avant qu'elle ait lieu. Notez. Sans changer.`,
-    pasNumeroDeux: `Choisissez une situation par semaine où vous lâchez prise volontairement. Vous laissez votre partenaire choisir le restaurant sans avis. Vous arrivez à un rendez-vous sans avoir vérifié l'itinéraire trois fois. Vous observez ce que le corps fait quand vous ne tenez plus.`,
-    pasNumeroTrois: `Vivez une expérience structurée d'incertitude maîtrisée. Un voyage sans plan détaillé. Une retraite en silence. Un séjour sans contrôle des paramètres habituels. Le système nerveux apprend par contact direct, pas par compréhension.`,
+    pasNumeroUn: `Écoutez d'abord la séance offerte, plus bas dans cet email. Observez pendant 7 jours les moments où vous vérifiez ou anticipez sans nécessité. Un message relu cinq fois. Une heure de coucher prévue à la minute près. Une conversation rejouée mentalement avant qu'elle ait lieu. Notez. Sans changer.`,
+    pasNumeroDeux: `Choisissez une situation par semaine où vous lâchez prise volontairement. Vous laissez votre partenaire choisir le restaurant sans avis. Vous arrivez à un rendez-vous sans avoir vérifié l'itinéraire trois fois. Vous observez ce que le corps fait quand vous ne contrôlez plus.`,
+    pasNumeroTrois: `Prolongez ce que vous avez observé par un travail du corps, puis de la relation : lâcher, à petite dose, dans un cadre annoncé à l'avance. Le corps apprend par contact direct. La compréhension, elle, s'arrête à la tête.`,
     exerciceCorporel: `Quand l'anxiété monte, portez votre attention sur la mâchoire. Sentez si elle est serrée ou relâchée. Le corps prépare l'attaque ou la défense bien avant que la pensée s'organise. La mâchoire est la première à parler.
 
 ---`,
@@ -85,9 +85,9 @@ export const roadmaps: Roadmap[] = [
   {
     profilId: 'controleur',
     intensite: 'modere',
-    pasNumeroUn: `Tenez un journal corporel pendant 7 jours. Chaque soir, une seule question : "Où dans le corps l'anxiété s'est-elle installée aujourd'hui ?" Une zone. Une intensité. Un type de sensation. Vous cartographiez. Vous ne soignez pas.`,
+    pasNumeroUn: `Écoutez d'abord la séance offerte, plus bas dans cet email. Écrivez un journal corporel pendant 7 jours. Chaque soir, une seule question : "Où dans le corps l'anxiété s'est-elle installée aujourd'hui ?" Une zone. Une intensité. Un type de sensation. Vous cartographiez. Vous ne changez rien.`,
     pasNumeroDeux: `Testez pendant 30 jours de ne pas demander de comptes après un silence ou un comportement ambigu. Vous laissez l'incertitude exister. Vous observez ce qu'elle déclenche dans le corps. Vous ne fermez pas la boucle prématurément.`,
-    pasNumeroTrois: `Engagez un travail somatique pour réguler le système nerveux. À ce niveau, l'anxiété est devenue physiologique. Le mental ne peut pas la désactiver seul. Le corps a besoin d'un cadre de régulation encadré.`,
+    pasNumeroTrois: `Engagez un travail par le corps, dans un cadre, pour que le système nerveux se pose. À ce niveau, l'anxiété est devenue physiologique. Le mental ne peut pas la désactiver seul. Le corps a besoin d'un cadre pour se réguler, puis de vos relations pour s'y exercer.`,
     exerciceCorporel: `Quand vous serrez (les mains, la mâchoire, le ventre), portez votre attention sur la nuque. Sentez la tension qui s'y trouve. Respirez doucement vers cette zone, sans forcer. La nuque est une porte d'entrée pour le système nerveux.
 
 ---`,
@@ -96,9 +96,9 @@ export const roadmaps: Roadmap[] = [
   {
     profilId: 'controleur',
     intensite: 'profond',
-    pasNumeroUn: `Prenez rendez-vous avec votre médecin traitant cette semaine pour faire le point sur cet état d'alerte permanent. Le système nerveux est en alerte rouge depuis trop longtemps. L'avis médical n'est pas négociable à ce niveau.`,
+    pasNumeroUn: `Prenez rendez-vous avec votre médecin traitant pour faire le point sur cet état d'alerte permanent. Le système nerveux est en alerte rouge depuis trop longtemps. L'avis médical n'est pas négociable à ce niveau. Écoutez ensuite la séance offerte, plus bas dans cet email.`,
     pasNumeroDeux: `Posez un cadre strict de réduction des sources d'anxiété pendant 3 mois. Limitez les nouvelles, les sollicitations professionnelles non vitales, les conflits ouverts. Le système nerveux a besoin d'un environnement de récupération avant de pouvoir se réguler.`,
-    pasNumeroTrois: `Engagez un programme corporel intensif avec accompagnement professionnel. Le travail seul ne désarme pas un système nerveux saturé depuis des années. Régénération est conçu pour ce niveau d'intensité.`,
+    pasNumeroTrois: `Engagez un travail par le corps, intensif et encadré : un groupe, un cadre, une présence en face. Le travail seul ne désarme pas un système nerveux saturé depuis des années. Le corps a besoin d'autres présences pour apprendre à relâcher, puis de vos relations pour s'y exercer.`,
     exerciceCorporel: `Chaque jour, asseyez-vous 10 minutes. Demandez-vous : "Où est-ce que mon corps tient aujourd'hui ?" Repérez la zone qui serre, la zone qui retient. Vous ne cherchez pas à relâcher. Vous reconnaissez. La reconnaissance précède le relâchement.
 
 ---`,
@@ -107,9 +107,9 @@ export const roadmaps: Roadmap[] = [
   {
     profilId: 'fantome',
     intensite: 'surface',
-    pasNumeroUn: `Observez pendant 7 jours les moments où l'envie de fuir monte. Un message à ne pas envoyer. Une invitation à décliner. Un rendez-vous à annuler à la dernière minute. Notez l'heure, la situation, et ce que faisait le corps. Sans modifier le réflexe.`,
-    pasNumeroDeux: `Choisissez une situation par semaine où vous restez 5 minutes de plus que d'habitude. Une conversation difficile. Un repas en famille. Un moment de proximité avec votre partenaire. Vous ne cherchez pas à transformer la situation. Vous tenez 5 minutes de plus. C'est tout.`,
-    pasNumeroTrois: `Vivez une expérience structurée de présence prolongée. Une retraite, un séminaire, un séjour où vous n'avez pas la possibilité de fuir physiquement. Le corps apprend la présence par exposition encadrée.`,
+    pasNumeroUn: `Écoutez d'abord la séance offerte, plus bas dans cet email. Observez pendant 7 jours les moments où l'envie de fuir monte. Un message à ne pas envoyer. Une invitation à décliner. Un rendez-vous à annuler à la dernière minute. Notez l'heure, la situation, et ce que faisait le corps. Sans modifier le réflexe.`,
+    pasNumeroDeux: `Choisissez une situation par semaine où vous restez 5 minutes de plus que d'habitude. Une conversation difficile. Un repas en famille. Un moment de proximité avec votre partenaire. Vous ne cherchez pas à transformer la situation. Vous restez 5 minutes de plus. C'est tout.`,
+    pasNumeroTrois: `Prolongez ce que vous avez observé par un travail du corps, puis de la relation : rester, dans un cadre où partir n'est pas l'option la plus simple. Le corps apprend la présence par exposition encadrée.`,
     exerciceCorporel: `Quand l'envie de partir monte, portez votre attention sur les pieds au sol. Sentez le poids du corps sur la plante des pieds. Le contact avec le sol est l'ancre. Pascale a appris cet exercice avant tout le reste.
 
 ---`,
@@ -118,9 +118,9 @@ export const roadmaps: Roadmap[] = [
   {
     profilId: 'fantome',
     intensite: 'modere',
-    pasNumeroUn: `Tenez pendant 7 jours un journal des moments de fuite. Pour chaque épisode : la situation, le signal corporel précurseur, le geste de fuite (silence, départ physique, mensonge minuscule, gel intérieur). Vous cartographiez la mécanique sans la juger.`,
+    pasNumeroUn: `Écoutez d'abord la séance offerte, plus bas dans cet email. Écrivez pendant 7 jours un journal des moments de fuite. Pour chaque épisode : la situation, le signal corporel précurseur, le geste de fuite (silence, départ physique, mensonge minuscule, gel intérieur). Vous cartographiez la mécanique sans la juger.`,
     pasNumeroDeux: `Testez pendant 30 jours de revenir au lieu de partir, dans une situation par semaine. Vous reprenez contact après une fuite. Vous renvoyez le message resté en suspens. Vous vous représentez à un rendez-vous évité. Observez ce que le corps fait quand vous revenez.`,
-    pasNumeroTrois: `Engagez un travail somatique encadré pour apprivoiser la présence. À ce niveau, le mental peut décider de rester. Le corps part quand même. Le travail corporel est le pont entre les deux.`,
+    pasNumeroTrois: `Engagez un travail par le corps, dans un cadre, pour apprivoiser la présence. À ce niveau, le mental peut décider de rester. Le corps part quand même. Le travail corporel est le pont entre les deux.`,
     exerciceCorporel: `Quand l'autre se rapproche (physiquement ou émotionnellement), portez votre attention sur la poitrine. Sentez ce qui s'y passe. Une oppression ? Une chaleur ? Une fermeture ? Vous restez 30 secondes en observation. Pascale a fait ce travail-là pendant des mois.
 
 ---`,
@@ -129,9 +129,9 @@ export const roadmaps: Roadmap[] = [
   {
     profilId: 'fantome',
     intensite: 'profond',
-    pasNumeroUn: `Prenez rendez-vous cette semaine avec votre médecin traitant pour faire le point sur l'isolement et votre état. À ce niveau, la fuite a souvent produit un isolement durable. Cet avis médical pose le cadre, avant le travail d'accompagnement.`,
+    pasNumeroUn: `Prenez rendez-vous avec votre médecin traitant pour faire le point sur l'isolement et votre état. À ce niveau, la fuite a souvent produit un isolement durable. Cet avis médical pose le cadre, avant le travail d'accompagnement. Écoutez ensuite la séance offerte, plus bas dans cet email.`,
     pasNumeroDeux: `Reprenez contact avec une personne de confiance par semaine. Pas pour tout raconter. Pour signaler que vous existez. Un message court. Un appel de 5 minutes. Un café partagé. Vous reconstituez un fil de présence dans le tissu social.`,
-    pasNumeroTrois: `Engagez le programme Régénération en présentiel. À ce niveau d'isolement, le corps a besoin du groupe, de la chaleur d'autres présences, et d'un cadre où la fuite n'est pas une option immédiate. C'est exactement ce que Pascale a fait après ses 18 mois d'absence.`,
+    pasNumeroTrois: `Engagez un travail par le corps, en présence : un groupe, un cadre, quelqu'un en face. À ce niveau d'isolement, le corps a besoin du groupe, de la chaleur d'autres présences, et d'un cadre où la fuite n'est pas une option immédiate.`,
     exerciceCorporel: `Chaque jour, asseyez-vous 10 minutes et posez-vous cette question : "Où est-ce que mon corps a fui aujourd'hui ?" Sentez la zone qui s'est éteinte. La zone qui s'est mise à distance. Vous reconnaissez sans essayer de réveiller. La reconnaissance est le premier mouvement vers le retour.
 
 ---`,

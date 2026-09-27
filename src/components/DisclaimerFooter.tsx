@@ -59,7 +59,7 @@ export function DisclaimerFooter() {
         du 25 juillet 1985. Ils ne se substituent pas à un suivi par un
         professionnel de santé habilité (médecin, psychiatre, psychologue,
         psychothérapeute reconnu ARS). Si vous traversez une situation nécessitant
-        un accompagnement médical (idéation suicidaire, dépression sévère,
+        un accompagnement médical (idées suicidaires, dépression sévère,
         troubles psychiatriques actifs, addictions sévères), consultez un
         professionnel de santé ou appelez le <strong>3114</strong> (numéro
         national de prévention du suicide, gratuit, 24/7).

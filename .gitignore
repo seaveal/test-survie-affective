@@ -34,3 +34,7 @@ coverage
 
 # Graphify artefact
 graphify-out/
+
+# Masters vidéo conservés sur kDrive et vérifiés avant chaque build.
+/public/media/*.mp4
+/public/media/*.jpg

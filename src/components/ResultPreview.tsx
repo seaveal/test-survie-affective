@@ -14,23 +14,21 @@ import { useEffect, useRef, useState } from 'react'
 import { getProfil } from '../domain/result'
 import type { Resultat } from '../domain/types'
 import { DisclaimerFooter } from './DisclaimerFooter'
+import { KIT_VIDEO } from '../kitVideo'
 
 interface Props {
   resultat: Resultat
   envoiReussi: boolean
 }
 
-// VSL du kit (mission kit evergreen §9) : une seule constante de config.
-// Renseigner VITE_VSL_KIT_URL le jour où la vidéo est tournée. Vide = pas de
-// lecteur, le texte et le bouton restent. Aucun emplacement visible entre-temps.
-export const VSL_KIT_URL: string = import.meta.env.VITE_VSL_KIT_URL ?? ''
+// Une valeur vide explicite permet de désactiver la vidéo. Sinon : montage validé.
+const VSL_KIT_URL: string = import.meta.env.VITE_VSL_KIT_URL ?? KIT_VIDEO.url
 
 // Délai avant l'apparition du bouton d'achat et de son prix, en secondes.
-// Règle de calcul : durée de la vidéo x 0,6, en secondes. Cyrille la pose à la
-// main : le navigateur ne connaît pas la durée d'un lecteur tiers. Vide ou 0, ou
-// VSL_KIT_URL vide (pas de lecteur) : le bouton est là tout de suite.
-export const VSL_KIT_BOUTON_APRES_S: string =
-  import.meta.env.VITE_VSL_KIT_BOUTON_APRES_S ?? ''
+// 60 % de la vidéo validée. Le MP4 utilise le temps de lecture ; un lecteur
+// tiers conserve le délai après son entrée dans l'écran. Vide/0 = immédiat.
+const VSL_KIT_BOUTON_APRES_S: string =
+  import.meta.env.VITE_VSL_KIT_BOUTON_APRES_S ?? String(KIT_VIDEO.buttonAfter)
 
 export function KitVsl({
   url = VSL_KIT_URL,
@@ -41,6 +39,8 @@ export function KitVsl({
 }) {
   const delai = Number.parseFloat(boutonApresS) || 0
   const [boutonVisible, setBoutonVisible] = useState(!url || delai <= 0)
+  const [erreurVideo, setErreurVideo] = useState(false)
+  const fichierVideo = /\.mp4(?:[?#]|$)/i.test(url)
   const lecteur = useRef<HTMLIFrameElement>(null)
 
   // La lecture réelle d'un iframe tiers n'est pas lisible par le navigateur : le
@@ -48,7 +48,7 @@ export function KitVsl({
   // la page.
   useEffect(() => {
     const cible = lecteur.current
-    if (boutonVisible || !cible) return
+    if (fichierVideo || boutonVisible || !cible) return
     let minuteur: ReturnType<typeof setTimeout>
     const partir = () => {
       minuteur = setTimeout(() => setBoutonVisible(true), delai * 1000)
@@ -63,11 +63,11 @@ export function KitVsl({
       io.disconnect()
       clearTimeout(minuteur)
     }
-  }, [boutonVisible, delai])
+  }, [boutonVisible, delai, fichierVideo])
 
   return (
     <section
-      className="mx-6 mb-6 rounded-xl p-6"
+      className="mx-3 mb-6 rounded-xl p-3 sm:mx-6 sm:p-6"
       style={{
         background: 'var(--h3c-fond-card)',
         borderLeft: '4px solid var(--h3c-accent-primaire)',
@@ -76,7 +76,36 @@ export function KitVsl({
     >
       <h2 className="text-xl">Et maintenant&nbsp;?</h2>
 
-      {url ? (
+      {url && fichierVideo ? (
+        <>
+          <video
+            src={url}
+            poster={url === KIT_VIDEO.url ? KIT_VIDEO.poster : undefined}
+            controls
+            playsInline
+            preload="metadata"
+            aria-label="Le Kit de démarrage — vidéo de Cyrille Novou"
+            className="mt-4 block w-full rounded-lg"
+            style={{ aspectRatio: '1 / 1', background: '#FAF8F5' }}
+            data-testid="kit-vsl-lecteur"
+            onTimeUpdate={(event) => {
+              if (event.currentTarget.currentTime >= delai) setBoutonVisible(true)
+            }}
+            onEnded={() => setBoutonVisible(true)}
+            onError={() => { setErreurVideo(true); setBoutonVisible(true) }}
+          >
+            {url === KIT_VIDEO.url && (
+              <track kind="captions" src={KIT_VIDEO.captions} srcLang="fr" label="Français" />
+            )}
+            <a href={url}>Ouvrir la vidéo</a>
+          </video>
+          {erreurVideo && (
+            <p role="status" className="mt-3 text-sm">
+              La vidéo n’a pas pu démarrer. <a className="underline" href={url}>Ouvrir la vidéo</a>.
+            </p>
+          )}
+        </>
+      ) : url ? (
         <iframe
           ref={lecteur}
           src={url}

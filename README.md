@@ -28,7 +28,7 @@ npm run test:coverage   # avec couverture
 npm run test:ui         # UI Vitest
 ```
 
-État actuel : **104 tests verts** sur 16 fichiers.
+État au 29 septembre 2026 : **215 tests verts** sur 21 fichiers.
 
 ## Build production
 
@@ -36,6 +36,31 @@ npm run test:ui         # UI Vitest
 npm run build           # → dist/
 npm run preview         # serveur statique pour tester dist/
 ```
+
+### Vidéo après résultat du Test
+
+Montage carré validé le 29/09/2026 : 1080 × 1080, 8 min 38. `src/kitVideo.ts`
+porte les chemins versionnés du MP4, de l’affiche et des sous-titres français.
+Le lecteur natif fonctionne dans la page sur mobile (`playsInline`), avec ses
+contrôles et le plein écran, sans lecture automatique. Il ne charge d’abord que
+les métadonnées. Le bouton d’achat apparaît à 310,8 s de lecture (60 %) et reste
+accessible si le lecteur rencontre une erreur.
+
+`VITE_KIT_VENTE_OUVERTE=oui` ouvre le bloc kit. `VITE_VSL_KIT_URL` et
+`VITE_VSL_KIT_BOUTON_APRES_S` restent des surcharges facultatives ; une chaîne
+vide explicite désactive respectivement la vidéo ou le délai. En leur absence,
+le montage validé est utilisé. Les anciens lecteurs iframe restent acceptés.
+
+Le MP4 et son affiche restent hors Git, sur kDrive. Avant chaque build,
+`scripts/prepare-vsl-media.mjs` vérifie leurs SHA-256 dans `public/media/` et les
+récupère avec le remote rclone `kDrive` s’ils manquent. Un fichier présent avec
+une empreinte différente bloque le build. Les sources et empreintes attendues
+figurent dans `scripts/vsl-media.json`.
+
+Déploiement VPS : sauvegarder `/opt/test-sq-front/dist/`, vérifier les tests et le
+build, copier les assets puis `index.html` en dernier. Conserver les anciens
+assets hashés pour les onglets déjà ouverts. La page `/kit/`, son marqueur de
+vente et les entrées du livre sont pilotés séparément par les scripts du vault.
 
 Le build produit un bundle d'environ **80 kB gzippé total** (HTML + CSS + JS), bien
 en dessous de la cible de 250 kB gzippé fixée par le cahier des charges.

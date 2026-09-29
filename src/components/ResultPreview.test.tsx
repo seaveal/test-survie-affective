@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { KitVsl, ResultPreview } from './ResultPreview'
 import type { Resultat } from '../domain/types'
@@ -20,7 +20,7 @@ describe('<KitVsl> — bloc kit sur la page de livraison du profil', () => {
   })
 
   it('avec une URL de VSL : le lecteur est rendu, le texte et le bouton restent', () => {
-    render(<KitVsl url="https://exemple.test/vsl-kit" />)
+    render(<KitVsl url="https://exemple.test/vsl-kit" boutonApresS="" />)
 
     const lecteur = screen.getByTestId('kit-vsl-lecteur')
     expect(lecteur).toHaveAttribute('src', 'https://exemple.test/vsl-kit')
@@ -75,6 +75,38 @@ describe('<KitVsl> — bloc kit sur la page de livraison du profil', () => {
     expect(texte).toMatch(/trois semaines/)
     expect(texte).not.toMatch(/quinze jours|15 jours/)
   })
+
+  it('MP4 carré : lecture intégrée et achat après 60 % de la lecture, sans minuteur à l’arrêt', () => {
+    vi.useFakeTimers()
+    try {
+      render(<KitVsl />)
+      const video = screen.getByTestId('kit-vsl-lecteur') as HTMLVideoElement
+      expect(video.tagName).toBe('VIDEO')
+      expect(video).toHaveAttribute('controls')
+      expect(video).toHaveAttribute('playsinline')
+      expect(video).toHaveAttribute('preload', 'metadata')
+      expect(video).not.toHaveAttribute('autoplay')
+      expect(video).toHaveStyle({ aspectRatio: '1 / 1' })
+      expect(video.querySelector('track')).toHaveAttribute('srclang', 'fr')
+      act(() => void vi.advanceTimersByTime(600000))
+      expect(screen.queryByTestId('kit-achat')).toBeNull()
+      fireEvent.timeUpdate(video, {target:{currentTime:310}})
+      expect(screen.queryByTestId('kit-achat')).toBeNull()
+      fireEvent.timeUpdate(video, {target:{currentTime:310.8}})
+      expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
+      fireEvent.timeUpdate(video, {target:{currentTime:10}})
+      expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('une erreur vidéo permet quand même de consulter le kit', () => {
+    render(<KitVsl />)
+    fireEvent.error(screen.getByTestId('kit-vsl-lecteur'))
+    expect(screen.getByRole('status')).toHaveTextContent('La vidéo n’a pas pu démarrer')
+    expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
+  })
 })
 
 // C5-05 — la vente fermée ne met AUCUN chemin d'achat sur la page de livraison du
@@ -109,10 +141,13 @@ describe('bloc kit et état de la vente', () => {
     expect(screen.queryByText(/Je commence, 48/)).toBeNull()
   })
 
-  it('vente ouverte : le bloc kit et son bouton sont là', () => {
+  it('vente ouverte : le lecteur apparaît, puis le bouton après la lecture', () => {
     rendre('oui')
 
     expect(screen.getByTestId('kit-vsl')).toBeInTheDocument()
+    const video = screen.getByTestId('kit-vsl-lecteur')
+    expect(screen.queryByTestId('kit-achat')).toBeNull()
+    fireEvent.timeUpdate(video, {target:{currentTime:311}})
     expect(
       screen.getByRole('link', { name: /Je commence, 48/ }),
     ).toHaveAttribute('href', 'https://h3c.fr/kit-test-profil')

@@ -17,8 +17,9 @@ import { DisclaimerFooter } from './DisclaimerFooter'
 import { KIT_VIDEO } from '../kitVideo'
 
 interface Props {
-  resultat: Resultat
+  resultat: Pick<Resultat, 'profilDominant'>
   envoiReussi: boolean
+  apercu?: boolean
 }
 
 // Une valeur vide explicite permet de désactiver la vidéo. Sinon : montage validé.
@@ -153,7 +154,7 @@ export function KitVsl({
   )
 }
 
-export function ResultPreview({ resultat, envoiReussi }: Props) {
+export function ResultPreview({ resultat, envoiReussi, apercu = false }: Props) {
   const profil = getProfil(resultat.profilDominant)
 
   return (
@@ -163,14 +164,14 @@ export function ResultPreview({ resultat, envoiReussi }: Props) {
           className="text-sm uppercase tracking-wide"
           style={{ color: 'var(--h3c-texte-secondaire)' }}
         >
-          Votre profil
+          {apercu ? 'Exemple de résultat' : 'Votre profil'}
         </p>
         <h1 className="text-3xl md:text-4xl">{profil.nom}</h1>
         <p
           className="mt-2 text-base"
           style={{ color: 'var(--h3c-texte-secondaire)' }}
         >
-          La suite arrive dans votre email.
+          {apercu ? 'Aperçu de la page affichée après le test.' : 'La suite arrive dans votre email.'}
         </p>
       </section>
 
@@ -181,17 +182,17 @@ export function ResultPreview({ resultat, envoiReussi }: Props) {
           borderLeft: '4px solid var(--h3c-accent-secondaire)',
         }}
       >
-        <h2 className="text-xl">Votre rapport complet est en chemin</h2>
+        <h2 className="text-xl">{apercu ? 'Le rapport complet est envoyé par email' : 'Votre rapport complet est en chemin'}</h2>
         <p className="mt-3 text-base leading-relaxed">
-          Le détail de votre profil, les sept symptômes que vous reconnaissez sans
+          {apercu ? 'Le rapport détaillé, la feuille de route et la séance offerte sont transmis après le test.' : <>Le détail de votre profil, les sept symptômes que vous reconnaissez sans
           doute, votre feuille de route, et votre cadeau (une séance de descente dans le
-          corps, guidée par ma voix) arrivent dans votre boîte.
+          corps, guidée par ma voix) arrivent dans votre boîte.</>}
         </p>
         <p
           className="mt-3 text-sm"
           style={{ color: 'var(--h3c-texte-secondaire)' }}
         >
-          Vérifiez vos messages dans les prochaines minutes. Pensez aux spams.
+          {apercu ? 'Cet aperçu utilise un profil d’exemple et ne déclenche aucun envoi.' : 'Vérifiez vos messages dans les prochaines minutes. Pensez aux spams.'}
         </p>
         {!envoiReussi && (
           <p

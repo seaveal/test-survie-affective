@@ -39,6 +39,11 @@ npm run preview         # serveur statique pour tester dist/
 
 ### Vidéo après résultat du Test
 
+Lien de consultation directe : `/?apercu=resultat`. Il présente un profil
+d’exemple, sans formulaire ni envoi d’email, avec le même composant et la même
+vidéo que le résultat réel. `&profil=sauveur`, `controleur` ou `fantome` permet
+de consulter les autres exemples ; défaut : `mendiant`. L’aperçu est en noindex.
+
 Montage carré validé le 29/09/2026 : 1080 × 1080, 8 min 38. `src/kitVideo.ts`
 porte les chemins versionnés du MP4, de l’affiche et des sous-titres français.
 Le lecteur natif fonctionne dans la page sur mobile (`playsInline`), avec ses

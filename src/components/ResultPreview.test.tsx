@@ -15,7 +15,7 @@ describe('<KitVsl> — bloc kit sur la page de livraison du profil', () => {
     expect(screen.queryByTestId('kit-vsl-lecteur')).toBeNull()
     expect(screen.getByText(/Le tarif est de 48/)).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: /Je commence, 48/ }),
+      screen.getByRole('link', { name: /Je découvre le KIT/ }),
     ).toHaveAttribute('href', 'https://h3c.fr/kit-test-profil')
   })
 
@@ -26,7 +26,7 @@ describe('<KitVsl> — bloc kit sur la page de livraison du profil', () => {
     expect(lecteur).toHaveAttribute('src', 'https://exemple.test/vsl-kit')
     expect(screen.getByText(/Le tarif est de 48/)).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: /Je commence, 48/ }),
+      screen.getByRole('link', { name: /Je découvre le KIT/ }),
     ).toHaveAttribute('href', 'https://h3c.fr/kit-test-profil')
   })
 
@@ -61,7 +61,7 @@ describe('<KitVsl> — bloc kit sur la page de livraison du profil', () => {
       expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
       expect(screen.getByText(/Le tarif est de 48/)).toBeInTheDocument()
       expect(
-        screen.getByRole('link', { name: /Je commence, 48/ }),
+        screen.getByRole('link', { name: /Je découvre le KIT/ }),
       ).toHaveAttribute('href', 'https://h3c.fr/kit-test-profil')
     } finally {
       vi.useRealTimers()
@@ -76,10 +76,10 @@ describe('<KitVsl> — bloc kit sur la page de livraison du profil', () => {
     expect(texte).not.toMatch(/quinze jours|15 jours/)
   })
 
-  it('MP4 carré : lecture intégrée et achat après 60 % de la lecture, sans minuteur à l’arrêt', () => {
+  it('MP4 carré : lecture intégrée et délai facultatif, sans minuteur à l’arrêt', () => {
     vi.useFakeTimers()
     try {
-      render(<KitVsl />)
+      render(<KitVsl boutonApresS="310.8" />)
       const video = screen.getByTestId('kit-vsl-lecteur') as HTMLVideoElement
       expect(video.tagName).toBe('VIDEO')
       expect(video).toHaveAttribute('controls')
@@ -87,7 +87,7 @@ describe('<KitVsl> — bloc kit sur la page de livraison du profil', () => {
       expect(video).toHaveAttribute('preload', 'metadata')
       expect(video).not.toHaveAttribute('autoplay')
       expect(video).toHaveStyle({ aspectRatio: '1 / 1' })
-      expect(video.querySelector('track')).toHaveAttribute('srclang', 'fr')
+      expect(video.querySelector('track')).toBeNull()
       act(() => void vi.advanceTimersByTime(600000))
       expect(screen.queryByTestId('kit-achat')).toBeNull()
       fireEvent.timeUpdate(video, {target:{currentTime:310}})
@@ -138,18 +138,18 @@ describe('bloc kit et état de la vente', () => {
     rendre('')
 
     expect(screen.queryByTestId('kit-vsl')).toBeNull()
-    expect(screen.queryByText(/Je commence, 48/)).toBeNull()
+    expect(screen.queryByText(/Je découvre le KIT/)).toBeNull()
   })
 
-  it('vente ouverte : le lecteur apparaît, puis le bouton après la lecture', () => {
+  it('vente ouverte : vidéo sans sous-titres et bouton de découverte immédiat', () => {
     rendre('oui')
 
     expect(screen.getByTestId('kit-vsl')).toBeInTheDocument()
     const video = screen.getByTestId('kit-vsl-lecteur')
-    expect(screen.queryByTestId('kit-achat')).toBeNull()
-    fireEvent.timeUpdate(video, {target:{currentTime:311}})
+    expect(video.querySelector('track')).toBeNull()
+    expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: /Je commence, 48/ }),
+      screen.getByRole('link', { name: /Je découvre le KIT/ }),
     ).toHaveAttribute('href', 'https://h3c.fr/kit-test-profil')
   })
 })

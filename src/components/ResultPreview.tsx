@@ -25,9 +25,8 @@ interface Props {
 // Une valeur vide explicite permet de désactiver la vidéo. Sinon : montage validé.
 const VSL_KIT_URL: string = import.meta.env.VITE_VSL_KIT_URL ?? KIT_VIDEO.url
 
-// Délai avant l'apparition du bouton d'achat et de son prix, en secondes.
-// 60 % de la vidéo validée. Le MP4 utilise le temps de lecture ; un lecteur
-// tiers conserve le délai après son entrée dans l'écran. Vide/0 = immédiat.
+// Le bouton de découverte est visible immédiatement par défaut. Une surcharge
+// facultative permet un délai de lecture (MP4) ou de présence à l’écran (iframe).
 const VSL_KIT_BOUTON_APRES_S: string =
   import.meta.env.VITE_VSL_KIT_BOUTON_APRES_S ?? String(KIT_VIDEO.buttonAfter)
 
@@ -77,6 +76,22 @@ export function KitVsl({
     >
       <h2 className="text-xl">Et maintenant&nbsp;?</h2>
 
+      <p className="mt-4 text-base leading-relaxed">
+        Ce nom, votre tête vient de l'apprendre. Votre corps, lui, il le connaît
+        depuis trente ans, et de tout ce que vous venez de lire, il n'a rien lu.
+      </p>
+      <p className="mt-3 text-base leading-relaxed">
+        Cette distance ne se franchit pas en comprenant mieux, sinon vous seriez
+        arrivé depuis longtemps. Elle se franchit dans le corps, et dans un
+        ordre&nbsp;: ressentir, libérer, s'ouvrir à recevoir.
+      </p>
+      <p className="mt-3 text-base leading-relaxed">
+        Le Kit de démarrage, ce sont ces trois semaines. Un jour, une action&nbsp;:
+        une séance guidée pour descendre dans votre corps, à l'heure que vous
+        voulez, moins d'une demi-heure. Jusqu'à deux dimanches soir, une
+        libération en direct. Le mercredi soir, vos questions.
+      </p>
+
       {url && fichierVideo ? (
         <>
           <video
@@ -95,9 +110,6 @@ export function KitVsl({
             onEnded={() => setBoutonVisible(true)}
             onError={() => { setErreurVideo(true); setBoutonVisible(true) }}
           >
-            {url === KIT_VIDEO.url && (
-              <track kind="captions" src={KIT_VIDEO.captions} srcLang="fr" label="Français" />
-            )}
             <a href={url}>Ouvrir la vidéo</a>
           </video>
           {erreurVideo && (
@@ -120,21 +132,6 @@ export function KitVsl({
         />
       ) : null}
 
-      <p className="mt-4 text-base leading-relaxed">
-        Ce nom, votre tête vient de l'apprendre. Votre corps, lui, il le connaît
-        depuis trente ans, et de tout ce que vous venez de lire, il n'a rien lu.
-      </p>
-      <p className="mt-3 text-base leading-relaxed">
-        Cette distance ne se franchit pas en comprenant mieux, sinon vous seriez
-        arrivé depuis longtemps. Elle se franchit dans le corps, et dans un
-        ordre&nbsp;: ressentir, libérer, s'ouvrir à recevoir.
-      </p>
-      <p className="mt-3 text-base leading-relaxed">
-        Le Kit de démarrage, ce sont ces trois semaines. Un jour, une action&nbsp;:
-        une séance guidée pour descendre dans votre corps, à l'heure que vous
-        voulez, moins d'une demi-heure. Jusqu'à deux dimanches soir, une
-        libération en direct. Le mercredi soir, vos questions.
-      </p>
       {boutonVisible ? (
         <div data-testid="kit-achat">
           <p className="mt-3 text-base font-medium leading-relaxed">
@@ -146,7 +143,7 @@ export function KitVsl({
             className="mt-5 block rounded-lg px-6 py-4 text-center text-base font-medium text-white shadow-md transition hover:scale-[1.02]"
             style={{ background: 'var(--h3c-accent-primaire)' }}
           >
-            Je commence, 48&nbsp;€
+            Je découvre le KIT
           </a>
         </div>
       ) : null}

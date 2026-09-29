@@ -1,12 +1,12 @@
 [
   {
-    "file": "vsl-resultat-test-a4c6b140.mp4",
-    "source": "kDrive:Tournage-VSL/Montages/resultat-test-2026-09-29/mobile/vsl-post-resultats-test-mobile.mp4",
-    "sha256": "a4c6b140ba10b9ca3fdf82f613d67baaf61a8a4d03994329c874d28308005a88"
+    "file": "vsl-resultat-test-7cc9d42d.mp4",
+    "source": "kDrive:Tournage-VSL/Montages/resultat-test-2026-09-29/mobile-sans-sous-titres/vsl-post-resultats-test-mobile-sans-sous-titres.mp4",
+    "sha256": "7cc9d42db17f224649c02d0f58a98528e37f5beb69b20fc6c92e81d337db8cbf"
   },
   {
-    "file": "vsl-resultat-test-a4c6b140.jpg",
-    "source": "kDrive:Tournage-VSL/Montages/resultat-test-2026-09-29/mobile/affiche-mobile.jpg",
-    "sha256": "375fca5f13c1992f68d6401ff68aa003a156f25550dfdb34906a2db019c0799e"
+    "file": "vsl-resultat-test-7cc9d42d.jpg",
+    "source": "kDrive:Tournage-VSL/Montages/resultat-test-2026-09-29/mobile-sans-sous-titres/affiche-mobile-sans-sous-titres.jpg",
+    "sha256": "d96af34c340bff61e9f66f7b99658ff8ae5416bb07313505df84f534de877d94"
   }
 ]

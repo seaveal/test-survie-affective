@@ -45,11 +45,12 @@ vidéo que le résultat réel. `&profil=sauveur`, `controleur` ou `fantome` perm
 de consulter les autres exemples ; défaut : `mendiant`. L’aperçu est en noindex.
 
 Montage carré validé le 29/09/2026 : 1080 × 1080, 8 min 38. `src/kitVideo.ts`
-porte les chemins versionnés du MP4, de l’affiche et des sous-titres français.
+porte les chemins versionnés du MP4 et de l’affiche. Le texte animé est intégré
+à la vidéo ; aucune piste de sous-titres ne le double.
 Le lecteur natif fonctionne dans la page sur mobile (`playsInline`), avec ses
 contrôles et le plein écran, sans lecture automatique. Il ne charge d’abord que
-les métadonnées. Le bouton d’achat apparaît à 310,8 s de lecture (60 %) et reste
-accessible si le lecteur rencontre une erreur.
+les métadonnées. La vidéo suit le texte de résultats. Le bouton « Je découvre
+le KIT », visible immédiatement sous la vidéo, mène à la page de vente du kit.
 
 `VITE_KIT_VENTE_OUVERTE=oui` ouvre le bloc kit. `VITE_VSL_KIT_URL` et
 `VITE_VSL_KIT_BOUTON_APRES_S` restent des surcharges facultatives ; une chaîne

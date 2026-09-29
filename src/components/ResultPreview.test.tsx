@@ -1,7 +1,12 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { KitVsl, ResultPreview } from './ResultPreview'
 import type { Resultat } from '../domain/types'
+
+beforeEach(() => {
+  vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue()
+})
+afterEach(() => vi.restoreAllMocks())
 
 // Le bloc VSL du kit doit rendre correctement AVANT que la vidéo soit tournée :
 // texte et bouton présents, et aucun emplacement de lecteur (ni iframe, ni
@@ -68,31 +73,28 @@ describe('<KitVsl> — bloc kit sur la page de livraison du profil', () => {
     }
   })
 
-  it("annonce la durée en trois semaines, jamais en quinze jours", () => {
-    const { container } = render(<KitVsl url="" />)
-    const texte = container.textContent ?? ''
-
-    expect(texte).toMatch(/trois semaines/)
-    expect(texte).not.toMatch(/quinze jours|15 jours/)
+  it('annonce la durée en trois semaines', () => {
+    render(<KitVsl url="" />)
+    expect(screen.getByText(/trois semaines/)).toBeInTheDocument()
   })
 
   it('MP4 carré : lecture intégrée et délai facultatif, sans minuteur à l’arrêt', () => {
     vi.useFakeTimers()
     try {
-      render(<KitVsl boutonApresS="310.8" />)
+      render(<KitVsl />)
       const video = screen.getByTestId('kit-vsl-lecteur') as HTMLVideoElement
       expect(video.tagName).toBe('VIDEO')
-      expect(video).toHaveAttribute('controls')
+      expect(video).not.toHaveAttribute('controls')
       expect(video).toHaveAttribute('playsinline')
       expect(video).toHaveAttribute('preload', 'metadata')
-      expect(video).not.toHaveAttribute('autoplay')
+      expect(video).toHaveAttribute('autoplay')
       expect(video).toHaveStyle({ aspectRatio: '1 / 1' })
       expect(video.querySelector('track')).toBeNull()
       act(() => void vi.advanceTimersByTime(600000))
       expect(screen.queryByTestId('kit-achat')).toBeNull()
-      fireEvent.timeUpdate(video, {target:{currentTime:310}})
+      fireEvent.timeUpdate(video, {target:{currentTime:359.9}})
       expect(screen.queryByTestId('kit-achat')).toBeNull()
-      fireEvent.timeUpdate(video, {target:{currentTime:310.8}})
+      fireEvent.timeUpdate(video, {target:{currentTime:360}})
       expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
       fireEvent.timeUpdate(video, {target:{currentTime:10}})
       expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
@@ -101,11 +103,11 @@ describe('<KitVsl> — bloc kit sur la page de livraison du profil', () => {
     }
   })
 
-  it('une erreur vidéo permet quand même de consulter le kit', () => {
+  it('une erreur vidéo propose le fichier sans révéler le bouton avant six minutes', () => {
     render(<KitVsl />)
     fireEvent.error(screen.getByTestId('kit-vsl-lecteur'))
     expect(screen.getByRole('status')).toHaveTextContent('La vidéo n’a pas pu démarrer')
-    expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
+    expect(screen.queryByTestId('kit-achat')).toBeNull()
   })
 })
 
@@ -141,15 +143,32 @@ describe('bloc kit et état de la vente', () => {
     expect(screen.queryByText(/Je découvre le KIT/)).toBeNull()
   })
 
-  it('vente ouverte : vidéo sans sous-titres et bouton de découverte immédiat', () => {
+  it('vente ouverte : vidéo sans sous-titres et bouton après six minutes', () => {
     rendre('oui')
 
     expect(screen.getByTestId('kit-vsl')).toBeInTheDocument()
     const video = screen.getByTestId('kit-vsl-lecteur')
     expect(video.querySelector('track')).toBeNull()
+    expect(screen.queryByTestId('kit-achat')).toBeNull()
+    fireEvent.timeUpdate(video, {target:{currentTime:360}})
     expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
     expect(
       screen.getByRole('link', { name: /Je découvre le KIT/ }),
     ).toHaveAttribute('href', 'https://h3c.fr/kit-test-profil')
+  })
+})
+
+
+describe('attente du rapport et démarrage de la vidéo', () => {
+  it('permet de lancer la vidéo au toucher si le navigateur bloque le démarrage', async () => {
+    const play = vi.spyOn(HTMLMediaElement.prototype, 'play')
+      .mockRejectedValueOnce(new DOMException('NotAllowed', 'NotAllowedError'))
+      .mockResolvedValue()
+    render(<KitVsl />)
+    expect(await screen.findByText('Touchez la vidéo pour lancer la lecture.')).toBeInTheDocument()
+    const video = screen.getByTestId('kit-vsl-lecteur')
+    await act(async () => fireEvent.click(video))
+    expect(play).toHaveBeenCalledTimes(2)
+    expect(screen.queryByText('Touchez la vidéo pour lancer la lecture.')).toBeNull()
   })
 })

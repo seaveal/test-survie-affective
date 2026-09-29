@@ -28,7 +28,7 @@ npm run test:coverage   # avec couverture
 npm run test:ui         # UI Vitest
 ```
 
-État au 29 septembre 2026 : **215 tests verts** sur 21 fichiers.
+État au 29 septembre 2026 : **216 tests verts** sur 21 fichiers.
 
 ## Build production
 
@@ -47,10 +47,11 @@ de consulter les autres exemples ; défaut : `mendiant`. L’aperçu est en noin
 Montage carré validé le 29/09/2026 : 1080 × 1080, 8 min 38. `src/kitVideo.ts`
 porte les chemins versionnés du MP4 et de l’affiche. Le texte animé est intégré
 à la vidéo ; aucune piste de sous-titres ne le double.
-Le lecteur natif fonctionne dans la page sur mobile (`playsInline`), avec ses
-contrôles et le plein écran, sans lecture automatique. Il ne charge d’abord que
-les métadonnées. La vidéo suit le texte de résultats. Le bouton « Je découvre
-le KIT », visible immédiatement sous la vidéo, mène à la page de vente du kit.
+Le lecteur natif reste dans la page sur mobile (`playsInline`), sans commandes
+visibles. Il démarre automatiquement avec le son si le navigateur l’autorise ;
+sinon, un toucher sur l’image lance la lecture. La vidéo suit le texte de résultats.
+Le bouton « Je découvre le KIT » apparaît à 360 secondes de lecture effective
+et mène à la page de vente du kit.
 
 `VITE_KIT_VENTE_OUVERTE=oui` ouvre le bloc kit. `VITE_VSL_KIT_URL` et
 `VITE_VSL_KIT_BOUTON_APRES_S` restent des surcharges facultatives ; une chaîne

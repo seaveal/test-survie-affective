@@ -25,8 +25,8 @@ interface Props {
 // Une valeur vide explicite permet de désactiver la vidéo. Sinon : montage validé.
 const VSL_KIT_URL: string = import.meta.env.VITE_VSL_KIT_URL ?? KIT_VIDEO.url
 
-// Le bouton de découverte est visible immédiatement par défaut. Une surcharge
-// facultative permet un délai de lecture (MP4) ou de présence à l’écran (iframe).
+// Le bouton de découverte apparaît après six minutes de lecture. Une surcharge
+// facultative permet de changer ce délai (temps à l’écran pour un iframe tiers).
 const VSL_KIT_BOUTON_APRES_S: string =
   import.meta.env.VITE_VSL_KIT_BOUTON_APRES_S ?? String(KIT_VIDEO.buttonAfter)
 
@@ -42,6 +42,20 @@ export function KitVsl({
   const [erreurVideo, setErreurVideo] = useState(false)
   const fichierVideo = /\.mp4(?:[?#]|$)/i.test(url)
   const lecteur = useRef<HTMLIFrameElement>(null)
+  const video = useRef<HTMLVideoElement>(null)
+  const [lectureBloquee, setLectureBloquee] = useState(false)
+
+  useEffect(() => {
+    if (!fichierVideo || !video.current) return
+    let actif = true
+    video.current.play().catch(() => { if (actif) setLectureBloquee(true) })
+    return () => { actif = false }
+  }, [url, fichierVideo])
+
+  const lancerLecture = () => {
+    video.current?.play().then(() => setLectureBloquee(false))
+      .catch(() => setLectureBloquee(true))
+  }
 
   // La lecture réelle d'un iframe tiers n'est pas lisible par le navigateur : le
   // compte part du moment où le lecteur entre dans l'écran, pas du chargement de
@@ -97,7 +111,19 @@ export function KitVsl({
           <video
             src={url}
             poster={url === KIT_VIDEO.url ? KIT_VIDEO.poster : undefined}
-            controls
+            ref={video}
+            autoPlay
+            disablePictureInPicture
+            disableRemotePlayback
+            onClick={lancerLecture}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                lancerLecture()
+              }
+            }}
+            tabIndex={0}
+            onPlay={() => setLectureBloquee(false)}
             playsInline
             preload="metadata"
             aria-label="Le Kit de démarrage — vidéo de Cyrille Novou"
@@ -108,10 +134,15 @@ export function KitVsl({
               if (event.currentTarget.currentTime >= delai) setBoutonVisible(true)
             }}
             onEnded={() => setBoutonVisible(true)}
-            onError={() => { setErreurVideo(true); setBoutonVisible(true) }}
+            onError={() => setErreurVideo(true)}
           >
             <a href={url}>Ouvrir la vidéo</a>
           </video>
+          {lectureBloquee && !erreurVideo && (
+            <p className="mt-3 text-sm" role="status">
+              Touchez la vidéo pour lancer la lecture.
+            </p>
+          )}
           {erreurVideo && (
             <p role="status" className="mt-3 text-sm">
               La vidéo n’a pas pu démarrer. <a className="underline" href={url}>Ouvrir la vidéo</a>.

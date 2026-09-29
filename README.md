@@ -28,7 +28,7 @@ npm run test:coverage   # avec couverture
 npm run test:ui         # UI Vitest
 ```
 
-État au 29 septembre 2026 : **216 tests verts** sur 21 fichiers.
+État au 29 septembre 2026 : **218 tests verts** sur 21 fichiers.
 
 ## Build production
 
@@ -52,6 +52,11 @@ visibles. Il démarre automatiquement avec le son si le navigateur l’autorise 
 sinon, un toucher sur l’image lance la lecture. La vidéo suit le texte de résultats.
 Le bouton « Je découvre le KIT » apparaît à 360 secondes de lecture effective
 et mène à la page de vente du kit.
+
+Le rapport est programmé côté API six minutes après la soumission. La page
+annonce une dizaine de minutes et invite à découvrir comment commencer à sortir
+de la dépendance affective pendant l’attente. La file serveur survit à la fermeture
+de l’onglet ; les demandes hors ligne restent signalées comme non transmises.
 
 `VITE_KIT_VENTE_OUVERTE=oui` ouvre le bloc kit. `VITE_VSL_KIT_URL` et
 `VITE_VSL_KIT_BOUTON_APRES_S` restent des surcharges facultatives ; une chaîne

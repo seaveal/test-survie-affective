@@ -136,8 +136,8 @@ describe('e2e : parcours complet', () => {
     //    (décision Bloc 2 2026-05-25 : écran réduit, retrait description/intensité/ambassadeur)
     expect(screen.getByTestId('result-preview')).toBeInTheDocument()
     expect(screen.getByText(/Votre profil$/i)).toBeInTheDocument()
-    expect(screen.getByText(/Votre rapport complet est en chemin/i)).toBeInTheDocument()
-    expect(screen.getByText(/Vérifiez vos messages/i)).toBeInTheDocument()
+    expect(screen.getByText(/Votre rapport arrive dans une dizaine de minutes/i)).toBeInTheDocument()
+    expect(screen.getByText(/Pensez à vérifier vos spams/i)).toBeInTheDocument()
     expect(screen.getByText(/Avertissement/i)).toBeInTheDocument()
   }, 30000)
 

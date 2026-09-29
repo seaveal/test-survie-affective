@@ -73,9 +73,9 @@ describe('<KitVsl> — bloc kit sur la page de livraison du profil', () => {
     }
   })
 
-  it('annonce la durée en trois semaines', () => {
+  it('invite à regarder la vidéo pour commencer à sortir de la dépendance affective', () => {
     render(<KitVsl url="" />)
-    expect(screen.getByText(/trois semaines/)).toBeInTheDocument()
+    expect(screen.getByText(/de la dépendance affective/)).toBeInTheDocument()
   })
 
   it('MP4 carré : lecture intégrée et délai facultatif, sans minuteur à l’arrêt', () => {
@@ -160,6 +160,17 @@ describe('bloc kit et état de la vente', () => {
 
 
 describe('attente du rapport et démarrage de la vidéo', () => {
+  it('annonce une dizaine de minutes après réception de la demande', () => {
+    render(<ResultPreview resultat={RESULTAT} envoiReussi />)
+    expect(screen.getByRole('heading', {name: 'Votre rapport arrive dans une dizaine de minutes'})).toBeInTheDocument()
+  })
+
+  it('ne promet pas un rapport en route lorsque la demande est restée hors ligne', () => {
+    render(<ResultPreview resultat={RESULTAT} envoiReussi={false} />)
+    expect(screen.getByTestId('result-retry-note')).toHaveTextContent('Revenez sur le test')
+    expect(screen.queryByRole('heading', {name: 'Votre rapport arrive dans une dizaine de minutes'})).toBeNull()
+  })
+
   it('permet de lancer la vidéo au toucher si le navigateur bloque le démarrage', async () => {
     const play = vi.spyOn(HTMLMediaElement.prototype, 'play')
       .mockRejectedValueOnce(new DOMException('NotAllowed', 'NotAllowedError'))

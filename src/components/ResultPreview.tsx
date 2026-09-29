@@ -20,6 +20,7 @@ interface Props {
   resultat: Pick<Resultat, 'profilDominant'>
   envoiReussi: boolean
   apercu?: boolean
+  envoiEnCours?: boolean
 }
 
 // Une valeur vide explicite permet de désactiver la vidéo. Sinon : montage validé.
@@ -88,22 +89,10 @@ export function KitVsl({
       }}
       data-testid="kit-vsl"
     >
-      <h2 className="text-xl">Et maintenant&nbsp;?</h2>
-
+      <h2 className="text-xl">En attendant, regardez cette vidéo</h2>
       <p className="mt-4 text-base leading-relaxed">
-        Ce nom, votre tête vient de l'apprendre. Votre corps, lui, il le connaît
-        depuis trente ans, et de tout ce que vous venez de lire, il n'a rien lu.
-      </p>
-      <p className="mt-3 text-base leading-relaxed">
-        Cette distance ne se franchit pas en comprenant mieux, sinon vous seriez
-        arrivé depuis longtemps. Elle se franchit dans le corps, et dans un
-        ordre&nbsp;: ressentir, libérer, s'ouvrir à recevoir.
-      </p>
-      <p className="mt-3 text-base leading-relaxed">
-        Le Kit de démarrage, ce sont ces trois semaines. Un jour, une action&nbsp;:
-        une séance guidée pour descendre dans votre corps, à l'heure que vous
-        voulez, moins d'une demi-heure. Jusqu'à deux dimanches soir, une
-        libération en direct. Le mercredi soir, vos questions.
+        Découvrez pourquoi il ne suffit pas de comprendre ses schémas pour sortir
+        de la dépendance affective, et comment faire un premier pas concret.
       </p>
 
       {url && fichierVideo ? (
@@ -182,7 +171,7 @@ export function KitVsl({
   )
 }
 
-export function ResultPreview({ resultat, envoiReussi, apercu = false }: Props) {
+export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCours = false }: Props) {
   const profil = getProfil(resultat.profilDominant)
 
   return (
@@ -210,27 +199,27 @@ export function ResultPreview({ resultat, envoiReussi, apercu = false }: Props) 
           borderLeft: '4px solid var(--h3c-accent-secondaire)',
         }}
       >
-        <h2 className="text-xl">{apercu ? 'Le rapport complet est envoyé par email' : 'Votre rapport complet est en chemin'}</h2>
+        <h2 className="text-xl">{envoiReussi || apercu ? 'Votre rapport arrive dans une dizaine de minutes' : 'Votre demande est en cours d’envoi'}</h2>
         <p className="mt-3 text-base leading-relaxed">
-          {apercu ? 'Le rapport détaillé, la feuille de route et la séance offerte sont transmis après le test.' : <>Le détail de votre profil, les sept symptômes que vous reconnaissez sans
-          doute, votre feuille de route, et votre cadeau (une séance de descente dans le
-          corps, guidée par ma voix) arrivent dans votre boîte.</>}
+          Vous recevrez par email le détail de votre profil, votre feuille de route
+          et votre séance guidée offerte.
         </p>
         <p
           className="mt-3 text-sm"
           style={{ color: 'var(--h3c-texte-secondaire)' }}
         >
-          {apercu ? 'Cet aperçu utilise un profil d’exemple et ne déclenche aucun envoi.' : 'Vérifiez vos messages dans les prochaines minutes. Pensez aux spams.'}
+          {apercu ? 'Cet aperçu utilise un profil d’exemple et ne déclenche aucun envoi.' : 'Pensez à vérifier vos spams si vous ne trouvez pas le message.'}
         </p>
-        {!envoiReussi && (
+        {!envoiReussi && !envoiEnCours && (
           <p
             role="status"
             className="mt-4 text-sm"
             style={{ color: 'var(--h3c-texte-secondaire)' }}
             data-testid="result-retry-note"
           >
-            L'envoi est en file d'attente. Votre profil partira dès que la connexion
-            sera rétablie. Vous pouvez fermer cette page.
+            Votre demande est conservée sur cet appareil. Revenez sur le test avec
+            une connexion pour la transmettre ; votre rapport sera ensuite envoyé
+            dans une dizaine de minutes.
           </p>
         )}
       </section>

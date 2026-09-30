@@ -44,7 +44,8 @@ d’exemple, sans formulaire ni envoi d’email, avec le même composant et la m
 vidéo que le résultat réel. `&profil=sauveur`, `controleur` ou `fantome` permet
 de consulter les autres exemples ; défaut : `mendiant`. L’aperçu est en noindex.
 
-Montage carré validé le 29/09/2026 : 1080 × 1080, 8 min 38. `src/kitVideo.ts`
+Montage V4 validé le 30/09/2026 : 1080 × 1080, 8 min 50,56 s.
+Une vidéo commune T01–T08, avec cinq zooms légers et trois SFX discrets. `src/kitVideo.ts`
 porte les chemins versionnés du MP4 et de l’affiche. Le texte animé est intégré
 à la vidéo ; aucune piste de sous-titres ne le double.
 Le lecteur natif reste dans la page sur mobile (`playsInline`), sans commandes

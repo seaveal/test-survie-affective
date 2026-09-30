@@ -12,7 +12,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { getProfil } from '../domain/result'
-import type { Resultat } from '../domain/types'
+import type { ProfilId, Resultat } from '../domain/types'
 import { DisclaimerFooter } from './DisclaimerFooter'
 import { KIT_VIDEO } from '../kitVideo'
 
@@ -171,6 +171,52 @@ export function KitVsl({
   )
 }
 
+// Bloc du kit placé AU-DESSUS de la VSL (décision Cyrille du 30/09). Texte mot pour
+// mot de `Operator-Stack/livrables/kit-demarrage/BLOC-kit-resultat-test_v2.md` :
+// bloc commun, dont le premier paragraphe est remplacé par l'ouverture du profil
+// affiché. AUCUN lien : le bouton qui apparaît à six minutes reste le seul appel.
+const OUVERTURES: Record<ProfilId, string> = {
+  mendiant: 'Vous vous reconnaissez dans « Mendiant de luxe » ? Quelqu’un vous félicite. Vous répondez : « J’aurais pu faire mieux. » Vous aimeriez accepter ce compliment, mais vous cherchez déjà comment faire mieux la prochaine fois.',
+  sauveur: 'Vous vous reconnaissez dans « Sauveur épuisé » ? Vous aviez prévu de vous reposer. Quelqu’un demande un service. Vous répondez oui et réorganisez votre soirée. Vous auriez aimé qu’on vous demande comment vous allez, vous aussi.',
+  controleur: 'Vous vous reconnaissez dans « Contrôleur anxieux » ? La réponse est plus brève que d’habitude. Vous relisez la conversation, cherchez ce que ça veut dire. Vous posez le téléphone, puis vous vérifiez encore.',
+  fantome: 'Vous vous reconnaissez dans « Fantôme relationnel » ? Quelqu’un vous demande ce que vous ressentez. Vous répondez : « On en parlera demain. » Puis vous quittez la pièce, alors que vous aviez envie de rester près de cette personne.',
+}
+
+export function KitBloc({ profil }: { profil: ProfilId }) {
+  const p = 'mt-4 text-base leading-relaxed'
+  return (
+    <section className="mx-6 mb-6" data-testid="kit-bloc">
+      <h2 className="text-xl">Vous aviez décidé de réagir autrement</h2>
+      <p className={p}>{OUVERTURES[profil]}</p>
+      <p className={p}>
+        Vous avez lu, écouté des conseils, analysé vos relations. <strong>Vous avez tout compris. Rien n’a changé.</strong>
+      </p>
+      <p className={p}>
+        Le schéma est aussi enregistré dans votre corps. Quand l’attente réveille les mémoires du manque ou du rejet, vous réagissez avant de pouvoir choisir.
+      </p>
+      <p className={p}><strong>La tête comprend. Le corps répare.</strong></p>
+      <p className={p}>
+        Imaginez pouvoir répondre : « Ce soir, je préfère me reposer », puis profiter de votre soirée. Accepter de l’aide sans calculer comment la rendre. C’est vers cette juste place que nous travaillons dans Régénération, avec la réparation en présence.
+      </p>
+      <p className={p}>
+        L’enfant abandonné en vous n’a pas besoin de comprendre. Il a besoin de recevoir.
+      </p>
+      <p className={p}>
+        <strong>Le kit de démarrage pour sortir de la dépendance affective, c’est le démarrage de Régénération.</strong> Vingt jours pour commencer à ressentir et aller vers une première libération. La réparation appartient à la suite du parcours.
+      </p>
+      <p className={p}>
+        Avec les séances guidées, vous explorez comment retrouver du calme en fermant les yeux et en respirant, puis comment y parvenir par vous-même. Vous vérifiez par vous-même.
+      </p>
+      <p className={p}>
+        <strong>48 € TTC, en un paiement, sans abonnement.</strong> Mon livre, <em>Vous avez tout compris. Rien n’a changé.</em>, est inclus en ebook. Début le lendemain de votre commande. Les directs, les conditions de participation et les contre-indications sont détaillés sur la page du kit.
+      </p>
+      <p className={p}>
+        Le kit est facultatif. Vous n’avez pas besoin de l’acheter pour recevoir votre rapport et la séance découverte du Test.
+      </p>
+    </section>
+  )
+}
+
 export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCours = false }: Props) {
   const profil = getProfil(resultat.profilDominant)
 
@@ -254,7 +300,12 @@ export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCo
           derrière une constante : Vite la replie, et tout le bloc — bouton et lien de
           caisse compris — DISPARAÎT du bundle quand elle est vide, ce qu'un grep
           prouve (mémoire `test-sa-spa-greper-le-bundle`). */}
-      {import.meta.env.VITE_KIT_VENTE_OUVERTE ? <KitVsl /> : null}
+      {import.meta.env.VITE_KIT_VENTE_OUVERTE ? (
+        <>
+          <KitBloc profil={resultat.profilDominant} />
+          <KitVsl />
+        </>
+      ) : null}
 
       <DisclaimerFooter />
     </article>

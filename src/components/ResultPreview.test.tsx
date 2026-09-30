@@ -190,3 +190,45 @@ describe('attente du rapport et démarrage de la vidéo', () => {
     expect(screen.queryByText('Touchez la vidéo pour lancer la lecture.')).toBeNull()
   })
 })
+
+// Décision Cyrille du 30/09 : le bloc du kit (BLOC-kit-resultat-test_v2) se place
+// AU-DESSUS de la VSL, avec l'ouverture du profil affiché et SANS lien ; le bouton
+// qui apparaît à six minutes reste le seul lien vers le kit.
+describe('bloc kit v2 au-dessus de la VSL', () => {
+  afterEach(() => vi.unstubAllEnvs())
+
+  it.each([
+    ['mendiant', 'Mendiant de luxe'],
+    ['sauveur', 'Sauveur épuisé'],
+    ['controleur', 'Contrôleur anxieux'],
+    ['fantome', 'Fantôme relationnel'],
+  ] as const)('%s : ouverture du profil, bloc puis VSL puis bouton, un seul lien kit', (id, nom) => {
+    vi.stubEnv('VITE_KIT_VENTE_OUVERTE', 'oui')
+    const { container } = render(<ResultPreview resultat={{ profilDominant: id }} envoiReussi />)
+
+    const bloc = screen.getByTestId('kit-bloc')
+    expect(bloc).toHaveTextContent(`Vous vous reconnaissez dans « ${nom} » ?`)
+    expect(bloc).toHaveTextContent('Vous aviez décidé de réagir autrement')
+    expect(bloc).toHaveTextContent('Le kit est facultatif.')
+    expect(bloc).not.toHaveTextContent('Vous reconnaissez cette soirée')
+    expect(bloc.textContent!.match(/Vous vous reconnaissez dans/g)).toHaveLength(1)
+    expect(bloc.querySelector('a')).toBeNull()
+
+    const video = screen.getByTestId('kit-vsl-lecteur')
+    expect(bloc.compareDocumentPosition(video) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const liensKit = () => container.querySelectorAll('a[href*="kit"]')
+    expect(liensKit()).toHaveLength(0)
+
+    fireEvent.timeUpdate(video, { target: { currentTime: 360 } })
+    const achat = screen.getByTestId('kit-achat')
+    expect(video.compareDocumentPosition(achat) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(liensKit()).toHaveLength(1)
+    expect(achat).toContainElement(liensKit()[0] as HTMLElement)
+  })
+
+  it('vente fermée : pas de bloc kit', () => {
+    vi.stubEnv('VITE_KIT_VENTE_OUVERTE', '')
+    render(<ResultPreview resultat={RESULTAT} envoiReussi />)
+    expect(screen.queryByTestId('kit-bloc')).toBeNull()
+  })
+})

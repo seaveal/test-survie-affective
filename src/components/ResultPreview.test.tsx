@@ -160,6 +160,13 @@ describe('bloc kit et état de la vente', () => {
 
 
 describe('attente du rapport et démarrage de la vidéo', () => {
+  it('affiche la vignette de Cyrille en tête, vente ouverte ou fermée', () => {
+    render(<ResultPreview resultat={RESULTAT} envoiReussi />)
+    const vignette = screen.getByRole('img', { name: 'Cyrille Novou' })
+    expect(vignette).toHaveAttribute('src', '/portrait-cyrille.jpg')
+    expect(vignette.closest('picture')?.querySelector('source')).toHaveAttribute('srcset', '/portrait-cyrille.webp')
+  })
+
   it('annonce une dizaine de minutes après réception de la demande', () => {
     render(<ResultPreview resultat={RESULTAT} envoiReussi />)
     expect(screen.getByRole('heading', {name: 'Votre rapport arrive dans une dizaine de minutes'})).toBeInTheDocument()

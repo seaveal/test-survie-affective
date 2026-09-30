@@ -177,6 +177,26 @@ export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCo
   return (
     <article className="mx-auto flex max-w-2xl flex-col" data-testid="result-preview">
       <section className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12 text-center">
+        {/* Vignette de Cyrille (exigence Cyrille, pages v2 du 30/09) : ronde, ~110 px,
+            anneau terracotta. Portrait servi depuis public/. */}
+        <picture className="mx-auto block">
+          <source srcSet="/portrait-cyrille.webp" type="image/webp" />
+          <img
+            src="/portrait-cyrille.jpg"
+            width={110}
+            height={110}
+            alt="Cyrille Novou"
+            decoding="async"
+            className="block rounded-full object-cover"
+            style={{
+              width: 110,
+              height: 110,
+              border: '3px solid #fff',
+              boxShadow: '0 0 0 3px var(--h3c-accent-terracotta), 0 4px 12px rgba(0,0,0,.08)',
+            }}
+            data-testid="vignette-cyrille"
+          />
+        </picture>
         <p
           className="text-sm uppercase tracking-wide"
           style={{ color: 'var(--h3c-texte-secondaire)' }}

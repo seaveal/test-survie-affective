@@ -50,7 +50,8 @@ porte les chemins versionnés du MP4 et de l’affiche. Le texte animé est int�
 à la vidéo ; aucune piste de sous-titres ne le double.
 Le lecteur natif reste dans la page sur mobile (`playsInline`), sans commandes
 visibles. Il démarre automatiquement avec le son si le navigateur l’autorise ;
-sinon, un toucher sur l’image lance la lecture. La vidéo suit le texte de résultats.
+sinon, un toucher sur l’image lance la lecture. La vidéo suit le message d’attente du rapport et précède le bloc
+« Vous aviez décidé de réagir autrement ».
 Le bouton « Je découvre le KIT » apparaît à 360 secondes de lecture effective
 et mène à la page de vente du kit.
 

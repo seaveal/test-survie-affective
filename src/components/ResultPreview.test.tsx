@@ -192,9 +192,9 @@ describe('attente du rapport et démarrage de la vidéo', () => {
 })
 
 // Décision Cyrille du 30/09 : le bloc du kit (BLOC-kit-resultat-test_v2) se place
-// AU-DESSUS de la VSL, avec l'ouverture du profil affiché et SANS lien ; le bouton
+// SOUS la VSL, avec l'ouverture du profil affiché et SANS lien ; le bouton
 // qui apparaît à six minutes reste le seul lien vers le kit.
-describe('bloc kit v2 au-dessus de la VSL', () => {
+describe('bloc kit v2 sous la VSL', () => {
   afterEach(() => vi.unstubAllEnvs())
 
   it.each([
@@ -202,7 +202,7 @@ describe('bloc kit v2 au-dessus de la VSL', () => {
     ['sauveur', 'Sauveur épuisé'],
     ['controleur', 'Contrôleur anxieux'],
     ['fantome', 'Fantôme relationnel'],
-  ] as const)('%s : ouverture du profil, bloc puis VSL puis bouton, un seul lien kit', (id, nom) => {
+  ] as const)('%s : VSL puis bloc du profil, bouton sous la vidéo, un seul lien kit', (id, nom) => {
     vi.stubEnv('VITE_KIT_VENTE_OUVERTE', 'oui')
     const { container } = render(<ResultPreview resultat={{ profilDominant: id }} envoiReussi />)
 
@@ -215,13 +215,14 @@ describe('bloc kit v2 au-dessus de la VSL', () => {
     expect(bloc.querySelector('a')).toBeNull()
 
     const video = screen.getByTestId('kit-vsl-lecteur')
-    expect(bloc.compareDocumentPosition(video) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(video.compareDocumentPosition(bloc) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     const liensKit = () => container.querySelectorAll('a[href*="kit"]')
     expect(liensKit()).toHaveLength(0)
 
     fireEvent.timeUpdate(video, { target: { currentTime: 360 } })
     const achat = screen.getByTestId('kit-achat')
     expect(video.compareDocumentPosition(achat) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(achat.compareDocumentPosition(bloc) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(liensKit()).toHaveLength(1)
     expect(achat).toContainElement(liensKit()[0] as HTMLElement)
   })

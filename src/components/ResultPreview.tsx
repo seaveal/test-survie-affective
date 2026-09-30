@@ -171,7 +171,7 @@ export function KitVsl({
   )
 }
 
-// Bloc du kit placé AU-DESSUS de la VSL (décision Cyrille du 30/09). Texte mot pour
+// Bloc du kit placé SOUS la VSL (dernière décision Cyrille du 30/09). Texte mot pour
 // mot de `Operator-Stack/livrables/kit-demarrage/BLOC-kit-resultat-test_v2.md` :
 // bloc commun, dont le premier paragraphe est remplacé par l'ouverture du profil
 // affiché. AUCUN lien : le bouton qui apparaît à six minutes reste le seul appel.
@@ -302,8 +302,8 @@ export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCo
           prouve (mémoire `test-sa-spa-greper-le-bundle`). */}
       {import.meta.env.VITE_KIT_VENTE_OUVERTE ? (
         <>
-          <KitBloc profil={resultat.profilDominant} />
           <KitVsl />
+          <KitBloc profil={resultat.profilDominant} />
         </>
       ) : null}
 

@@ -10,7 +10,7 @@ describe('CaptureScreen — sprint 2', () => {
     render(<CaptureScreen onSubmit={onSubmit} />)
     const emailInput = screen.getByRole('textbox', { name: /email/i }) as HTMLInputElement
     await user.type(emailInput, 'not-an-email')
-    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
+    await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
     // onSubmit ne doit pas etre appele (la validation HTML5 native bloque le submit,
     // OU notre validator JS rejette l'email malforme).
     expect(onSubmit).not.toHaveBeenCalled()
@@ -26,7 +26,7 @@ describe('CaptureScreen — sprint 2', () => {
     const emailInput = screen.getByRole('textbox', { name: /email/i })
     await user.type(emailInput, '  ALICE@H3C.LIFE  ')
     await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
-    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
+    await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ email: 'alice@h3c.life' }),
     )
@@ -60,7 +60,7 @@ describe('CaptureScreen — sprint 2', () => {
     expect(screen.getAllByRole('checkbox')).toHaveLength(2)
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
     await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
-    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
+    await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
     expect(onSubmit).toHaveBeenCalledTimes(1)
     expect(onSubmit.mock.calls[0][0]).not.toHaveProperty('consentementDonneesSante')
   })
@@ -75,10 +75,13 @@ describe('CaptureScreen — sprint 2', () => {
     expect(details.querySelector('#cap-cons-sms')).not.toBeNull()
   })
 
-  it('textes accentués : « Dernière étape », « 25 questions »', () => {
+  it('textes de l’écran posé après la 3e réponse (livraison 2)', () => {
     render(<CaptureScreen onSubmit={vi.fn()} />)
-    expect(screen.getByText('Dernière étape')).toBeInTheDocument()
-    expect(screen.getByText(/répondre aux 25 questions/)).toBeInTheDocument()
+    expect(screen.getByText('Votre profil offert par email')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Où voulez-vous recevoir votre profil ?' })).toBeInTheDocument()
+    expect(screen.getByText(/reprendre plus tard/)).toBeInTheDocument()
+    expect(screen.getByTestId('capture-envoyer')).toHaveTextContent('Sauvegarder et continuer')
+    expect(screen.getByText(/Sans carte bancaire\./)).toBeInTheDocument()
     expect(screen.queryByText(/trente/i)).toBeNull()
   })
 
@@ -95,7 +98,7 @@ describe('CaptureScreen — sprint 2', () => {
     const emailInput = screen.getByRole('textbox', { name: /email/i })
     await user.type(emailInput, 'a@b.fr')
     // la case marketing est laissee vide : c'est le refus
-    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
+    await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
     expect(onSubmit).not.toHaveBeenCalled()
     expect(screen.getByRole('alert')).toBeInTheDocument()
   })
@@ -106,7 +109,7 @@ describe('CaptureScreen — sprint 2', () => {
     render(<CaptureScreen onSubmit={onSubmit} />)
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
     await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
-    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
+    await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ consentementMarketing: true }),
     )
@@ -144,7 +147,7 @@ describe('CaptureScreen — sprint 2', () => {
     await user.type(screen.getByLabelText(/mobile/i), '06 12 34 56 78')
     await user.click(screen.getByLabelText(/rappels et déclics par sms/i))
     await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
-    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
+    await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ telephone: '+33612345678', consentementSms: true }),
     )
@@ -158,7 +161,7 @@ describe('CaptureScreen — sprint 2', () => {
     await user.type(screen.getByLabelText(/mobile/i), '06 12 34 56 78')
     // case SMS volontairement laissee decochee
     await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
-    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
+    await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ telephone: undefined, consentementSms: false }),
     )
@@ -171,7 +174,7 @@ describe('CaptureScreen — sprint 2', () => {
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
     await user.type(screen.getByLabelText(/mobile/i), '123')
     await user.click(screen.getByLabelText(/rappels et déclics par sms/i))
-    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
+    await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
     expect(onSubmit).not.toHaveBeenCalled()
     expect(screen.getByRole('alert')).toBeInTheDocument()
   })
@@ -182,7 +185,7 @@ describe('CaptureScreen — sprint 2', () => {
     render(<CaptureScreen onSubmit={onSubmit} />)
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
     await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
-    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
+    await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ telephone: undefined, consentementSms: false }),
     )

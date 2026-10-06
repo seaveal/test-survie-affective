@@ -18,6 +18,19 @@ function App() {
     void flushPendingCaptures()
   }, [])
 
+  // Reprise en cours de lecture : écran sobre, pas d'accueil qui clignote.
+  if (s.etape === 'chargement') {
+    return (
+      <main
+        className="flex min-h-screen items-center justify-center px-6 text-sm"
+        style={{ color: 'var(--h3c-texte-secondaire)' }}
+        aria-busy="true"
+      >
+        Chargement de votre Test…
+      </main>
+    )
+  }
+
   if (s.etape === 'welcome') {
     return <Welcome onCommencer={s.commencer} />
   }
@@ -71,6 +84,7 @@ function App() {
           void s.soumettreCapture(values)
         }}
         envoiEnCours={s.envoiEnCours}
+        erreurServeur={s.erreurCapture}
       />
     )
   }

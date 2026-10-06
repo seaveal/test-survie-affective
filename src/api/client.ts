@@ -19,6 +19,8 @@ declare global {
     // événement poussé avant la décision est évalué sur l'état « refusé », et
     // GTM ne le réévalue jamais : il est perdu pour de bon.
     h3cTrackPage?: (event: string, params?: Record<string, unknown>) => void
+    // Jeton de contact `h1.…` capté depuis `?c=` par le bloc H3C-TRACKING.
+    h3cContact?: () => string | undefined
   }
 }
 
@@ -33,11 +35,14 @@ export interface CaptureValues {
 }
 
 export interface TestCompletePayload {
-  email: string
+  // Livraison 2 : absents quand le jeton de reprise suffit (contact déjà en base
+  // depuis /api/test-debut, l'email du jeton gagne côté API).
+  email?: string
   prenom?: string
   telephone?: string
-  consentement_marketing: boolean
-  consentement_sms: boolean
+  consentement_marketing?: boolean
+  consentement_sms?: boolean
+  jeton?: string
   source_acquisition?:
     | 'instagram'
     | 'facebook'
@@ -102,24 +107,72 @@ function enqueue(payload: TestCompletePayload): void {
   writeQueue(q)
 }
 
-async function postOnce(payload: TestCompletePayload): Promise<TestCompleteResponse> {
+/** Erreur HTTP (réponse reçue). Une panne réseau ou un délai dépassé lève autre chose. */
+class ErreurHttp extends Error {
+  readonly status: number
+  constructor(status: number, message: string) {
+    super(message)
+    this.status = status
+  }
+}
+
+/**
+ * Seuls une panne réseau, un délai dépassé ou un 5xx justifient de rejouer.
+ * Un 4xx est une réponse définitive (422 invalide, 410 contact supprimé…) :
+ * le rejouer à chaque ouverture ne ferait que répéter le refus.
+ */
+function rejouable(err: unknown): boolean {
+  return !(err instanceof ErreurHttp) || err.status >= 500
+}
+
+/** fetch borné à 10 s. Lève sur panne réseau ou délai ; rend la réponse sinon. */
+async function appel(method: string, chemin: string, corps?: unknown): Promise<Response> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 10_000)
   try {
-    const res = await fetch(`${getApiUrl()}/api/test-complete`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload),
+    return await fetch(`${getApiUrl()}${chemin}`, {
+      method,
+      headers: corps === undefined ? undefined : { 'content-type': 'application/json' },
+      body: corps === undefined ? undefined : JSON.stringify(corps),
       signal: controller.signal,
     })
-    if (!res.ok) {
-      const text = await res.text()
-      throw new Error(`API ${res.status} : ${text.slice(0, 200)}`)
-    }
-    return (await res.json()) as TestCompleteResponse
   } finally {
     clearTimeout(timeout)
   }
+}
+
+async function postOnce(payload: TestCompletePayload): Promise<TestCompleteResponse> {
+  const res = await appel('POST', '/api/test-complete', payload)
+  if (!res.ok) {
+    const text = await res.text()
+    throw new ErreurHttp(res.status, `API ${res.status} : ${text.slice(0, 200)}`)
+  }
+  return (await res.json()) as TestCompleteResponse
+}
+
+/**
+ * Pousse l'événement navigateur `lead` (dataLayer → GTM → Pixel). Version mise
+ * en file : le visiteur peut ne pas avoir encore tranché la bannière de
+ * consentement. Poussé brut, le `lead` était alors évalué sur « refusé » et
+ * jamais rejoué (audit 2026-08-04). Repli sur l'appel direct si la page ne
+ * sert pas la file (pages anciennes).
+ */
+export function emettreEvenement(evenement: string, params: Record<string, unknown> = {}): void {
+  try {
+    const suivre = window.h3cTrackPage ?? window.h3cTrack
+    suivre?.(evenement, params)
+  } catch {
+    // tracking indisponible : sans impact sur le Test
+  }
+}
+
+export function nouvelEventId(): string {
+  try {
+    if (typeof window !== 'undefined' && window.h3cEventId) return window.h3cEventId()
+  } catch {
+    // repli ci-dessous
+  }
+  return `h3c-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
 
 /**
@@ -135,28 +188,17 @@ export async function submitTestComplete(
   // même id part au serveur (CAPI). Les retries de queue gardent l'event_id
   // déjà posé → pas de double Lead.
   if (!payload.event_id) {
-    payload.event_id =
-      typeof window !== 'undefined' && window.h3cEventId
-        ? window.h3cEventId()
-        : `h3c-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
-    try {
-      // Version mise en file : la fin du Test peut survenir avant que le visiteur
-      // ait tranché la bannière de consentement. Poussé brut, le `lead` était alors
-      // évalué sur « refusé » et jamais rejoué — le prospect disparaissait de la
-      // mesure alors même qu'il venait de finir le Test (audit 2026-08-04).
-      // Repli sur l'appel direct si la page ne sert pas la file (pages anciennes).
-      const suivre = window.h3cTrackPage ?? window.h3cTrack
-      suivre?.('lead', { event_id: payload.event_id })
-    } catch {
-      // tracking indisponible : sans impact sur la capture
-    }
+    // Livraison 2 : avec un jeton, le Lead est déjà parti à l'email
+    // (/api/test-debut) ; la fin n'en émet jamais un second.
+    payload.event_id = nouvelEventId()
+    if (!payload.jeton) emettreEvenement('lead', { event_id: payload.event_id })
   }
   try {
     return await postOnce(payload)
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.warn('[tsa] échec envoi test-complete, mise en queue', err)
-    enqueue(payload)
+    console.warn('[tsa] échec envoi test-complete', err)
+    if (rejouable(err)) enqueue(payload)
     return null
   }
 }
@@ -172,8 +214,9 @@ export async function flushPendingCaptures(): Promise<void> {
   for (const item of q) {
     try {
       await postOnce(item)
-    } catch {
-      remaining.push(item)
+    } catch (err) {
+      // Un 4xx sort de la file : rejoué, il serait refusé à chaque ouverture.
+      if (rejouable(err)) remaining.push(item)
     }
   }
   writeQueue(remaining)
@@ -298,7 +341,7 @@ export function extractUtmParams(search?: string): UtmParams {
  * 5525136 test-survie-affective-api).
  */
 export function buildPayload(
-  capture: CaptureValues,
+  capture: CaptureValues | null,
   resultat: Resultat,
   reponsesBrutes: Record<string, unknown> = {},
   utm: UtmParams = extractUtmParams(),
@@ -312,11 +355,7 @@ export function buildPayload(
     fb = {}
   }
   return {
-    email: capture.email,
-    prenom: capture.prenom || undefined,
-    telephone: capture.telephone || undefined,
-    consentement_marketing: capture.consentementMarketing,
-    consentement_sms: capture.consentementSms,
+    ...(capture ? champsCapture(capture) : {}),
     utm,
     fbp: fb.fbp,
     fbc: fb.fbc,
@@ -333,5 +372,132 @@ export function buildPayload(
       pretAAgir: resultat.pretAAgir,
       reponsesBrutes,
     },
+  }
+}
+
+function champsCapture(capture: CaptureValues) {
+  return {
+    email: capture.email,
+    prenom: capture.prenom || undefined,
+    telephone: capture.telephone || undefined,
+    consentement_marketing: capture.consentementMarketing,
+    consentement_sms: capture.consentementSms,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Livraison 2 (2026-10-06) : email après la 3e réponse, sauvegarde, reprise.
+// Contrat : 99-Meta/Logs/Audits/2026-10-06_entonnoir-ig-mot-cle-test/chantier/CONTRAT-L2.md
+// ---------------------------------------------------------------------------
+
+/** Clé propre à la page : le jeton de reprise rendu par /api/test-debut. */
+export const REPRISE_KEY = 'tsa.reprise'
+
+export function lireJetonReprise(): string | undefined {
+  try {
+    const local = localStorage.getItem(REPRISE_KEY)
+    if (local) return local
+  } catch {
+    // stockage indisponible : on tente le jeton de l'adresse
+  }
+  try {
+    return window.h3cContact?.() || undefined
+  } catch {
+    return undefined
+  }
+}
+
+export function garderJetonReprise(jeton: string | null): void {
+  try {
+    if (jeton) localStorage.setItem(REPRISE_KEY, jeton)
+    else localStorage.removeItem(REPRISE_KEY)
+  } catch {
+    // stockage indisponible : la reprise ne marchera que par le lien du courriel
+  }
+}
+
+export type ResultatDebut =
+  | { etat: 'ok'; jeton: string }
+  | { etat: 'refus'; status: 410 | 422 }
+  | { etat: 'repli' }
+
+/**
+ * POST /api/test-debut. Ne lève jamais. 422 et 410 sont des refus définitifs
+ * (message à l'écran) ; tout le reste (réseau, délai, 5xx, 404 d'une API pas
+ * encore livrée, réponse sans jeton) bascule sur le repli : le Test continue et
+ * finit par l'ancien chemin de /api/test-complete.
+ */
+export async function demarrerTest(
+  capture: CaptureValues,
+  eventId: string,
+  reponses: Record<string, unknown>,
+): Promise<ResultatDebut> {
+  const base = buildPayload(capture, {} as Resultat)
+  const corps = {
+    ...champsCapture(capture),
+    utm: base.utm,
+    event_id: eventId,
+    fbp: base.fbp,
+    fbc: base.fbc,
+    landing_url: base.landing_url,
+    reponses,
+  }
+  try {
+    const res = await appel('POST', '/api/test-debut', corps)
+    if (res.status === 422 || res.status === 410) return { etat: 'refus', status: res.status }
+    if (!res.ok) return { etat: 'repli' }
+    const data = (await res.json()) as { jeton?: unknown }
+    return typeof data.jeton === 'string' && data.jeton
+      ? { etat: 'ok', jeton: data.jeton }
+      : { etat: 'repli' }
+  } catch {
+    return { etat: 'repli' }
+  }
+}
+
+/** PUT /api/test-progression. Ne lève jamais ; l'échec est silencieux. */
+export async function sauvegarderProgression(
+  jeton: string,
+  reponses: Record<string, unknown>,
+): Promise<void> {
+  try {
+    await appel('PUT', '/api/test-progression', { jeton, reponses })
+  } catch {
+    // silencieux : la prochaine réponse renverra l'état complet
+  }
+}
+
+export type EtatProgression =
+  | { etat: 'en-cours'; reponses: Record<string, unknown> }
+  | { etat: 'oublier' } // terminé ou 404 : le jeton ne sert plus
+  | { etat: 'erreur' } // réseau, 5xx : accueil normal, jeton gardé
+
+export async function lireProgression(jeton: string): Promise<EtatProgression> {
+  try {
+    const res = await appel('GET', `/api/test-progression?c=${encodeURIComponent(jeton)}`)
+    if (res.status === 404) return { etat: 'oublier' }
+    if (!res.ok) return { etat: 'erreur' }
+    const data = (await res.json()) as { termine?: boolean; reponses?: Record<string, unknown> }
+    if (data.termine) return { etat: 'oublier' }
+    return data.reponses ? { etat: 'en-cours', reponses: data.reponses } : { etat: 'erreur' }
+  } catch {
+    return { etat: 'erreur' }
+  }
+}
+
+export type Jalon = 'arrivee' | 'commencer' | 'email_affiche'
+
+/** POST /api/test-jalon en keepalive. Jamais attendu, jamais levé. */
+export function envoyerJalon(jalon: Jalon): void {
+  try {
+    const utm = extractUtmParams()
+    void fetch(`${getApiUrl()}/api/test-jalon`, {
+      method: 'POST',
+      keepalive: true,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ jalon, utm_source: utm.source, utm_medium: utm.medium }),
+    }).catch(() => {})
+  } catch {
+    // mesure seulement : sans impact sur le Test
   }
 }

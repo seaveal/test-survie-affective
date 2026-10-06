@@ -43,22 +43,16 @@ describe('useTestState — Phase 7', () => {
     expect(result.current.reponses.contexte.statutLivre).toBe('lu_complet')
   })
 
-  it('après les 30 réponses, etape = "capture" + Resultat calculé (sprint 2 : interception capture email avant resultat)', () => {
+  it('livraison 2 : l’écran de l’email arrive après la 3e réponse, pas avant (le reste : tests/e2e.test.tsx)', () => {
     const { result } = renderHook(() => useTestState())
     act(() => result.current.commencer())
-    for (let i = 0; i < 20; i++) act(() => result.current.repondreTypage('A'))
-    for (let i = 0; i < 6; i++) act(() => result.current.repondreIntensite(3))
-    // 4 questions de contexte avec valeurs valides
-    act(() => result.current.repondreContexte('pas_lu'))
-    act(() => result.current.repondreContexte('celibat_long'))
-    act(() => result.current.repondreContexte('fonctionnel'))
-    act(() => result.current.repondreContexte('incertain'))
+    act(() => result.current.repondreTypage('A'))
+    act(() => result.current.repondreTypage('A'))
+    expect(result.current.etape).toBe('questions')
+    act(() => result.current.repondreTypage('A'))
     expect(result.current.etape).toBe('capture')
-    expect(result.current.resultat).not.toBeNull()
-    expect(result.current.resultat?.intensite).toBe('modere')
-    expect(['mendiant', 'sauveur', 'controleur', 'fantome']).toContain(
-      result.current.resultat!.profilDominant,
-    )
+    expect(result.current.indexCourant).toBe(3)
+    expect(result.current.resultat).toBeNull()
   })
 
   it("retour() revient à la question précédente", () => {

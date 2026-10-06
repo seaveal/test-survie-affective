@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../src/App'
-import { questionsContexte, questionsTypage } from '../src/data/questions'
+import { questions } from '../src/data/questions'
 
 /**
  * Test e2e du parcours complet : welcome → 25 questions → capture email → page résultat allégée.
@@ -21,50 +21,6 @@ async function commencerLeTest(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByTestId('cta-haut'))
 }
 
-async function repondreToutTypage(
-  user: ReturnType<typeof userEvent.setup>,
-  optionId: string,
-) {
-  for (let i = 0; i < questionsTypage.length; i++) {
-    const boutons = screen.getAllByRole('button')
-    const tousLesBoutonsAriaPressed = boutons.filter(
-      (b) => b.getAttribute('aria-pressed') !== null,
-    )
-    expect(tousLesBoutonsAriaPressed).toHaveLength(4)
-    const idx = ['A', 'B', 'C', 'D'].indexOf(optionId)
-    await user.click(tousLesBoutonsAriaPressed[idx])
-  }
-}
-
-async function repondreToutIntensite(
-  user: ReturnType<typeof userEvent.setup>,
-  valeur: 1 | 2 | 3 | 4 | 5,
-) {
-  for (let i = 0; i < 6; i++) {
-    const boutons = screen.getAllByRole('button')
-    const tousAriaPressed = boutons.filter(
-      (b) => b.getAttribute('aria-pressed') !== null,
-    )
-    expect(tousAriaPressed).toHaveLength(5)
-    await user.click(tousAriaPressed[valeur - 1])
-  }
-}
-
-async function repondreContexte(
-  user: ReturnType<typeof userEvent.setup>,
-  index: number,
-) {
-  for (let i = 0; i < questionsContexte.length; i++) {
-    const boutons = screen.getAllByRole('button')
-    const tousAriaPressed = boutons.filter(
-      (b) => b.getAttribute('aria-pressed') !== null,
-    )
-    expect(tousAriaPressed.length).toBeGreaterThanOrEqual(2)
-    const idx = Math.min(index, tousAriaPressed.length - 1)
-    await user.click(tousAriaPressed[idx])
-  }
-}
-
 async function passerLecranCapture(
   user: ReturnType<typeof userEvent.setup>,
   email: string = 'cyrille+e2e@cyrillenovou.com',
@@ -80,108 +36,225 @@ async function passerLecranCapture(
   // faire : le garde reste en place tant que le decouplage n'est pas decide,
   // et il est tenu en accord avec le validateur serveur, qui refuse `false`.
   await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
-  await user.click(screen.getByRole('button', { name: /Recevoir mon profil/i }))
+  await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
 }
 
-describe('e2e : parcours complet', () => {
-  beforeEach(() => {
-    // Mock fetch pour ne pas reellement appeler l'API d'ingestion en CI
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        contact_id: 'c-e2e',
-        test_id: 't-e2e',
-        cadeau_coupon_expire_le: '2026-05-25T00:00:00Z',
-        nurturing_planifie: 6,
-      }),
-      text: async () => '',
-    } as unknown as Response)
-    localStorage.clear()
-  })
+// ---------------------------------------------------------------------------
+// Livraison 2 (2026-10-06) : email après la 3e réponse, sauvegarde, reprise.
+// Faux serveur en mémoire : chaque route du contrat CONTRAT-L2.md.
+// ---------------------------------------------------------------------------
+const JETON = 'h1.' + 'a'.repeat(40)
+type Appel = { methode: string; chemin: string; corps: Record<string, unknown> | null }
+let appels: Appel[]
+let reglage: { debut?: number | 'reseau'; put?: 'reseau'; get?: number | Record<string, unknown> }
+let suivi: ReturnType<typeof vi.fn>
 
+function repondre(status: number, data: unknown = {}): Response {
+  return { ok: status < 300, status, json: async () => data, text: async () => '' } as unknown as Response
+}
+
+function fauxServeur(url: string, init?: RequestInit): Promise<Response> {
+  const u = new URL(url)
+  const corps = init?.body ? (JSON.parse(init.body as string) as Record<string, unknown>) : null
+  appels.push({ methode: init?.method ?? 'GET', chemin: u.pathname + u.search, corps })
+  if (u.pathname === '/api/test-debut') {
+    if (reglage.debut === 'reseau') return Promise.reject(new TypeError('Failed to fetch'))
+    if (reglage.debut) return Promise.resolve(repondre(reglage.debut))
+    return Promise.resolve(repondre(200, { ok: true, jeton: JETON }))
+  }
+  if (u.pathname === '/api/test-progression' && init?.method === 'PUT') {
+    if (reglage.put === 'reseau') return Promise.reject(new TypeError('Failed to fetch'))
+    return Promise.resolve(repondre(200, { ok: true }))
+  }
+  if (u.pathname === '/api/test-progression') {
+    const g = reglage.get ?? 404
+    return Promise.resolve(typeof g === 'number' ? repondre(g) : repondre(200, g))
+  }
+  if (u.pathname === '/api/test-jalon') return Promise.resolve(repondre(204))
+  return Promise.resolve(repondre(200, { contact_id: 'c', test_id: 't', cadeau_coupon_expire_le: '', nurturing_planifie: 0 }))
+}
+
+const vers = (chemin: string, methode = 'POST') =>
+  appels.filter((a) => a.chemin.startsWith(chemin) && a.methode === methode)
+const leads = () => suivi.mock.calls.filter((c) => c[0] === 'lead')
+
+async function repondreN(user: ReturnType<typeof userEvent.setup>, n: number) {
+  for (let i = 0; i < n; i++) {
+    const b = screen.getAllByRole('button').filter((x) => x.getAttribute('aria-pressed') !== null)
+    await user.click(b[0])
+  }
+}
+
+/** Réponses des n premières questions au format de l'API. */
+function reponsesServeur(n: number) {
+  const r = { typage: {} as Record<string, unknown>, intensite: {} as Record<string, unknown>, contexte: {} as Record<string, unknown>, v: 2 }
+  for (const q of questions.slice(0, n)) {
+    if (q.type === 'typage') r.typage[String(q.id)] = q.options[0].id
+    else if (q.type === 'intensite') r.intensite[String(q.id)] = 3
+    else r.contexte[q.champCible as string] = q.options[0].valeur
+  }
+  return r
+}
+
+describe('e2e livraison 2 : email après la 3e réponse', () => {
+  beforeEach(() => {
+    appels = []
+    reglage = {}
+    suivi = vi.fn()
+    localStorage.clear()
+    vi.spyOn(globalThis, 'fetch').mockImplementation(fauxServeur as typeof fetch)
+    window.h3cTrack = suivi
+    window.h3cEventId = () => 'evt-1'
+    window.h3cAttribution = () => ({ utm_source: 'ig', utm_medium: 'social', h3c: 'AbC12' })
+    window.h3cFb = () => ({ fbp: 'fb.1.x', fbc: 'fb.1.y' })
+  })
   afterEach(() => {
     vi.restoreAllMocks()
     localStorage.clear()
+    delete window.h3cTrack
+    delete window.h3cEventId
+    delete window.h3cAttribution
+    delete window.h3cFb
+    delete window.h3cContact
   })
 
-  it('Welcome → 25 questions → Capture → page résultat allégée affichée', async () => {
+  it('chemin nominal : email après la 3e, PUT, fin directe avec jeton, un seul lead, trois jalons', async () => {
     const user = userEvent.setup()
     render(<App />)
-
-    // 1. Welcome
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      /En amour, vous rejouez toujours le même scénario/i,
-    )
     await commencerLeTest(user)
-
-    // 2. ProgressBar visible
-    expect(screen.getByRole('progressbar')).toBeInTheDocument()
-    expect(screen.getByText(/Question 1 sur 25/)).toBeInTheDocument()
-
-    // 3. Phase typage : on clique 20 fois sur l'option A
-    await repondreToutTypage(user, 'A')
-
-    // 4. Phase intensité : on clique 6 fois sur valeur 3
-    await repondreToutIntensite(user, 3)
-
-    // 5. Phase contexte : on clique 4 fois sur la 1ère option de chaque liste
-    await repondreContexte(user, 0)
-
-    // 6. Écran de capture (NOUVEAU sprint 2)
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      /Votre profil arrive par email/i,
-    )
+    await repondreN(user, 2)
+    expect(screen.queryByTestId('capture-screen')).not.toBeInTheDocument()
+    await repondreN(user, 1)
     await passerLecranCapture(user)
+    expect(await screen.findByText(/Question 4 sur 25/)).toBeInTheDocument()
 
-    // 7. Page résultat — nom du profil seul + invitation email + DisclaimerFooter
-    //    (décision Bloc 2 2026-05-25 : écran réduit, retrait description/intensité/ambassadeur)
-    expect(screen.getByTestId('result-preview')).toBeInTheDocument()
-    expect(screen.getByText(/Votre profil$/i)).toBeInTheDocument()
-    expect(screen.getByText(/Votre rapport arrive dans une dizaine de minutes/i)).toBeInTheDocument()
-    expect(screen.getByText(/Pensez à vérifier vos spams/i)).toBeInTheDocument()
-    expect(screen.getByText(/Avertissement/i)).toBeInTheDocument()
-  }, 30000)
+    const [debut] = vers('/api/test-debut')
+    expect(vers('/api/test-debut')).toHaveLength(1)
+    expect(debut.corps).toMatchObject({
+      email: 'cyrille+e2e@cyrillenovou.com',
+      consentement_marketing: true,
+      event_id: 'evt-1',
+      utm: { source: 'ig', medium: 'social', code: 'AbC12' },
+      fbp: 'fb.1.x',
+      fbc: 'fb.1.y',
+      reponses: { v: 2 },
+    })
+    expect(Object.keys((debut.corps!.reponses as { typage: object }).typage)).toHaveLength(3)
+    expect(localStorage.getItem('tsa.reprise')).toBe(JETON)
+    expect(leads()).toEqual([['lead', { event_id: 'evt-1' }]])
 
-  it("bouton 'Recommencer' réinitialise le parcours", async () => {
+    await repondreN(user, 22)
+    expect(await screen.findByRole('button', { name: /Recommencer le test/i })).toBeInTheDocument()
+    expect(screen.queryByTestId('capture-screen')).not.toBeInTheDocument()
+
+    const puts = vers('/api/test-progression', 'PUT')
+    expect(puts).toHaveLength(21) // réponses 4 à 24 ; la 25e part dans test-complete
+    expect(puts.every((p) => p.corps!.jeton === JETON)).toBe(true)
+    const [fin] = vers('/api/test-complete')
+    expect(fin.corps).toMatchObject({ jeton: JETON })
+    expect(fin.corps).not.toHaveProperty('email')
+    expect(leads()).toHaveLength(1)
+    expect(suivi.mock.calls.some((c) => c[0] === 'test_termine')).toBe(true)
+    await waitFor(() => expect(localStorage.getItem('tsa.reprise')).toBeNull())
+    expect(vers('/api/test-jalon').map((a) => a.corps!.jalon)).toEqual(['arrivee', 'commencer', 'email_affiche'])
+    expect(vers('/api/test-jalon')[0].corps).toMatchObject({ utm_source: 'ig', utm_medium: 'social' })
+  })
+
+  it.each(['reseau', 500, 404] as const)('repli sur %s : le Test continue, ancien chemin, lead une seule fois à la fin', async (panne) => {
+    reglage.debut = panne
     const user = userEvent.setup()
     render(<App />)
     await commencerLeTest(user)
-    await repondreToutTypage(user, 'A')
-    await repondreToutIntensite(user, 1)
-    await repondreContexte(user, 0)
-    await passerLecranCapture(user, 'cyrille+e2e-recommence@cyrillenovou.com')
-    expect(screen.getByTestId('result-preview')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: /recommencer/i }))
-    // Welcome de nouveau
-    expect(
-      screen.getByRole('heading', { level: 1, name: /En amour, vous rejouez toujours le même scénario/i }),
-    ).toBeInTheDocument()
-  }, 30000)
+    await repondreN(user, 3)
+    await passerLecranCapture(user)
+    expect(await screen.findByText(/Question 4 sur 25/)).toBeInTheDocument()
+    expect(leads()).toHaveLength(0)
+    await repondreN(user, 22)
+    await waitFor(() => expect(vers('/api/test-complete')).toHaveLength(1))
+    expect(vers('/api/test-progression', 'PUT')).toHaveLength(0)
+    const fin = vers('/api/test-complete')[0].corps!
+    expect(fin).toMatchObject({ email: 'cyrille+e2e@cyrillenovou.com', consentement_marketing: true, event_id: 'evt-1' })
+    expect(fin).not.toHaveProperty('jeton')
+    expect(leads()).toEqual([['lead', { event_id: 'evt-1' }]])
+  })
 
-  it('même si fetch échoue, la page résultat allégée s\'affiche (file d\'attente localStorage)', async () => {
-    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('network down'))
+  it.each([422, 410] as const)('refus %s : message à l’écran, pas de repli, rien en file', async (status) => {
+    reglage.debut = status
     const user = userEvent.setup()
     render(<App />)
     await commencerLeTest(user)
-    await repondreToutTypage(user, 'A')
-    await repondreToutIntensite(user, 3)
-    await repondreContexte(user, 0)
-    await passerLecranCapture(user, 'cyrille+e2e-network@cyrillenovou.com')
-    expect(screen.getByTestId('result-preview')).toBeInTheDocument()
-    // Note de retry visible
-    expect(screen.getByTestId('result-retry-note')).toBeInTheDocument()
-    // Queue localStorage contient la capture
-    const queue = JSON.parse(localStorage.getItem('tsa.pending-captures') ?? '[]')
-    expect(queue).toHaveLength(1)
-    // 2026-10-06 : payload v2 (25 questions), sans état émotionnel ni consentement
-    // santé ; le contexte ne porte que les trois réponses réellement données.
-    const envoi = queue[0].payload ?? queue[0]
-    expect(envoi).not.toHaveProperty('consentement_donnees_sante')
-    expect(envoi.resultat).not.toHaveProperty('etatEmotionnel')
-    expect(envoi.resultat.reponsesBrutes.v).toBe(2)
-    expect(Object.keys(envoi.resultat.reponsesBrutes.typage)).toHaveLength(16)
-    expect(Object.keys(envoi.resultat.reponsesBrutes.contexte).sort()).toEqual(
-      ['pretAAgir', 'situation', 'statutLivre'],
-    )
-  }, 30000)
+    await repondreN(user, 3)
+    await passerLecranCapture(user)
+    expect(await screen.findByRole('alert')).toBeInTheDocument()
+    expect(screen.getByTestId('capture-screen')).toBeInTheDocument()
+    expect(leads()).toHaveLength(0)
+    expect(localStorage.getItem('tsa.reprise')).toBeNull()
+    expect(localStorage.getItem('tsa.pending-captures')).toBeNull()
+  })
+
+  it('PUT sans rafale : une requête à la fois, la suivante porte le dernier état ; un échec ne casse rien', async () => {
+    const user = userEvent.setup()
+    let liberer: () => void = () => {}
+    render(<App />)
+    await commencerLeTest(user)
+    await repondreN(user, 3)
+    await passerLecranCapture(user)
+    await screen.findByText(/Question 4 sur 25/)
+    const base = fauxServeur
+    vi.mocked(globalThis.fetch).mockImplementation(((url: string, init?: RequestInit) => {
+      if (init?.method === 'PUT') {
+        appels.push({ methode: 'PUT', chemin: '/api/test-progression', corps: JSON.parse(init.body as string) })
+        return new Promise<Response>((_, ko) => { liberer = () => ko(new TypeError('Failed to fetch')) })
+      }
+      return base(url, init)
+    }) as typeof fetch)
+    await repondreN(user, 3) // réponses 4, 5, 6 pendant que le premier PUT pend
+    expect(vers('/api/test-progression', 'PUT')).toHaveLength(1)
+    liberer() // le premier PUT échoue : silencieux
+    await waitFor(() => expect(vers('/api/test-progression', 'PUT')).toHaveLength(2))
+    const dernier = vers('/api/test-progression', 'PUT')[1].corps!.reponses as ReturnType<typeof reponsesServeur>
+    const n = Object.keys(dernier.typage).length + Object.keys(dernier.intensite).length + Object.keys(dernier.contexte).length
+    expect(n).toBe(6)
+    expect(screen.getByText(/Question 7 sur 25/)).toBeInTheDocument()
+  })
+
+  it('reprise par tsa.reprise : 7 réponses → on rouvre sur la 8e, sans accueil ni jalon arrivee', async () => {
+    localStorage.setItem('tsa.reprise', JETON)
+    reglage.get = { termine: false, reponses: reponsesServeur(7) }
+    render(<App />)
+    expect(screen.getByText(/Chargement de votre Test/)).toBeInTheDocument()
+    expect(await screen.findByText(/Question 8 sur 25/)).toBeInTheDocument()
+    expect(vers('/api/test-progression', 'GET')[0].chemin).toBe(`/api/test-progression?c=${JETON}`)
+    expect(vers('/api/test-jalon')).toHaveLength(0)
+    expect(localStorage.getItem('tsa.reprise')).toBe(JETON)
+    // La suite sauvegarde avec le jeton repris, sans redemander l'email.
+    await repondreN(userEvent.setup(), 1)
+    expect(vers('/api/test-progression', 'PUT')[0].corps!.jeton).toBe(JETON)
+    expect(screen.queryByTestId('capture-screen')).not.toBeInTheDocument()
+  })
+
+  it('reprise par le lien du courriel (window.h3cContact) quand tsa.reprise est vide', async () => {
+    window.h3cContact = () => JETON
+    reglage.get = { termine: false, reponses: reponsesServeur(10) }
+    render(<App />)
+    expect(await screen.findByText(/Question 11 sur 25/)).toBeInTheDocument()
+    expect(localStorage.getItem('tsa.reprise')).toBe(JETON)
+  })
+
+  it.each([{ termine: true }, 404] as const)('reprise %o : jeton oublié, accueil normal', async (get) => {
+    localStorage.setItem('tsa.reprise', JETON)
+    reglage.get = get as never
+    render(<App />)
+    expect(await screen.findByTestId('cta-haut')).toBeInTheDocument()
+    expect(localStorage.getItem('tsa.reprise')).toBeNull()
+    expect(vers('/api/test-jalon').map((a) => a.corps!.jalon)).toEqual(['arrivee'])
+  })
+
+  it('reprise en panne réseau : accueil normal, jeton gardé', async () => {
+    localStorage.setItem('tsa.reprise', JETON)
+    vi.mocked(globalThis.fetch).mockImplementation(() => Promise.reject(new TypeError('Failed to fetch')))
+    render(<App />)
+    expect(await screen.findByTestId('cta-haut')).toBeInTheDocument()
+    expect(localStorage.getItem('tsa.reprise')).toBe(JETON)
+  })
 })

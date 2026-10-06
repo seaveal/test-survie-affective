@@ -280,15 +280,31 @@ describe('api/client', () => {
       expect(queue).toHaveLength(1)
     })
 
-    it('retourne null et empile en cas de 422', async () => {
+    it.each([422, 410, 404])('retourne null et N’EMPILE PAS un %i (livraison 2 : aucun 4xx en file)', async (status) => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
         ok: false,
-        status: 422,
-        text: async () => 'invalid email',
+        status,
+        text: async () => 'refus',
       } as unknown as Response)
       const payload = buildPayload(CAPTURE, RESULTAT)
       const res = await submitTestComplete(payload)
       expect(res).toBeNull()
+      expect(localStorage.getItem('tsa.pending-captures')).toBeNull()
+    })
+
+    it('avec un jeton, pas de lead navigateur (déjà émis à l’email)', async () => {
+      const suivre = vi.fn()
+      window.h3cTrack = suivre
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ test_id: 't' }),
+      } as unknown as Response)
+      const payload = { ...buildPayload(null, RESULTAT), jeton: 'h1.' + 'x'.repeat(40) }
+      await submitTestComplete(payload)
+      expect(suivre).not.toHaveBeenCalled()
+      expect(payload).not.toHaveProperty('email')
+      delete window.h3cTrack
     })
   })
 
@@ -317,6 +333,17 @@ describe('api/client', () => {
       await flushPendingCaptures()
       const queue = JSON.parse(localStorage.getItem('tsa.pending-captures') ?? '[]')
       expect(queue).toHaveLength(1)
+    })
+
+    it('un élément en file qui reçoit un 4xx en sort ; un 5xx y reste', async () => {
+      const ancien = buildPayload(CAPTURE, RESULTAT) // ancien format, sans jeton
+      localStorage.setItem('tsa.pending-captures', JSON.stringify([ancien, { ...ancien, email: 'b@x.fr' }]))
+      vi.spyOn(globalThis, 'fetch')
+        .mockResolvedValueOnce({ ok: false, status: 422, text: async () => '' } as unknown as Response)
+        .mockResolvedValueOnce({ ok: false, status: 503, text: async () => '' } as unknown as Response)
+      await flushPendingCaptures()
+      const queue = JSON.parse(localStorage.getItem('tsa.pending-captures') ?? '[]')
+      expect(queue.map((p: { email: string }) => p.email)).toEqual(['b@x.fr'])
     })
 
     it('no-op si queue vide', async () => {

@@ -2,14 +2,27 @@ import { useState, type FormEvent } from 'react'
 import type { CaptureValues } from '../api/client'
 import { normaliserTelephone } from '../domain/phone'
 
+// Textes de l'écran de l'email, posé après la 3e réponse (livraison 2,
+// 2026-10-06). Regroupés ici pour être remplacés d'un bloc une fois validés.
+const TEXTES_CAPTURE = {
+  surtitre: 'Votre profil offert par email',
+  titre: 'Où voulez-vous recevoir votre profil ?',
+  phrase:
+    'Votre email permet de vous envoyer votre profil complet et de sauvegarder vos réponses pour reprendre plus tard. Votre masque s’affichera à l’écran à la fin du Test de Survie Affective.',
+  bouton: 'Sauvegarder et continuer',
+  sousBouton: 'Profil complet et séance de descente dans le corps offerts. Sans carte bancaire.',
+}
+
 interface Props {
   onSubmit: (values: CaptureValues) => void
   envoiEnCours?: boolean
+  /** Refus de l'API (422, 410) : message affiché, l'email est redemandé. */
+  erreurServeur?: string | null
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
+export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = null }: Props) {
   const [email, setEmail] = useState('')
   const [prenom, setPrenom] = useState('')
   const [telephone, setTelephone] = useState('')
@@ -75,18 +88,16 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
           className="text-sm uppercase tracking-wide"
           style={{ color: 'var(--h3c-texte-secondaire)' }}
         >
-          Dernière étape
+          {TEXTES_CAPTURE.surtitre}
         </p>
-        <h1 className="mt-1 text-xl md:mt-2 md:text-4xl">Votre profil arrive par email</h1>
+        <h1 className="mt-1 text-xl md:mt-2 md:text-4xl">{TEXTES_CAPTURE.titre}</h1>
       </header>
 
       <p
         className="text-[0.8125rem] leading-snug md:text-base md:leading-relaxed"
         style={{ color: 'var(--h3c-texte-secondaire)' }}
       >
-        Vous venez de répondre aux 25 questions. Indiquez où recevoir le détail
-        complet de votre profil, vos sept symptômes, votre feuille de route, et
-        votre cadeau.
+        {TEXTES_CAPTURE.phrase}
       </p>
 
       <form
@@ -207,14 +218,14 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
           </div>
         </details>
 
-        {erreur && (
+        {(erreur ?? erreurServeur) && (
           <p
             id="capture-erreur"
             role="alert"
             className="text-sm"
             style={{ color: 'var(--h3c-alerte, #b91c1c)' }}
           >
-            {erreur}
+            {erreur ?? erreurServeur}
           </p>
         )}
 
@@ -232,8 +243,11 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
           className="tsa-cta-terracotta rounded-md px-6 py-3 text-base font-medium text-white transition disabled:opacity-50"
           data-testid="capture-envoyer"
         >
-          {envoiEnCours ? 'Envoi en cours...' : 'Recevoir mon profil'}
+          {envoiEnCours ? 'Envoi en cours...' : TEXTES_CAPTURE.bouton}
         </button>
+        <p className="text-center text-xs" style={{ color: 'var(--h3c-texte-secondaire)' }}>
+          {TEXTES_CAPTURE.sousBouton}
+        </p>
       </form>
     </main>
   )

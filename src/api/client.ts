@@ -472,7 +472,23 @@ export type EtatProgression =
   | { etat: 'oublier' } // terminé ou 404 : le jeton ne sert plus
   | { etat: 'erreur' } // réseau, 5xx : accueil normal, jeton gardé
 
+// Reprise : une panne au chargement ne renvoie pas le visiteur à zéro (il
+// écraserait ensuite sa progression à la 3e réponse). Deux nouvelles
+// tentatives, ~0,8 s puis 2 s, écran d'attente maintenu ; jamais après un 404
+// ni un `termine`, qui sont des réponses définitives.
+const ATTENTES_REPRISE_MS = [800, 2000]
+
 export async function lireProgression(jeton: string): Promise<EtatProgression> {
+  let r = await lireProgressionUneFois(jeton)
+  for (const ms of ATTENTES_REPRISE_MS) {
+    if (r.etat !== 'erreur') break
+    await new Promise((fin) => setTimeout(fin, ms))
+    r = await lireProgressionUneFois(jeton)
+  }
+  return r
+}
+
+async function lireProgressionUneFois(jeton: string): Promise<EtatProgression> {
   try {
     const res = await appel('GET', `/api/test-progression?c=${encodeURIComponent(jeton)}`)
     if (res.status === 404) return { etat: 'oublier' }

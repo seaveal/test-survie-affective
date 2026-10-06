@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../src/App'
@@ -236,6 +236,20 @@ describe('e2e livraison 2 : email après la 3e réponse', () => {
     expect(screen.queryByTestId('capture-screen')).not.toBeInTheDocument()
   })
 
+  it('reprise : la question s’affiche en haut de page, sans défilement hérité', async () => {
+    localStorage.setItem('tsa.reprise', JETON)
+    reglage.get = { termine: false, reponses: reponsesServeur(7) }
+    const haut = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    Object.defineProperty(window, 'scrollY', { value: 300, configurable: true })
+    try {
+      render(<App />)
+      await screen.findByText(/Question 8 sur 25/)
+      expect(haut).toHaveBeenLastCalledWith(0, 0)
+    } finally {
+      Object.defineProperty(window, 'scrollY', { value: 0, configurable: true })
+    }
+  })
+
   it('reprise par le lien du courriel (window.h3cContact) quand tsa.reprise est vide', async () => {
     window.h3cContact = () => JETON
     reglage.get = { termine: false, reponses: reponsesServeur(10) }
@@ -251,13 +265,46 @@ describe('e2e livraison 2 : email après la 3e réponse', () => {
     expect(await screen.findByTestId('cta-haut')).toBeInTheDocument()
     expect(localStorage.getItem('tsa.reprise')).toBeNull()
     expect(vers('/api/test-jalon').map((a) => a.corps!.jalon)).toEqual(['arrivee'])
+    // Réponse définitive : aucune nouvelle tentative.
+    expect(vers('/api/test-progression', 'GET')).toHaveLength(1)
   })
 
-  it('reprise en panne réseau : accueil normal, jeton gardé', async () => {
-    localStorage.setItem('tsa.reprise', JETON)
-    vi.mocked(globalThis.fetch).mockImplementation(() => Promise.reject(new TypeError('Failed to fetch')))
-    render(<App />)
-    expect(await screen.findByTestId('cta-haut')).toBeInTheDocument()
-    expect(localStorage.getItem('tsa.reprise')).toBe(JETON)
+  describe('reprise en panne réseau : deux nouvelles tentatives', () => {
+    beforeEach(() => vi.useFakeTimers())
+    afterEach(() => vi.useRealTimers())
+    const panne = () => {
+      appels.push({ methode: 'GET', chemin: '/api/test-progression', corps: null })
+      return Promise.reject(new TypeError('Failed to fetch'))
+    }
+
+    it('succès au 2e essai : reprise sur la 11e, écran d’attente maintenu entre les essais', async () => {
+      localStorage.setItem('tsa.reprise', JETON)
+      reglage.get = { termine: false, reponses: reponsesServeur(10) }
+      vi.mocked(globalThis.fetch)
+        .mockImplementationOnce(panne as typeof fetch)
+        .mockImplementation(fauxServeur as typeof fetch)
+      render(<App />)
+      await act(() => vi.advanceTimersByTimeAsync(500))
+      expect(screen.getByText(/Chargement de votre Test/)).toBeInTheDocument()
+      expect(vers('/api/test-progression', 'GET')).toHaveLength(1)
+      await act(() => vi.advanceTimersByTimeAsync(500))
+      expect(screen.getByText(/Question 11 sur 25/)).toBeInTheDocument()
+      expect(vers('/api/test-progression', 'GET')).toHaveLength(2)
+    })
+
+    it.each(['tsa.reprise', 'lien ?c='])('trois échecs (%s) : accueil normal, jeton gardé', async (source) => {
+      if (source === 'tsa.reprise') localStorage.setItem('tsa.reprise', JETON)
+      else window.h3cContact = () => JETON
+      vi.mocked(globalThis.fetch).mockImplementation((u, i) =>
+        String(u).includes('/api/test-progression') ? panne() : fauxServeur(String(u), i),
+      )
+      render(<App />)
+      await act(() => vi.advanceTimersByTimeAsync(2500))
+      expect(screen.getByText(/Chargement de votre Test/)).toBeInTheDocument()
+      await act(() => vi.advanceTimersByTimeAsync(500))
+      expect(screen.getByTestId('cta-haut')).toBeInTheDocument()
+      expect(vers('/api/test-progression', 'GET')).toHaveLength(3)
+      expect(localStorage.getItem('tsa.reprise')).toBe(JETON)
+    })
   })
 })

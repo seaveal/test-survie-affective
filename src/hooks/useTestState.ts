@@ -186,9 +186,10 @@ export function useTestState(): UseTestState {
         setEtape('questions')
         return
       }
-      // Terminé ou 404 : jeton oublié. Erreur réseau : gardé pour un prochain
-      // chargement, mais pas utilisé ici (il écraserait la progression du serveur).
-      if (r.etat === 'oublier') garderJetonReprise(null)
+      // Terminé ou 404 : jeton oublié. Erreur réseau (trois essais) : gardé pour
+      // un prochain chargement, y compris celui du lien `?c=` que la page retire
+      // de l'adresse ; pas utilisé ici (il écraserait la progression du serveur).
+      garderJetonReprise(r.etat === 'oublier' ? null : jetonInitial)
       setEtape('welcome')
     })
   }, [jetonInitial])

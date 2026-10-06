@@ -27,11 +27,7 @@ declare global {
 export interface CaptureValues {
   email: string
   prenom: string
-  /** Mobile au format E.164 (+33...), déjà normalisé par CaptureScreen. Absent si non fourni. */
-  telephone?: string
   consentementMarketing: boolean
-  /** Opt-in SMS explicite (mission 2026-06-16). True seulement si numéro valide ET case cochée. */
-  consentementSms: boolean
 }
 
 export interface TestCompletePayload {
@@ -39,9 +35,10 @@ export interface TestCompletePayload {
   // depuis /api/test-debut, l'email du jeton gagne côté API).
   email?: string
   prenom?: string
-  telephone?: string
+  // Ni `telephone` ni `consentement_sms` (décision du 06/10/2026, plus de mobile
+  // au formulaire). Absents du corps, jamais `false` : côté API, absent veut dire
+  // « ne rien toucher », `false` retirerait un consentement SMS existant.
   consentement_marketing?: boolean
-  consentement_sms?: boolean
   jeton?: string
   source_acquisition?:
     | 'instagram'
@@ -379,9 +376,7 @@ function champsCapture(capture: CaptureValues) {
   return {
     email: capture.email,
     prenom: capture.prenom || undefined,
-    telephone: capture.telephone || undefined,
     consentement_marketing: capture.consentementMarketing,
-    consentement_sms: capture.consentementSms,
   }
 }
 

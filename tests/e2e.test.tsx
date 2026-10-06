@@ -153,6 +153,9 @@ describe('e2e livraison 2 : email après la 3e réponse', () => {
     const [fin] = vers('/api/test-complete')
     expect(fin.corps).toMatchObject({ jeton: JETON })
     expect(fin.corps).not.toHaveProperty('email')
+    // Contrat (révision du 06/10) : la fin d'un Test commencé par /api/test-debut
+    // ne renvoie pas consentement_sms, pour ne pas retirer celui donné à la question 3.
+    expect(fin.corps).not.toHaveProperty('consentement_sms')
     expect(leads()).toHaveLength(1)
     expect(suivi.mock.calls.some((c) => c[0] === 'test_termine')).toBe(true)
     await waitFor(() => expect(localStorage.getItem('tsa.reprise')).toBeNull())

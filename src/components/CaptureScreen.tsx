@@ -222,19 +222,15 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
           className="text-xs leading-snug md:leading-relaxed"
           style={{ color: 'var(--h3c-texte-secondaire)' }}
         >
-          Vos données sont stockées sur un serveur en France, chiffrées pour la
-          partie sensible. Vous pouvez demander la suppression à tout moment en
-          répondant à un email.
+          Vos données sont stockées sur un serveur en France. Vous pouvez
+          demander leur suppression à tout moment en répondant à un email.
         </p>
 
         <button
           type="submit"
           disabled={envoiEnCours}
-          className="rounded-md px-6 py-3 text-base font-medium transition disabled:opacity-50"
-          style={{
-            background: 'var(--h3c-accent-principal, #b89e5d)',
-            color: '#fff',
-          }}
+          className="tsa-cta-terracotta rounded-md px-6 py-3 text-base font-medium text-white transition disabled:opacity-50"
+          data-testid="capture-envoyer"
         >
           {envoiEnCours ? 'Envoi en cours...' : 'Recevoir mon profil'}
         </button>

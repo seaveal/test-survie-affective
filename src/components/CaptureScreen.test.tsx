@@ -187,4 +187,11 @@ describe('CaptureScreen — sprint 2', () => {
       expect.objectContaining({ telephone: undefined, consentementSms: false }),
     )
   })
+
+  it("bouton d'envoi : classe terracotta partagée, aucune couleur en dur", () => {
+    render(<CaptureScreen onSubmit={vi.fn()} />)
+    const bouton = screen.getByTestId('capture-envoyer')
+    expect(bouton).toHaveClass('tsa-cta-terracotta')
+    expect(bouton.getAttribute('style') ?? '').not.toMatch(/#[0-9a-f]{3,8}|rgb|background/i)
+  })
 })

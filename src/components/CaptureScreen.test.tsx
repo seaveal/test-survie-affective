@@ -42,12 +42,10 @@ describe('CaptureScreen — sprint 2', () => {
   //     422. Les deux gardes se levent ensemble, ou pas du tout.
   // Les tests qui suivent verrouillent cet etat exact, des deux cotes.
 
-  it('les deux cases de consentement partent décochées', () => {
+  it('la case des emails part décochée', () => {
     render(<CaptureScreen onSubmit={vi.fn()} />)
     const mktCheckbox = screen.getByLabelText(/emails de Cyrille Novou/i) as HTMLInputElement
-    const smsCheckbox = screen.getByLabelText(/rappels et déclics par sms/i) as HTMLInputElement
     expect(mktCheckbox.checked).toBe(false)
-    expect(smsCheckbox.checked).toBe(false)
   })
 
   // 2026-10-06 (Test à 25 questions) : la question « état émotionnel » est
@@ -57,7 +55,7 @@ describe('CaptureScreen — sprint 2', () => {
     const onSubmit = vi.fn()
     render(<CaptureScreen onSubmit={onSubmit} />)
     expect(screen.queryByLabelText(/état émotionnel|etat emotionnel|santé|sante/i)).toBeNull()
-    expect(screen.getAllByRole('checkbox')).toHaveLength(2)
+    expect(screen.getAllByRole('checkbox')).toHaveLength(1)
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
     await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
     await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
@@ -65,14 +63,22 @@ describe('CaptureScreen — sprint 2', () => {
     expect(onSubmit.mock.calls[0][0]).not.toHaveProperty('consentementDonneesSante')
   })
 
-  it('mobile et SMS repliés dans un <details> fermé par défaut', () => {
-    render(<CaptureScreen onSubmit={vi.fn()} />)
-    const details = screen.getByTestId('capture-mobile') as HTMLDetailsElement
-    expect(details.tagName).toBe('DETAILS')
-    expect(details.open).toBe(false)
-    expect(details.querySelector('summary')?.textContent).toMatch(/Ajouter mon mobile \(facultatif\)/)
-    expect(details.querySelector('#capture-telephone')).not.toBeNull()
-    expect(details.querySelector('#cap-cons-sms')).not.toBeNull()
+  // 2026-10-06 : plus de mobile ni de consentement SMS (le rappel de webinaire
+  // qui les justifiait n'existe plus).
+  it('ni mobile ni SMS : un seul formulaire email + prénom + une case', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn()
+    const { container } = render(<CaptureScreen onSubmit={onSubmit} />)
+    expect(container.querySelector('details, input[type="tel"]')).toBeNull()
+    expect(screen.queryByText(/mobile|sms/i)).toBeNull()
+    await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
+    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
+    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
+    expect(onSubmit.mock.calls[0][0]).toEqual({
+      email: 'a@b.fr',
+      prenom: '',
+      consentementMarketing: true,
+    })
   })
 
   it('textes accentués : « Dernière étape », « 25 questions »', () => {
@@ -127,92 +133,24 @@ describe('CaptureScreen — sprint 2', () => {
     expect(btn.disabled).toBe(true)
   })
 
-  // Mission 2026-06-16 — capture mobile + consentement SMS
-
-  it('SMS decoche par defaut, champ mobile optionnel', () => {
-    render(<CaptureScreen onSubmit={vi.fn()} />)
-    const sms = screen.getByLabelText(/rappels et déclics par sms/i) as HTMLInputElement
-    expect(sms.checked).toBe(false)
-    expect(screen.getByLabelText(/mobile/i)).toBeInTheDocument()
-  })
-
-  it('capte le mobile + consentement SMS et normalise en E.164', async () => {
-    const user = userEvent.setup()
-    const onSubmit = vi.fn()
-    render(<CaptureScreen onSubmit={onSubmit} />)
-    await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
-    await user.type(screen.getByLabelText(/mobile/i), '06 12 34 56 78')
-    await user.click(screen.getByLabelText(/rappels et déclics par sms/i))
-    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
-    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
-    expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ telephone: '+33612345678', consentementSms: true }),
-    )
-  })
-
-  it('numero sans consentement SMS coche : numero ignore, opt-in false', async () => {
-    const user = userEvent.setup()
-    const onSubmit = vi.fn()
-    render(<CaptureScreen onSubmit={onSubmit} />)
-    await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
-    await user.type(screen.getByLabelText(/mobile/i), '06 12 34 56 78')
-    // case SMS volontairement laissee decochee
-    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
-    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
-    expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ telephone: undefined, consentementSms: false }),
-    )
-  })
-
   it('aria-invalid et le lien vers le message portent sur le champ fautif, et lui seul', async () => {
     const user = userEvent.setup()
     render(<CaptureScreen onSubmit={vi.fn()} />)
     const email = screen.getByRole('textbox', { name: /email/i })
     const mkt = screen.getByLabelText(/emails de cyrille novou/i)
-    const tel = screen.getByLabelText(/mobile/i)
     const etat = () =>
-      [email, mkt, tel].map((el) => `${el.getAttribute('aria-invalid')}|${el.getAttribute('aria-describedby') ?? ''}`)
+      [email, mkt].map((el) => `${el.getAttribute('aria-invalid')}|${el.getAttribute('aria-describedby') ?? ''}`)
 
     expect(mkt).toHaveAttribute('aria-required', 'true')
     // Email malformé (validation native contournée : on teste notre garde)
     await user.type(email, 'x@y')
     fireEvent.submit(screen.getByTestId('capture-screen'))
-    expect(etat()).toEqual(['true|capture-erreur', 'null|', 'null|capture-telephone-aide'])
+    expect(etat()).toEqual(['true|capture-erreur', 'null|'])
     // Case marketing décochée
     await user.type(email, '.fr')
     fireEvent.submit(screen.getByTestId('capture-screen'))
-    expect(etat()).toEqual(['null|', 'true|capture-erreur', 'null|capture-telephone-aide'])
-    // SMS coché avec un numéro invalide
-    await user.click(mkt)
-    await user.type(tel, '123')
-    await user.click(screen.getByLabelText(/rappels et déclics par sms/i))
-    fireEvent.submit(screen.getByTestId('capture-screen'))
-    expect(etat()).toEqual(['null|', 'null|', 'true|capture-telephone-aide capture-erreur'])
+    expect(etat()).toEqual(['null|', 'true|capture-erreur'])
     expect(screen.getByRole('alert')).toHaveAttribute('id', 'capture-erreur')
-  })
-
-  it('consentement SMS coche + numero invalide : bloque le submit (resultats jamais conditionnes mais consentement sans objet)', async () => {
-    const user = userEvent.setup()
-    const onSubmit = vi.fn()
-    render(<CaptureScreen onSubmit={onSubmit} />)
-    await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
-    await user.type(screen.getByLabelText(/mobile/i), '123')
-    await user.click(screen.getByLabelText(/rappels et déclics par sms/i))
-    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
-    expect(onSubmit).not.toHaveBeenCalled()
-    expect(screen.getByRole('alert')).toBeInTheDocument()
-  })
-
-  it('sans numero ni case SMS : submit OK, opt-in false (numero non requis)', async () => {
-    const user = userEvent.setup()
-    const onSubmit = vi.fn()
-    render(<CaptureScreen onSubmit={onSubmit} />)
-    await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
-    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
-    await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
-    expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ telephone: undefined, consentementSms: false }),
-    )
   })
 
   it("bouton d'envoi : classe terracotta partagée, aucune couleur en dur", () => {

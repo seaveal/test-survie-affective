@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { CaptureValues } from '../api/client'
-import { normaliserTelephone } from '../domain/phone'
 
 interface Props {
   onSubmit: (values: CaptureValues) => void
@@ -10,12 +9,11 @@ interface Props {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /** Champ fautif : il porte seul aria-invalid et le lien vers le message. */
-type ChampFautif = 'email' | 'mkt' | 'sms'
+type ChampFautif = 'email' | 'mkt'
 
 export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
   const [email, setEmail] = useState('')
   const [prenom, setPrenom] = useState('')
-  const [telephone, setTelephone] = useState('')
   // Consentement marketing : case DECOCHEE par defaut.
   //
   // Une case pre-cochee ne vaut pas acte positif clair (RGPD recital 32, CJUE
@@ -32,7 +30,6 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
   // un message clair par un echec dur, et le visiteur n'obtient plus de profil
   // du tout. Les deux se levent ensemble, ou pas du tout.
   const [consMkt, setConsMkt] = useState(false)
-  const [consSms, setConsSms] = useState(false)
   const [erreur, setErreur] = useState<{ champ: ChampFautif; message: string } | null>(null)
   const boutonRef = useRef<HTMLButtonElement>(null)
 
@@ -64,27 +61,11 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
       })
       return
     }
-    // SMS : entierement optionnel. Le consentement n'est valable qu'avec un
-    // numero valide. On ne bloque JAMAIS la livraison des resultats sur le
-    // numero ; seul le cas "case SMS cochee + numero invalide" demande une
-    // correction explicite (sinon le consentement serait sans objet).
-    const telE164 = normaliserTelephone(telephone)
-    if (consSms && telE164 === null) {
-      setErreur({
-        champ: 'sms',
-        message:
-          'Pour recevoir les SMS, indiquez un numéro de mobile valide (ex : 06 12 34 56 78). Ce champ reste facultatif.',
-      })
-      return
-    }
-    const smsOptIn = consSms && telE164 !== null
     setErreur(null)
     onSubmit({
       email: normalise,
       prenom: prenom.trim(),
-      telephone: smsOptIn ? telE164 : undefined,
       consentementMarketing: consMkt,
-      consentementSms: smsOptIn,
     })
   }
 
@@ -180,62 +161,6 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
           </p>
         </fieldset>
 
-        {/* Mobile et SMS : facultatifs, repliés par défaut (2026-10-06). Sur
-            téléphone, le bouton d'envoi tient dans l'écran en 390 × 680 et
-            360 × 640, message d'erreur compris (mention de stockage passée sous
-            le bouton, `order-last`) ; en 320 × 568 ou mobile déplié, la page
-            défile jusqu'à lui. */}
-        <details className="text-sm" data-testid="capture-mobile">
-          <summary className="cursor-pointer font-medium">
-            Ajouter mon mobile (facultatif)
-          </summary>
-          <div className="mt-2 flex flex-col gap-2">
-            <label htmlFor="capture-telephone" className="flex flex-col gap-1">
-              <span className="sr-only">Mobile</span>
-              <input
-                id="capture-telephone"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                placeholder="06 12 34 56 78"
-                value={telephone}
-                onChange={(e) => setTelephone(e.target.value)}
-                aria-describedby={
-                  erreur?.champ === 'sms'
-                    ? 'capture-telephone-aide capture-erreur'
-                    : 'capture-telephone-aide'
-                }
-                aria-invalid={erreur?.champ === 'sms' ? true : undefined}
-                className="rounded-md border bg-white px-3 py-1.5 text-base md:py-2"
-                style={{ borderColor: 'var(--h3c-bordure)' }}
-              />
-              <span
-                id="capture-telephone-aide"
-                className="text-xs"
-                style={{ color: 'var(--h3c-texte-secondaire)' }}
-              >
-                Pour vos rappels par SMS. Format : 06 12 34 56 78 ou +33 6 12 34 56 78.
-              </span>
-            </label>
-            <label
-              htmlFor="cap-cons-sms"
-              className="flex cursor-pointer items-start gap-3 leading-snug"
-            >
-              <input
-                id="cap-cons-sms"
-                type="checkbox"
-                checked={consSms}
-                onChange={(e) => setConsSms(e.target.checked)}
-                className="mt-1 h-4 w-4"
-              />
-              <span>
-                Recevez aussi vos rappels et déclics par SMS. J'accepte de recevoir
-                des SMS de Cyrille Novou et je peux me désinscrire à tout moment.
-              </span>
-            </label>
-          </div>
-        </details>
-
         {erreur && (
           <p
             id="capture-erreur"
@@ -247,6 +172,8 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
           </p>
         )}
 
+        {/* Sur téléphone, la mention de stockage passe sous le bouton
+            (`order-last`) pour garder le bouton d'envoi à l'écran. */}
         <p
           className="order-last text-xs leading-snug md:order-none md:leading-relaxed"
           style={{ color: 'var(--h3c-texte-secondaire)' }}

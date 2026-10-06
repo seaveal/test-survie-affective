@@ -12,7 +12,6 @@ const CAPTURE: CaptureValues = {
   email: 'alice@h3c.life',
   prenom: 'Alice',
   consentementMarketing: true,
-  consentementSms: false,
 }
 
 const RESULTAT: Resultat = {
@@ -73,21 +72,13 @@ describe('api/client', () => {
       expect(p.prenom).toBeUndefined()
     })
 
-    it('inclut telephone (E.164) + consentement_sms quand fournis', () => {
-      const p = buildPayload(
-        { ...CAPTURE, telephone: '+33612345678', consentementSms: true },
-        RESULTAT,
-        {},
-        {},
-      )
-      expect(p.telephone).toBe('+33612345678')
-      expect(p.consentement_sms).toBe(true)
-    })
-
-    it('omet telephone si absent, consentement_sms=false par defaut', () => {
-      const p = buildPayload(CAPTURE, RESULTAT, {}, {})
-      expect(p.telephone).toBeUndefined()
-      expect(p.consentement_sms).toBe(false)
+    // 2026-10-06 : plus de mobile au formulaire. Les deux champs sont ABSENTS
+    // du corps, jamais `false` ni `null` : côté API, absent = « ne rien
+    // toucher », `false` retirerait un consentement SMS existant.
+    it('le corps envoyé ne porte ni telephone ni consentement_sms', () => {
+      const corps = JSON.parse(JSON.stringify(buildPayload(CAPTURE, RESULTAT, {}, {})))
+      expect(corps).not.toHaveProperty('telephone')
+      expect(corps).not.toHaveProperty('consentement_sms')
     })
 
     it('NE hardcode PLUS source_acquisition (le back décide via UTM)', () => {
@@ -255,6 +246,9 @@ describe('api/client', () => {
       const res = await submitTestComplete(payload)
       expect(res).toEqual(mock)
       expect(localStorage.getItem('tsa.pending-captures')).toBeNull()
+      const corps = JSON.parse(vi.mocked(fetch).mock.calls[0][1]?.body as string)
+      expect(corps).not.toHaveProperty('telephone')
+      expect(corps).not.toHaveProperty('consentement_sms')
     })
 
     it('retourne null et empile la capture en cas d\'echec reseau', async () => {

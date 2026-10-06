@@ -22,6 +22,7 @@ import {
   sauvegarderProgression,
   submitTestComplete,
   type CaptureValues,
+  type EtatProgression,
   type Jalon,
   type TestCompleteResponse,
 } from '../api/client'
@@ -152,6 +153,10 @@ export function useTestState(): UseTestState {
   const emailDemandeRef = useRef(false)
   const jalonsRef = useRef(new Set<Jalon>())
   const repriseLancee = useRef(false)
+  // Garde par référence : un seul /api/test-debut, même pour deux envois dans la même tâche.
+  const captureEnVolRef = useRef(false)
+  // Fin refusée faute d'email (jeton tué) : réponses et résultat gardés, l'email est redemandé.
+  const finEnAttenteRef = useRef<{ nouvelles: Reponses; r: Resultat } | null>(null)
   // Position la plus avancée atteinte : un retour en arrière ne retire rien au serveur.
   const maxAtteint = useRef(0)
   // Dernier état des réponses, pour la sauvegarde d'un jeton adopté tardivement.
@@ -174,6 +179,13 @@ export function useTestState(): UseTestState {
     emettreEvenement('lead', { event_id: eventIdRef.current })
   }, [])
 
+  // Jeton remplacé par un autre appareil : oublié (mémoire et tsa.reprise), sauf s'il a déjà changé.
+  const oublierJeton = useCallback((jeton: string) => {
+    if (jetonRef.current !== jeton) return
+    jetonRef.current = null
+    garderJetonReprise(null)
+  }, [])
+
   const sauvegarder = useCallback(async (etat: Brut) => {
     const f = file.current
     if (f.enVol) {
@@ -182,21 +194,38 @@ export function useTestState(): UseTestState {
     }
     f.enVol = true
     for (let c: Brut | null = etat; c; c = f.attente, f.attente = null) {
-      if (jetonRef.current) await sauvegarderProgression(jetonRef.current, c)
+      const j = jetonRef.current
+      // Jeton mort (404, 410) : oublié, plus de PUT, la fin partira par email.
+      if (j && !(await sauvegarderProgression(j, c))) oublierJeton(j)
     }
     f.enVol = false
-  }, [])
+  }, [oublierJeton])
 
   const adopterJeton = useCallback(
-    (jeton: string) => {
+    (jeton: string, lead: boolean) => {
       jetonRef.current = jeton
       garderJetonReprise(jeton)
-      emettreLead()
+      // Contrat v2.1 B : `lead` seulement si le serveur a envoyé le Lead ; sinon c'est
+      // tranché pour ce Test, la fin n'en émettra pas non plus.
+      if (lead) emettreLead()
+      else leadEmisRef.current = true
       // Jeton arrivé après la borne : les réponses données entre-temps partent tout de suite.
       if (maxAtteint.current > REPONSES_AVANT_EMAIL) void sauvegarder(reponsesEnvoyees(reponsesRef.current, maxAtteint.current))
     },
     [emettreLead, sauvegarder],
   )
+
+  const restaurer = useCallback((r: Extract<EtatProgression, { etat: 'en-cours' }>) => {
+    const brut = reponsesValides(r.reponses as Brut)
+    jetonRef.current = r.jeton
+    garderJetonReprise(r.jeton)
+    emailDemandeRef.current = true
+    reponsesRef.current = reponsesRestaurees(brut)
+    setReponses(reponsesRef.current)
+    maxAtteint.current = premiereSansReponse(brut)
+    setIndexCourant(maxAtteint.current)
+    setEtape('questions')
+  }, [])
 
   // Reprise : GET une seule fois au chargement (garde contre le double effet de StrictMode).
   useEffect(() => {
@@ -210,24 +239,13 @@ export function useTestState(): UseTestState {
       if ((!r || r.etat === 'oublier') && contact) r = await lireProgression({ c: contact })
       return r
     })().then((r) => {
-      if (r?.etat === 'en-cours') {
-        const brut = reponsesValides(r.reponses as Brut)
-        jetonRef.current = r.jeton
-        garderJetonReprise(r.jeton)
-        emailDemandeRef.current = true
-        reponsesRef.current = reponsesRestaurees(brut)
-        setReponses(reponsesRef.current)
-        maxAtteint.current = premiereSansReponse(brut)
-        setIndexCourant(maxAtteint.current)
-        setEtape('questions')
-        return
-      }
+      if (r?.etat === 'en-cours') return restaurer(r)
       // Terminé, 404 ou 410 : tsa.reprise déjà oublié. Erreur réseau (trois
       // essais) : tsa.reprise gardé pour un prochain chargement, comme le jeton
       // du lien que le bloc de suivi garde pour la session.
       setEtape('welcome')
     })
-  }, [sources])
+  }, [sources, restaurer])
 
   useEffect(() => {
     if (etape === 'welcome') jalon('arrivee')
@@ -236,9 +254,20 @@ export function useTestState(): UseTestState {
 
   const commencer = useCallback(() => {
     jalon('commencer')
-    setEtape('questions')
-    setIndexCourant(0)
-  }, [jalon])
+    const neuf = () => {
+      setEtape('questions')
+      setIndexCourant(0)
+    }
+    // tsa.reprise gardé (API en panne au chargement) : la lecture est retentée avant un Test neuf.
+    const stocke = jetonRef.current ? undefined : lireJetonReprise()
+    if (!stocke) return neuf()
+    setEtape('chargement')
+    void lireProgression({ jeton: stocke }).then((r) => {
+      if (r.etat === 'en-cours') return restaurer(r)
+      if (r.etat === 'oublier') garderJetonReprise(null)
+      neuf()
+    })
+  }, [jalon, restaurer])
 
   const recommencer = useCallback(() => {
     setEtape('welcome')
@@ -255,6 +284,7 @@ export function useTestState(): UseTestState {
     leadEmisRef.current = false
     emailDemandeRef.current = false
     maxAtteint.current = 0
+    finEnAttenteRef.current = null
     reponsesRef.current = reponsesVides
     setReponses(reponsesVides)
   }, [])
@@ -264,49 +294,67 @@ export function useTestState(): UseTestState {
   }, [])
 
   /**
-   * Fin du Test : résultat calculé par la page, affiché tout de suite, et
-   * /api/test-complete en parallèle. Avec le jeton (chemin nominal), l'email
-   * n'est pas nécessaire et aucun second Lead ne part. Sans jeton (repli),
-   * ancien chemin avec l'email gardé en mémoire, et c'est ICI que part le Lead,
-   * avec l'event_id déjà tiré à l'email.
+   * Envoi de la fin (contrat v2.1 A) : le jeton s'il vit encore, et l'email quand
+   * la page le tient en mémoire (un jeton tué par un autre appareil ne perd pas le
+   * Test). Sans jeton ni email, ou jeton inconnu sans email (422) : l'écran de
+   * l'email est rouvert, réponses gardées, et la fin repart par email.
    */
-  const finaliser = useCallback(
-    async (nouvelles: Reponses) => {
-      const r = composerResultat(nouvelles, questionsTypage)
-      setResultat(r)
-      setEtape('resultat')
-      emettreEvenement('test_termine', { profil: r.profilDominant })
+  const envoyerFin = useCallback(
+    async (nouvelles: Reponses, r: Resultat) => {
       const jeton = jetonRef.current
       const capture = captureRef.current
-      if (!jeton && !capture) return
+      const redemanderEmail = () => {
+        finEnAttenteRef.current = { nouvelles, r }
+        setEtape('capture')
+      }
+      if (!jeton && !capture) return redemanderEmail()
       // v: 2 = Test à 25 questions (2026-10-06) : numéros 3, 9, 10, 20 et 29 absents.
-      // Avec le jeton, l'email est déjà en base : on ne le renvoie pas (minimisation).
-      const payload = buildPayload(jeton ? null : capture, r, {
+      const payload = buildPayload(capture, r, {
         v: 2,
         typage: nouvelles.typage,
         intensite: nouvelles.intensite,
         contexte: nouvelles.contexte,
       })
       if (jeton) payload.jeton = jeton
-      else if (eventIdRef.current) payload.event_id = eventIdRef.current
+      // event_id toujours posé ici : submitTestComplete n'émet alors aucun `lead` de lui-même.
+      payload.event_id = (!jeton && eventIdRef.current) || nouvelEventId()
       setEnvoiEnCours(true)
       try {
         const res = await submitTestComplete(payload)
         if (res && 'refus' in res) {
+          // Jeton inconnu et pas d'email (page rechargée, puis jeton tué) : pas un refus de l'adresse.
+          if (res.refus === 422 && jeton && !capture) {
+            oublierJeton(jeton)
+            return redemanderEmail()
+          }
           // Refus définitif : aucun lead pour une demande que le serveur a rejetée.
           setEnvoiRefuse(true)
           return
         }
-        // Repli : le lead part ici (envoyé, ou gardé en file pour plus tard).
-        if (!jeton) emettreLead()
+        if (res !== null) {
+          // Repli (test-debut sans réponse) : le lead part ici, pour une fin acceptée seulement.
+          if (!jeton) emettreLead()
+          garderJetonReprise(null)
+        }
         setApiResponse(res)
         setEnvoiReussi(res !== null)
-        if (res !== null) garderJetonReprise(null)
       } finally {
         setEnvoiEnCours(false)
       }
     },
-    [emettreLead],
+    [emettreLead, oublierJeton],
+  )
+
+  /** Fin du Test : résultat calculé par la page, affiché tout de suite, envoi en parallèle. */
+  const finaliser = useCallback(
+    (nouvelles: Reponses) => {
+      const r = composerResultat(nouvelles, questionsTypage)
+      setResultat(r)
+      setEtape('resultat')
+      emettreEvenement('test_termine', { profil: r.profilDominant })
+      void envoyerFin(nouvelles, r)
+    },
+    [envoyerFin],
   )
 
   const avancerOuFinaliser = useCallback(
@@ -383,7 +431,21 @@ export function useTestState(): UseTestState {
    */
   const soumettreCapture = useCallback(
     async (capture: CaptureValues) => {
+      if (captureEnVolRef.current) return
+      captureEnVolRef.current = true
       setErreurCapture(null)
+      const fin = finEnAttenteRef.current
+      if (fin) {
+        // Email redemandé après une fin refusée : le Test est fini, il part par email.
+        finEnAttenteRef.current = null
+        captureRef.current = capture
+        emailDemandeRef.current = true
+        setEtape('resultat')
+        void envoyerFin(fin.nouvelles, fin.r).finally(() => {
+          captureEnVolRef.current = false
+        })
+        return
+      }
       setEnvoiEnCours(true)
       eventIdRef.current = nouvelEventId()
       const appel = demarrerTest(
@@ -394,6 +456,7 @@ export function useTestState(): UseTestState {
       )
       const borne = new Promise<null>((ok) => setTimeout(() => ok(null), BORNE_DEBUT_MS))
       const r = await Promise.race([appel, borne])
+      captureEnVolRef.current = false
       setEnvoiEnCours(false)
       if (r?.etat === 'refus') {
         // Pas de repli : l'adresse est refusée, on la redemande.
@@ -403,12 +466,12 @@ export function useTestState(): UseTestState {
       }
       captureRef.current = capture
       emailDemandeRef.current = true
-      if (r?.etat === 'ok') adopterJeton(r.jeton)
+      if (r?.etat === 'ok') adopterJeton(r.jeton, r.lead)
       // Réponse tardive : le jeton est adopté à son arrivée (Test pas recommencé entre-temps).
       else if (r === null)
         void appel.then((t) => {
           if (captureRef.current !== capture) return // Test recommencé entre-temps
-          if (t.etat === 'ok') adopterJeton(t.jeton)
+          if (t.etat === 'ok') adopterJeton(t.jeton, t.lead)
           else if (t.etat === 'refus') {
             // Refus tardif : pas de repli, l'email est redemandé (le Test reprend où il en était).
             captureRef.current = null
@@ -420,7 +483,7 @@ export function useTestState(): UseTestState {
         })
       setEtape('questions')
     },
-    [reponses, adopterJeton],
+    [reponses, adopterJeton, envoyerFin],
   )
 
   return useMemo(

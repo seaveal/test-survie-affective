@@ -421,7 +421,7 @@ export function garderJetonReprise(jeton: string | null): void {
 }
 
 export type ResultatDebut =
-  | { etat: 'ok'; jeton: string }
+  | { etat: 'ok'; jeton: string; lead: boolean }
   | { etat: 'refus'; status: 410 | 422 }
   | { etat: 'repli' }
 
@@ -452,24 +452,30 @@ export async function demarrerTest(
     const res = await appel('POST', '/api/test-debut', corps)
     if (res.status === 422 || res.status === 410) return { etat: 'refus', status: res.status }
     if (!res.ok) return { etat: 'repli' }
-    const data = (await res.json()) as { jeton?: unknown }
+    const data = (await res.json()) as { jeton?: unknown; lead?: unknown }
+    // Contrat v2.1 B : `lead` vrai seulement quand le serveur a envoyé le Lead (nouveau cycle).
     return typeof data.jeton === 'string' && data.jeton
-      ? { etat: 'ok', jeton: data.jeton }
+      ? { etat: 'ok', jeton: data.jeton, lead: data.lead === true }
       : { etat: 'repli' }
   } catch {
     return { etat: 'repli' }
   }
 }
 
-/** PUT /api/test-progression. Ne lève jamais ; l'échec est silencieux. */
+/**
+ * PUT /api/test-progression. Ne lève jamais ; l'échec est silencieux.
+ * Rend false si le jeton est mort (404, 410 : remplacé par un autre appareil),
+ * true sinon (réseau, 5xx, 409 : la prochaine réponse renverra l'état complet).
+ */
 export async function sauvegarderProgression(
   jeton: string,
   reponses: Record<string, unknown>,
-): Promise<void> {
+): Promise<boolean> {
   try {
-    await appel('PUT', '/api/test-progression', { jeton, reponses })
+    const res = await appel('PUT', '/api/test-progression', { jeton, reponses })
+    return res.status !== 404 && res.status !== 410
   } catch {
-    // silencieux : la prochaine réponse renverra l'état complet
+    return true
   }
 }
 

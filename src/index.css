@@ -235,7 +235,8 @@ h1, h2, h3 {
    Le bloc H3C-TRACKING d'index.html injecte son style à l'exécution, donc après
    cette feuille : on le surcharge par une spécificité plus forte (html #h3c-cmp),
    sans toucher au bloc généré. Objectif : le bouton principal de l'accueil reste
-   entièrement visible au-dessus de la bannière en 390 × 680 et 360 × 640.
+   entièrement visible au-dessus de la bannière en 390 × 680, 360 × 640 et
+   320 × 568 (ce dernier par le haut de l'accueil resserré, Welcome.tsx).
    « Continuer sans accepter » garde le même gabarit que « Tout accepter ». */
 @media (max-width: 640px) {
   html #h3c-cmp {
@@ -267,5 +268,36 @@ h1, h2, h3 {
   }
   html #h3c-cmp label {
     font-size: 0.72rem;
+  }
+}
+
+/* Bannière laissée sans réponse (relecture L1, 2026-10-06) : elle est fixée en
+   bas et recouvrait la dernière option des questions et le bouton d'envoi, sur
+   des écrans qui ne défilaient pas. Tant qu'elle est dans la page, le bas de
+   page réserve sa hauteur : tout contenu peut défiler jusqu'au-dessus d'elle.
+   Hauteurs mesurées : 142 px sur téléphone (167 à 202 en « Personnaliser »),
+   147 px sur ordinateur.
+   ponytail: hauteurs figées ; si le texte de la bannière s'allonge, relever ces
+   valeurs (ou mesurer la bannière en JS et poser une variable CSS). */
+html:has(#h3c-cmp) body {
+  padding-bottom: 160px;
+}
+html:has(#h3c-cats.on) body {
+  padding-bottom: 230px;
+}
+/* Sans :has() (navigateurs anciens) : réserve fixe sur téléphone, la bannière
+   présente ou non. Un peu de défilement en trop, jamais de bouton inaccessible. */
+@supports not selector(:has(a)) {
+  @media (max-width: 640px) {
+    body {
+      padding-bottom: 160px;
+    }
+  }
+}
+/* Bouton flottant « Cookies » (fixe, 10 px du bas, 27 px de haut) : sur
+   téléphone, la page peut défiler au-delà pour qu'il ne recouvre rien. */
+@media (max-width: 640px) {
+  html:has(#h3c-reopen):not(:has(#h3c-cmp)) body {
+    padding-bottom: 44px;
   }
 }

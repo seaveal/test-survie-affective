@@ -6,6 +6,7 @@ import {
   questionsTypage,
 } from './questions'
 import type { ProfilId } from '../domain/types'
+import { QUESTIONS_DISCRIMINANTES } from '../domain/types'
 
 describe('Données questions — structure et invariants', () => {
   // 2026-10-06 (décision Cyrille) : 25 questions. 3, 9, 10, 20 (typage) et 29
@@ -145,6 +146,9 @@ describe('Questions de contexte (27, 28, 30)', () => {
 describe('Compatibilité avec le scoring (Phase 1 TDD)', () => {
   it('Les 4 questions discriminantes (1, 4, 11, 19) couvrent bien les 4 profils', () => {
     const discriminantes = [1, 4, 11, 19]
+    // La liste lue par le scoring est celle-ci : une question absente des
+    // données y serait sautée en silence (scoreSurDiscriminantes).
+    expect([...QUESTIONS_DISCRIMINANTES]).toEqual(discriminantes)
     for (const id of discriminantes) {
       const q = questionsTypage.find((q) => q.id === id)
       expect(q, `Q${id} discriminante`).toBeDefined()

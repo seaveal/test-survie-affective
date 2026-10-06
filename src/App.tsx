@@ -18,6 +18,13 @@ function App() {
     void flushPendingCaptures()
   }, [])
 
+  // Chaque écran commence en haut. Le bas de page réserve la place de la
+  // bannière cookies et du bouton « Cookies » (index.css) : sans cela, l'écran
+  // suivant hériterait du défilement du précédent et masquerait son titre.
+  useEffect(() => {
+    if (window.scrollY > 0) window.scrollTo(0, 0)
+  }, [s.etape, s.indexCourant])
+
   if (s.etape === 'welcome') {
     return <Welcome onCommencer={s.commencer} />
   }

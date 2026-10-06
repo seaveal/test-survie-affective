@@ -233,9 +233,9 @@ function EchangeEmail() {
       style={{ color: 'var(--h3c-texte-secondaire)' }}
       data-testid="echange-email"
     >
-      À la fin des 25 questions, vous laissez votre email&nbsp;: votre masque
-      s&apos;affiche à l&apos;écran, votre profil complet et une séance de
-      descente dans le corps, offerte, arrivent dans votre boîte. Sans carte bancaire.
+      Avec le Test de Survie Affective, votre masque s&apos;affiche à
+      l&apos;écran à la fin. Recevez par email votre profil complet et une
+      séance de descente dans le corps. Tout est offert. Sans carte bancaire.
     </p>
   )
 }
@@ -249,9 +249,9 @@ function CaracteristiquesTest() {
     >
       <li>25 questions</li>
       <li aria-hidden>·</li>
-      <li>Gratuit</li>
+      <li>Offert</li>
       <li aria-hidden>·</li>
-      <li>Confidentiel</li>
+      <li>Profil par email</li>
     </ul>
   )
 }
@@ -294,7 +294,7 @@ export function Welcome({ onCommencer }: Props) {
               letterSpacing: '0.14em',
             }}
           >
-            Test de Survie Affective
+            Découvrez votre masque en amour
           </p>
 
           {/* H1 centré — élément LCP, jamais animé */}
@@ -311,7 +311,8 @@ export function Welcome({ onCommencer }: Props) {
               className="mb-4 text-center text-base md:text-lg"
               style={{ color: 'var(--h3c-texte-principal)' }}
             >
-              Découvrez lequel. Faites le test maintenant.
+              Mendiant de luxe, Sauveur épuisé, Contrôleur anxieux ou Fantôme
+              relationnel&nbsp;: découvrez lequel est le vôtre.
             </p>
             <BoutonTest onClick={lancer} emplacement="haut" />
             <EchangeEmail />

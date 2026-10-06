@@ -129,7 +129,7 @@ describe('e2e : parcours complet', () => {
 
     // 6. Écran de capture (NOUVEAU sprint 2)
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      /Votre profil arrive par email/i,
+      /Où voulez-vous recevoir votre profil/i,
     )
     await passerLecranCapture(user)
 

@@ -81,11 +81,38 @@ describe('CaptureScreen — sprint 2', () => {
     })
   })
 
-  it('textes accentués : « Dernière étape », « 25 questions »', () => {
+  it('textes validés le 2026-10-06 (A2, variante fin de Test)', () => {
     render(<CaptureScreen onSubmit={vi.fn()} />)
     expect(screen.getByText('Dernière étape')).toBeInTheDocument()
-    expect(screen.getByText(/répondre aux 25 questions/)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      /^Où voulez-vous recevoir votre profil \?$/,
+    )
+    expect(
+      screen.getByText(
+        "Vous avez répondu aux 25 questions. Indiquez votre email pour recevoir votre profil complet. Votre masque s'affichera à l'écran après cette étape.",
+      ),
+    ).toBeInTheDocument()
     expect(screen.queryByText(/trente/i)).toBeNull()
+  })
+
+  it('sous le bouton : profil et séance offerts, avant la mention de stockage', () => {
+    render(<CaptureScreen onSubmit={vi.fn()} />)
+    const sous = screen.getByTestId('capture-sous-bouton')
+    expect(sous).toHaveTextContent(
+      /^Profil complet et séance de descente dans le corps offerts\. Sans carte bancaire\.$/,
+    )
+    expect(screen.getByTestId('capture-envoyer').nextElementSibling).toBe(sous)
+    // Téléphone : la mention de stockage (`order-last`) passe après cette ligne.
+    expect(screen.getByText(/stockées sur un serveur en France/).className).toMatch(/\border-last\b/)
+    expect(sous.className).not.toMatch(/order-/)
+  })
+
+  it('aucune durée (« minutes ») dans le texte du formulaire, avec ou sans erreur', () => {
+    const { container } = render(<CaptureScreen onSubmit={vi.fn()} />)
+    expect(container.textContent).not.toMatch(/minute/i)
+    fireEvent.submit(screen.getByTestId('capture-screen'))
+    expect(screen.getByRole('alert')).toBeInTheDocument()
+    expect(container.textContent).not.toMatch(/minute/i)
   })
 
   it('refus du marketing : le submit est bloque, en accord avec le validateur serveur', async () => {

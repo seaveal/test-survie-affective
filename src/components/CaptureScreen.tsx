@@ -6,6 +6,21 @@ interface Props {
   envoiEnCours?: boolean
 }
 
+/**
+ * Textes de l'écran, validés par Cyrille le 2026-10-06 (TEXTES-entonnoir, A2,
+ * phrase « variante fin de Test » : l'écran vient encore après la 25e question).
+ * Regroupés ici pour qu'une autre branche les remplace d'un bloc.
+ */
+const TEXTES_CAPTURE = {
+  surtitre: 'Dernière étape',
+  titre: 'Où voulez-vous recevoir votre profil ?',
+  phrase:
+    "Vous avez répondu aux 25 questions. Indiquez votre email pour recevoir votre profil complet. Votre masque s'affichera à l'écran après cette étape.",
+  bouton: 'Recevoir mon profil',
+  sousBouton:
+    'Profil complet et séance de descente dans le corps offerts. Sans carte bancaire.',
+} as const
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /** Champ fautif : il porte seul aria-invalid et le lien vers le message. */
@@ -76,18 +91,16 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
           className="text-sm uppercase tracking-wide"
           style={{ color: 'var(--h3c-texte-secondaire)' }}
         >
-          Dernière étape
+          {TEXTES_CAPTURE.surtitre}
         </p>
-        <h1 className="mt-1 text-xl md:mt-2 md:text-4xl">Votre profil arrive par email</h1>
+        <h1 className="mt-1 text-xl md:mt-2 md:text-4xl">{TEXTES_CAPTURE.titre}</h1>
       </header>
 
       <p
         className="text-[0.8125rem] leading-snug md:text-base md:leading-relaxed"
         style={{ color: 'var(--h3c-texte-secondaire)' }}
       >
-        Vous venez de répondre aux 25 questions. Indiquez où recevoir le détail
-        complet de votre profil, vos sept symptômes, votre feuille de route, et
-        votre cadeau.
+        {TEXTES_CAPTURE.phrase}
       </p>
 
       <form
@@ -189,8 +202,18 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
           className="tsa-cta-terracotta scroll-mb-12 rounded-md md:scroll-mb-0 px-6 py-3 text-base font-medium text-white transition disabled:opacity-50"
           data-testid="capture-envoyer"
         >
-          {envoiEnCours ? 'Envoi en cours...' : 'Recevoir mon profil'}
+          {envoiEnCours ? 'Envoi en cours...' : TEXTES_CAPTURE.bouton}
         </button>
+
+        {/* Juste sous le bouton ; sur téléphone, la mention de stockage
+            (`order-last`) vient après. */}
+        <p
+          className="text-center text-xs leading-snug md:text-sm"
+          style={{ color: 'var(--h3c-texte-secondaire)' }}
+          data-testid="capture-sous-bouton"
+        >
+          {TEXTES_CAPTURE.sousBouton}
+        </p>
       </form>
     </main>
   )

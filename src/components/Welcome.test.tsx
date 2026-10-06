@@ -7,11 +7,25 @@ import { Welcome } from './Welcome'
 
 describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cartes)', () => {
   describe('Hero', () => {
-    it('affiche l\'eyebrow "Test de Survie Affective", nom canonique en capitales (distinct du disclaimer footer qui mentionne aussi "Le Test de Survie Affective et le programme Régénération...")', () => {
+    it('2026-10-06 (A1, version 1) : eyebrow « Découvrez votre masque en amour », le nom du Test passe sous le bouton', () => {
       render(<Welcome onCommencer={() => {}} />)
       expect(
-        screen.getByText(/^Test de Survie Affective$/),
+        screen.getByText(/^Découvrez votre masque en amour$/),
       ).toBeInTheDocument()
+      expect(screen.queryByText(/^Test de Survie Affective$/)).toBeNull()
+      // Le nom du Test reste visible, dans la ligne sous chaque bouton.
+      for (const l of screen.getAllByTestId('echange-email')) {
+        expect(l).toHaveTextContent(/^Avec le Test de Survie Affective,/)
+      }
+    })
+
+    it('2026-10-06 (A1, version 1) : phrase des quatre masques entre le titre et le bouton du haut', () => {
+      render(<Welcome onCommencer={() => {}} />)
+      const phrase = screen.getByText(
+        /^Mendiant de luxe, Sauveur épuisé, Contrôleur anxieux ou Fantôme relationnel\s:\sdécouvrez lequel est le vôtre\.$/,
+      )
+      expect(phrase.nextElementSibling).toBe(screen.getByTestId('cta-haut'))
+      expect(screen.queryByText(/Faites le test maintenant/i)).toBeNull()
     })
 
     it('affiche le H1 "En amour, vous rejouez toujours le même scénario"', () => {
@@ -227,10 +241,9 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
       const lignes = screen.getAllByTestId('echange-email')
       expect(lignes).toHaveLength(2)
       for (const l of lignes) {
-        expect(l).toHaveTextContent(/vous laissez votre email/i)
-        expect(l).toHaveTextContent(/votre masque s'affiche à l'écran/i)
-        expect(l).toHaveTextContent(/une séance de descente dans le corps, offerte, arrivent dans votre boîte/i)
-        expect(l).toHaveTextContent(/sans carte bancaire/i)
+        expect(l).toHaveTextContent(
+          "Avec le Test de Survie Affective, votre masque s'affiche à l'écran à la fin. Recevez par email votre profil complet et une séance de descente dans le corps. Tout est offert. Sans carte bancaire.",
+        )
       }
       // La ligne suit immédiatement le bouton, avant la liste des caractéristiques.
       const bouton = screen.getByTestId('cta-haut')
@@ -247,7 +260,7 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
   })
 
   describe('Preuve sociale et meta CTA', () => {
-    it('affiche la ligne caractéristiques (25 questions, gratuit, confidentiel), sans durée', () => {
+    it('affiche les repères (25 questions · Offert · Profil par email), sans durée (A1, 2026-10-06)', () => {
       render(<Welcome onCommencer={() => {}} />)
       // Une liste par emplacement CTA depuis le 2026-08-27.
       const listes = screen.getAllByRole('list', {
@@ -259,8 +272,12 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
       // (qui mentionne "gratuit" pour le 3114).
       expect(liste).toHaveTextContent(/25 questions/i)
       expect(liste).not.toHaveTextContent(/minute/i)
-      expect(liste).toHaveTextContent(/gratuit/i)
-      expect(liste).toHaveTextContent(/confidentiel/i)
+      for (const l of listes) {
+        expect(
+          within(l).getAllByRole('listitem').filter((li) => li.textContent !== '·').map((li) => li.textContent),
+        ).toEqual(['25 questions', 'Offert', 'Profil par email'])
+      }
+      expect(liste).not.toHaveTextContent(/gratuit|confidentiel/i)
     })
 
     it('2026-10-06 : bouton « Découvrir mon masque », aucune mention de durée ni de 30 questions', () => {

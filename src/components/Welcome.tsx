@@ -272,21 +272,23 @@ export function Welcome({ onCommencer }: Props) {
 
   return (
     <>
-      {/* Petits écrans (320 × 568) : haut resserré (pt-4, mb-3, titre mb-4) pour que
-          la bannière cookies ne recouvre pas le bouton principal. */}
+      {/* Petits écrans (320 × 568) : haut resserré (pt-3, image et surtitre mb-2,
+          phrase en 14/20 px et mb-3) pour que la bannière cookies ne recouvre pas
+          le bouton principal. La marge du titre ne compte pas : `h1 { margin: 0 }`
+          d'index.css, hors couche, l'emporte sur les classes mb-* du titre. */}
       <main
-        className="mx-auto w-full max-w-3xl px-5 pb-10 pt-10 sm:px-6 md:px-8 md:pt-14 [@media(max-width:640px)_and_(max-height:600px)]:pt-4"
+        className="mx-auto w-full max-w-3xl px-5 pb-10 pt-10 sm:px-6 md:px-8 md:pt-14 [@media(max-width:640px)_and_(max-height:600px)]:pt-3"
         style={{ color: 'var(--h3c-texte-principal)' }}
       >
         <section className="flex flex-col items-stretch">
           {/* Hero visuel — hors stagger : chaîne LCP */}
-          <div className="mx-auto mb-6 w-full max-w-2xl md:mb-8 [@media(max-width:640px)_and_(max-height:600px)]:mb-3">
+          <div className="mx-auto mb-6 w-full max-w-2xl md:mb-8 [@media(max-width:640px)_and_(max-height:600px)]:mb-2">
             <MasquesHero />
           </div>
 
           {/* Eyebrow centré — hors stagger */}
           <p
-            className="mb-3 text-center text-xs uppercase md:text-sm"
+            className="mb-3 text-center text-xs uppercase md:text-sm [@media(max-width:640px)_and_(max-height:600px)]:mb-2"
             style={{
               color: 'var(--h3c-accent-terracotta)',
               fontFamily: 'var(--font-eyebrow)',
@@ -308,7 +310,7 @@ export function Welcome({ onCommencer }: Props) {
           {/* CTA primaire, au-dessus de la ligne de flottaison */}
           <div className="mb-10 flex flex-col items-center md:mb-14">
             <p
-              className="mb-4 text-center text-base md:text-lg"
+              className="mb-4 text-center text-base md:text-lg [@media(max-width:640px)_and_(max-height:600px)]:mb-3 [@media(max-width:640px)_and_(max-height:600px)]:text-sm"
               style={{ color: 'var(--h3c-texte-principal)' }}
             >
               Mendiant de luxe, Sauveur épuisé, Contrôleur anxieux ou Fantôme

@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { questions, questionsTypage } from '../data/questions'
 import { composerResultat } from '../domain/result'
 import type {
-  EtatEmotionnel,
   PretAAgir,
   Question,
   Reponses,
@@ -43,7 +42,6 @@ const reponsesVides: Reponses = {
   contexte: {
     statutLivre: 'pas_lu',
     situation: 'celibat_long',
-    etatEmotionnel: 'fonctionnel',
     pretAAgir: 'incertain',
   },
 }
@@ -51,7 +49,6 @@ const reponsesVides: Reponses = {
 const ORDRE_CHAMP_CONTEXTE: Array<keyof Reponses['contexte']> = [
   'statutLivre',
   'situation',
-  'etatEmotionnel',
   'pretAAgir',
 ]
 
@@ -151,7 +148,7 @@ export function useTestState(): UseTestState {
         ...reponses,
         contexte: {
           ...reponses.contexte,
-          [champ]: valeur as StatutLivre & SituationActuelle & EtatEmotionnel & PretAAgir,
+          [champ]: valeur as StatutLivre & SituationActuelle & PretAAgir,
         },
       }
       setReponses(nouvelles)
@@ -174,7 +171,11 @@ export function useTestState(): UseTestState {
       if (!resultat) return
       setEnvoiEnCours(true)
       setEtape('resultat')
+      // v: 2 = Test à 25 questions (2026-10-06) : numéros 3, 9, 10, 20 et 29 absents.
+      // Le contexte n'a plus de valeur par défaut hors questions posées : les
+      // trois champs restants sont tous répondus avant l'écran de capture.
       const reponsesBrutes: Record<string, unknown> = {
+        v: 2,
         typage: reponses.typage,
         intensite: reponses.intensite,
         contexte: reponses.contexte,

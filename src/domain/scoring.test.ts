@@ -51,7 +51,6 @@ const baseReponses = (): Reponses => ({
   contexte: {
     statutLivre: 'pas_lu',
     situation: 'celibat_long',
-    etatEmotionnel: 'fonctionnel',
     pretAAgir: 'incertain',
   },
 })
@@ -181,5 +180,34 @@ describe('calculerProfilSecondaire', () => {
       typage: reponsesTypage({ sauveur: 10, mendiant: 8, fantome: 2 }),
     }
     expect(calculerProfilSecondaire(reponses, mockQuestionsTypage)).toBeNull()
+  })
+})
+
+// 2026-10-06 (décision Cyrille) : Test à 25 questions, 16 de typage.
+describe('calculerScoreProfils — vraies questions (16 de typage)', () => {
+  it('score maximal 48 par profil (16 × 3), toutes réponses sur un même profil', async () => {
+    const { questionsTypage } = await import('../data/questions')
+    expect(questionsTypage).toHaveLength(16)
+    for (const profil of ['mendiant', 'sauveur', 'controleur', 'fantome'] as ProfilId[]) {
+      const typage = Object.fromEntries(
+        questionsTypage.map((q) => [q.id, q.options.find((o) => o.profil === profil)!.id]),
+      )
+      const score = calculerScoreProfils(
+        { typage, intensite: {}, contexte: { statutLivre: 'pas_lu', situation: 'celibat_long', pretAAgir: 'incertain' } },
+        questionsTypage,
+      )
+      expect(score[profil]).toBe(48)
+    }
+  })
+
+  it('refuse un typage à 20 réponses (ancien Test) contre 16 questions', async () => {
+    const { questionsTypage } = await import('../data/questions')
+    const typage = Object.fromEntries(Array.from({ length: 20 }, (_, i) => [i + 1, 'A']))
+    expect(() =>
+      calculerScoreProfils(
+        { typage, intensite: {}, contexte: { statutLivre: 'pas_lu', situation: 'celibat_long', pretAAgir: 'incertain' } },
+        questionsTypage,
+      ),
+    ).toThrow(/16 attendues/)
   })
 })

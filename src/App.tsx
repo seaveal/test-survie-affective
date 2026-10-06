@@ -7,6 +7,7 @@ import { ProgressBar } from './components/ProgressBar'
 import { QuestionCard } from './components/QuestionCard'
 import { ResultPreview } from './components/ResultPreview'
 import { Welcome } from './components/Welcome'
+import { questions } from './data/questions'
 import { useTestState } from './hooks/useTestState'
 
 function App() {
@@ -25,7 +26,7 @@ function App() {
     const q = s.questionCourante
     return (
       <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-6 py-8">
-        <ProgressBar courant={s.indexCourant + 1} total={30} />
+        <ProgressBar courant={s.indexCourant + 1} total={questions.length} />
         {q.type === 'typage' && (
           <QuestionCard
             question={q}

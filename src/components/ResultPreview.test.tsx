@@ -122,7 +122,6 @@ const RESULTAT: Resultat = {
   scoreIntensite: 24,
   statutLivre: 'pas_lu',
   situation: 'couple_difficile',
-  etatEmotionnel: 'tendu',
   pretAAgir: 'maintenant',
 }
 

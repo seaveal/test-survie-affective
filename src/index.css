@@ -230,3 +230,42 @@ h1, h2, h3 {
   outline-offset: 3px;
   border-radius: 2px;
 }
+
+/* Bannière cookies compacte sur téléphone (2026-10-06).
+   Le bloc H3C-TRACKING d'index.html injecte son style à l'exécution, donc après
+   cette feuille : on le surcharge par une spécificité plus forte (html #h3c-cmp),
+   sans toucher au bloc généré. Objectif : le bouton principal de l'accueil reste
+   entièrement visible au-dessus de la bannière en 390 × 680 et 360 × 640.
+   « Continuer sans accepter » garde le même gabarit que « Tout accepter ». */
+@media (max-width: 640px) {
+  html #h3c-cmp {
+    padding: 8px 12px;
+  }
+  html #h3c-cmp p {
+    margin: 0 0 6px;
+    font-size: 0.7rem;
+    line-height: 1.35;
+  }
+  html #h3c-cmp .h3c-cmp-row {
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 6px;
+  }
+  html #h3c-cmp button {
+    flex: 1 1 auto;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    padding: 7px 6px;
+    border-radius: 7px;
+  }
+  html #h3c-cmp #h3c-refuse {
+    border-color: #333;
+    color: #222;
+  }
+  html #h3c-cmp #h3c-accept {
+    margin-left: 0;
+  }
+  html #h3c-cmp label {
+    font-size: 0.72rem;
+  }
+}

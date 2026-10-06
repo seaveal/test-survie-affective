@@ -1,6 +1,6 @@
-// Données des 30 questions du test de survie affective.
+// Données des 25 questions du test de survie affective (numéros conservés : 3, 9, 10, 20 et 29 retirés le 2026-10-06).
 // Généré depuis docs/QUESTIONS_30_SCORING.md — ne pas modifier à la main.
-// Toute mise à jour passe par le doc puis re-génération via /tmp/parse_questions.py.
+// Toute mise à jour passe par le doc puis re-génération via 99-Meta/test-survie-affective/tools/build-all.sh.
 
 import type {
   Question,
@@ -30,17 +30,6 @@ export const questionsTypage: QuestionTypage[] = [
       { id: "B", texte: "Vous anticipez ses besoins, vous voulez qu'il se sente bien chez vous", profil: 'sauveur' },
       { id: "C", texte: "Vous vérifiez régulièrement que tout va bien, vous voulez de la clarté", profil: 'controleur' },
       { id: "D", texte: "Vous gardez une distance, vous ne vous emballez pas trop tôt", profil: 'fantome' },
-    ],
-  },
-  {
-    id: 3,
-    type: 'typage',
-    enonce: "Quelqu'un vous fait un compliment sincère et appuyé.",
-    options: [
-      { id: "A", texte: "Vous changez de sujet, c'est inconfortable", profil: 'fantome' },
-      { id: "B", texte: "Vous redoublez d'efforts, vous voulez le mériter encore plus", profil: 'mendiant' },
-      { id: "C", texte: "Vous le retournez sur l'autre, qu'il en reçoive aussi", profil: 'sauveur' },
-      { id: "D", texte: "Vous cherchez ce qu'il y a derrière, l'arrière-pensée", profil: 'controleur' },
     ],
   },
   {
@@ -96,28 +85,6 @@ export const questionsTypage: QuestionTypage[] = [
       { id: "B", texte: "Vous voulez devenir sa personne indispensable", profil: 'sauveur' },
       { id: "C", texte: "Vous voulez tout savoir de sa vie, son passé, ses ex", profil: 'controleur' },
       { id: "D", texte: "Vous freinez, la peur monte, vous fuyez à demi", profil: 'fantome' },
-    ],
-  },
-  {
-    id: 9,
-    type: 'typage',
-    enonce: "Le silence dans une conversation avec quelqu'un de proche.",
-    options: [
-      { id: "A", texte: "Vous le remplissez vite avec une histoire qui captive", profil: 'mendiant' },
-      { id: "B", texte: "Vous demandez à l'autre si tout va bien", profil: 'sauveur' },
-      { id: "C", texte: "Vous le trouvez inconfortable, vous voulez savoir ce qu'il pense", profil: 'controleur' },
-      { id: "D", texte: "Vous l'appréciez, vous y êtes à l'aise", profil: 'fantome' },
-    ],
-  },
-  {
-    id: 10,
-    type: 'typage',
-    enonce: "Quand une relation amoureuse se termine.",
-    options: [
-      { id: "A", texte: "Vous coupez net, vous disparaissez, c'est plus propre", profil: 'fantome' },
-      { id: "B", texte: "Vous voulez prouver que vous valiez mieux, vous transformez la rupture en victoire", profil: 'mendiant' },
-      { id: "C", texte: "Vous gardez le contact, vous restez ami, on ne sait jamais", profil: 'sauveur' },
-      { id: "D", texte: "Vous voulez comprendre exactement ce qui n'a pas marché, point par point", profil: 'controleur' },
     ],
   },
   {
@@ -219,17 +186,6 @@ export const questionsTypage: QuestionTypage[] = [
       { id: "D", texte: "Vous partez avant d'être quitté, encore une fois", profil: 'fantome' },
     ],
   },
-  {
-    id: 20,
-    type: 'typage',
-    enonce: "Ce qui vous fait le plus souffrir dans votre vie aujourd'hui.",
-    options: [
-      { id: "A", texte: "Cette voix intérieure qui répète \"pas à la hauteur\", malgré toutes les preuves du contraire", profil: 'mendiant' },
-      { id: "B", texte: "Cet épuisement à donner sans recevoir en retour", profil: 'sauveur' },
-      { id: "C", texte: "Cette anxiété permanente, cette tension dans le corps que vous ne maîtrisez pas", profil: 'controleur' },
-      { id: "D", texte: "Cette sensation d'être seul même entouré, cette impression d'être un fantôme", profil: 'fantome' },
-    ],
-  },
 ]
 
 export const questionsIntensite: QuestionIntensite[] = [
@@ -329,18 +285,6 @@ export const questionsContexte: QuestionContexte[] = [
       { id: "B", texte: "En couple compliqué ou conflictuel", valeur: "couple_difficile" },
       { id: "C", texte: "Célibataire après une rupture récente", valeur: "rupture_recente" },
       { id: "D", texte: "Célibataire depuis longtemps", valeur: "celibat_long" },
-    ],
-  },
-  {
-    id: 29,
-    type: 'contexte',
-    enonce: "Comment décririez-vous votre état émotionnel ce mois-ci ?",
-    champCible: 'etatEmotionnel',
-    options: [
-      { id: "A", texte: "Globalement fonctionnel et stable", valeur: "fonctionnel" },
-      { id: "B", texte: "Tendu, fatigué, sur les nerfs", valeur: "tendu" },
-      { id: "C", texte: "En crise, en grande souffrance", valeur: "crise" },
-      { id: "D", texte: "En reconstruction après une crise récente", valeur: "reconstruction" },
     ],
   },
   {

@@ -44,7 +44,6 @@ export function composerResultat(
     scoreIntensite,
     statutLivre: reponses.contexte.statutLivre,
     situation: reponses.contexte.situation,
-    etatEmotionnel: reponses.contexte.etatEmotionnel,
     pretAAgir: reponses.contexte.pretAAgir,
   }
 }

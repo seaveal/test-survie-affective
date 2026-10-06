@@ -13,12 +13,6 @@ export type SituationActuelle =
   | 'rupture_recente'
   | 'celibat_long'
 
-export type EtatEmotionnel =
-  | 'fonctionnel'
-  | 'tendu'
-  | 'crise'
-  | 'reconstruction'
-
 export type PretAAgir = 'maintenant' | 'bientot' | 'comprendre_dabord' | 'incertain'
 
 // QUESTIONS
@@ -43,7 +37,7 @@ export interface OptionContexte {
 }
 
 export interface QuestionTypage {
-  id: number // 1 à 20
+  id: number // 1 à 20, sauf 3, 9, 10, 20 (retirées le 2026-10-06, numéros conservés)
   type: 'typage'
   enonce: string
   options: OptionTypage[] // exactement 4 options, une par profil
@@ -57,11 +51,11 @@ export interface QuestionIntensite {
 }
 
 export interface QuestionContexte {
-  id: number // 27 à 30
+  id: number // 27, 28, 30 (29 « état émotionnel » retirée le 2026-10-06)
   type: 'contexte'
   enonce: string
   options: OptionContexte[]
-  champCible: 'statutLivre' | 'situation' | 'etatEmotionnel' | 'pretAAgir'
+  champCible: 'statutLivre' | 'situation' | 'pretAAgir'
 }
 
 export type Question = QuestionTypage | QuestionIntensite | QuestionContexte
@@ -74,7 +68,6 @@ export interface Reponses {
   contexte: {
     statutLivre: StatutLivre
     situation: SituationActuelle
-    etatEmotionnel: EtatEmotionnel
     pretAAgir: PretAAgir
   }
 }
@@ -96,7 +89,6 @@ export interface Resultat {
   scoreIntensite: number // 6 à 30
   statutLivre: StatutLivre
   situation: SituationActuelle
-  etatEmotionnel: EtatEmotionnel
   pretAAgir: PretAAgir
 }
 

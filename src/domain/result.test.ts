@@ -39,7 +39,6 @@ const baseReponses = (): Reponses => ({
   contexte: {
     statutLivre: 'pas_lu',
     situation: 'celibat_long',
-    etatEmotionnel: 'fonctionnel',
     pretAAgir: 'incertain',
   },
 })
@@ -58,7 +57,6 @@ describe('composerResultat — agrégat domain complet', () => {
     expect(r.scoreIntensite).toBe(18)
     expect(r.statutLivre).toBe('pas_lu')
     expect(r.situation).toBe('celibat_long')
-    expect(r.etatEmotionnel).toBe('fonctionnel')
     expect(r.pretAAgir).toBe('incertain')
   })
 
@@ -103,14 +101,12 @@ describe('composerResultat — agrégat domain complet', () => {
       contexte: {
         statutLivre: 'lu_complet',
         situation: 'couple_difficile',
-        etatEmotionnel: 'crise',
         pretAAgir: 'maintenant',
       },
     }
     const r = composerResultat(reponses, mockQuestionsTypage)
     expect(r.statutLivre).toBe('lu_complet')
     expect(r.situation).toBe('couple_difficile')
-    expect(r.etatEmotionnel).toBe('crise')
     expect(r.pretAAgir).toBe('maintenant')
   })
 
@@ -173,7 +169,7 @@ describe("Smoke test : composerResultat avec les vraies questions de typage", ()
     const r = composerResultat(reponses, questionsTypage)
     // 'A' est mappé à différents profils selon les questions, on vérifie
     // simplement que le résultat est bien structuré.
-    expect(r.scoreProfils.mendiant + r.scoreProfils.sauveur + r.scoreProfils.controleur + r.scoreProfils.fantome).toBe(60)
+    expect(r.scoreProfils.mendiant + r.scoreProfils.sauveur + r.scoreProfils.controleur + r.scoreProfils.fantome).toBe(48) // 16 questions de typage × 3 points (25 questions, 2026-10-06)
     expect(['mendiant', 'sauveur', 'controleur', 'fantome']).toContain(r.profilDominant)
     expect(r.intensite).toBe('modere')
   })

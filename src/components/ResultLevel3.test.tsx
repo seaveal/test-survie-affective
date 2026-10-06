@@ -11,7 +11,6 @@ const baseResultat: Resultat = {
   scoreIntensite: 18,
   statutLivre: 'pas_lu',
   situation: 'celibat_long',
-  etatEmotionnel: 'fonctionnel',
   pretAAgir: 'incertain',
 }
 

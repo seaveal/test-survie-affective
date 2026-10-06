@@ -247,7 +247,7 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
   })
 
   describe('Preuve sociale et meta CTA', () => {
-    it('affiche la ligne caractéristiques (30 questions, 3 minutes, gratuit, confidentiel)', () => {
+    it('affiche la ligne caractéristiques (25 questions, gratuit, confidentiel), sans durée', () => {
       render(<Welcome onCommencer={() => {}} />)
       // Une liste par emplacement CTA depuis le 2026-08-27.
       const listes = screen.getAllByRole('list', {
@@ -257,10 +257,17 @@ describe('<Welcome> v3 — refonte design 2026-05-29 (visage → masque + 4 cart
       const liste = listes[0]
       // Scope sur la liste pour éviter collision avec DisclaimerFooter
       // (qui mentionne "gratuit" pour le 3114).
-      expect(liste).toHaveTextContent(/30 questions/i)
-      expect(liste).toHaveTextContent(/3 minutes/i)
+      expect(liste).toHaveTextContent(/25 questions/i)
+      expect(liste).not.toHaveTextContent(/minute/i)
       expect(liste).toHaveTextContent(/gratuit/i)
       expect(liste).toHaveTextContent(/confidentiel/i)
+    })
+
+    it('2026-10-06 : bouton « Découvrir mon masque », aucune mention de durée ni de 30 questions', () => {
+      const { container } = render(<Welcome onCommencer={() => {}} />)
+      expect(screen.getByTestId('cta-haut')).toHaveTextContent(/^Découvrir mon masque$/)
+      expect(container.textContent).not.toMatch(/minute/i)
+      expect(container.textContent).not.toMatch(/30 questions/i)
     })
 
     it('affiche la preuve sociale 3 réseaux (39 000 IG, 48 000 YT, 13 000 FB)', () => {

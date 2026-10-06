@@ -30,7 +30,6 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
   // du tout. Les deux se levent ensemble, ou pas du tout.
   const [consMkt, setConsMkt] = useState(false)
   const [consSms, setConsSms] = useState(false)
-  const [consSante, setConsSante] = useState(false)
   const [erreur, setErreur] = useState<string | null>(null)
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -54,7 +53,7 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
     const telE164 = normaliserTelephone(telephone)
     if (consSms && telE164 === null) {
       setErreur(
-        'Pour recevoir les SMS, indiquez un numero de mobile valide (ex : 06 12 34 56 78). Ce champ reste optionnel.',
+        'Pour recevoir les SMS, indiquez un numéro de mobile valide (ex : 06 12 34 56 78). Ce champ reste facultatif.',
       )
       return
     }
@@ -65,39 +64,38 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
       prenom: prenom.trim(),
       telephone: smsOptIn ? telE164 : undefined,
       consentementMarketing: consMkt,
-      consentementDonneesSante: consSante,
       consentementSms: smsOptIn,
     })
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-10">
+    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-2 px-4 py-3 md:gap-6 md:px-6 md:py-10">
       <header className="text-center">
         <p
           className="text-sm uppercase tracking-wide"
           style={{ color: 'var(--h3c-texte-secondaire)' }}
         >
-          Derniere etape
+          Dernière étape
         </p>
-        <h1 className="mt-2 text-3xl md:text-4xl">Votre profil arrive par email</h1>
+        <h1 className="mt-1 text-xl md:mt-2 md:text-4xl">Votre profil arrive par email</h1>
       </header>
 
       <p
-        className="text-base leading-relaxed"
+        className="text-[0.8125rem] leading-snug md:text-base md:leading-relaxed"
         style={{ color: 'var(--h3c-texte-secondaire)' }}
       >
-        Vous venez de repondre aux trente questions. Indiquez ou recevoir le detail
-        complet de votre profil, vos sept symptomes, votre feuille de route, et
+        Vous venez de répondre aux 25 questions. Indiquez où recevoir le détail
+        complet de votre profil, vos sept symptômes, votre feuille de route, et
         votre cadeau.
       </p>
 
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-5 rounded-xl p-6"
+        className="flex flex-col gap-2 rounded-xl p-3 md:gap-5 md:p-6"
         style={{ background: 'var(--h3c-fond-card)' }}
         data-testid="capture-screen"
       >
-        <label htmlFor="capture-email" className="flex flex-col gap-2 text-sm">
+        <label htmlFor="capture-email" className="flex flex-col gap-1 text-sm">
           <span className="font-medium">
             Email <span aria-hidden="true">*</span>
           </span>
@@ -110,53 +108,30 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
             onChange={(e) => setEmail(e.target.value)}
             aria-invalid={erreur ? 'true' : 'false'}
             aria-describedby={erreur ? 'capture-erreur' : undefined}
-            className="rounded-md border bg-white px-3 py-2 text-base"
+            className="rounded-md border bg-white px-3 py-1.5 text-base md:py-2"
             style={{ borderColor: 'var(--h3c-bordure)' }}
           />
         </label>
 
-        <label htmlFor="capture-prenom" className="flex flex-col gap-2 text-sm">
-          <span className="font-medium">Prenom (optionnel)</span>
+        <label htmlFor="capture-prenom" className="flex flex-col gap-1 text-sm">
+          <span className="font-medium">Prénom (facultatif)</span>
           <input
             id="capture-prenom"
             type="text"
             autoComplete="given-name"
             value={prenom}
             onChange={(e) => setPrenom(e.target.value)}
-            className="rounded-md border bg-white px-3 py-2 text-base"
+            className="rounded-md border bg-white px-3 py-1.5 text-base md:py-2"
             style={{ borderColor: 'var(--h3c-bordure)' }}
           />
         </label>
 
-        <label htmlFor="capture-telephone" className="flex flex-col gap-2 text-sm">
-          <span className="font-medium">Mobile (optionnel)</span>
-          <input
-            id="capture-telephone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            placeholder="06 12 34 56 78"
-            value={telephone}
-            onChange={(e) => setTelephone(e.target.value)}
-            aria-describedby="capture-telephone-aide"
-            className="rounded-md border bg-white px-3 py-2 text-base"
-            style={{ borderColor: 'var(--h3c-bordure)' }}
-          />
-          <span
-            id="capture-telephone-aide"
-            className="text-xs"
-            style={{ color: 'var(--h3c-texte-secondaire)' }}
-          >
-            Pour vos rappels par SMS. Format : 06 12 34 56 78 ou +33 6 12 34 56 78.
-          </span>
-        </label>
-
-        <fieldset className="flex flex-col gap-3">
+        <fieldset className="flex flex-col gap-2 md:gap-3">
           <legend className="sr-only">Vos consentements</legend>
 
           <label
             htmlFor="cap-cons-mkt"
-            className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed"
+            className="flex cursor-pointer items-start gap-3 text-sm leading-snug md:leading-relaxed"
           >
             <input
               id="cap-cons-mkt"
@@ -175,48 +150,62 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
           {/* Art. 7.4 : la gratuité du consentement doit être visible à l'écran,
               pas seulement vraie dans le code. */}
           <p
-            className="text-xs leading-relaxed"
+            className="text-xs leading-snug md:leading-relaxed"
             style={{ color: 'var(--h3c-texte-secondaire)' }}
           >
             Votre profil et votre cadeau vous sont envoyés par email : cochez
             cette case pour les recevoir. Vous pouvez vous désinscrire à tout
             moment, en un clic, depuis n'importe lequel de ces emails.
           </p>
-
-          <label
-            htmlFor="cap-cons-sms"
-            className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed"
-          >
-            <input
-              id="cap-cons-sms"
-              type="checkbox"
-              checked={consSms}
-              onChange={(e) => setConsSms(e.target.checked)}
-              className="mt-1 h-4 w-4"
-            />
-            <span>
-              Recevez aussi vos rappels et declics par SMS. J'accepte de recevoir
-              des SMS de Cyrille Novou et je peux me desinscrire a tout moment.
-            </span>
-          </label>
-
-          <label
-            htmlFor="cap-cons-sante"
-            className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed"
-          >
-            <input
-              id="cap-cons-sante"
-              type="checkbox"
-              checked={consSante}
-              onChange={(e) => setConsSante(e.target.checked)}
-              className="mt-1 h-4 w-4"
-            />
-            <span>
-              J'accepte que mes reponses sur l'etat emotionnel soient conservees
-              de facon securisee, pour personnaliser mes contenus.
-            </span>
-          </label>
         </fieldset>
+
+        {/* Mobile et SMS : facultatifs, repliés par défaut (2026-10-06) pour que
+            le bouton d'envoi tienne dans l'écran d'un téléphone. */}
+        <details className="text-sm" data-testid="capture-mobile">
+          <summary className="cursor-pointer font-medium">
+            Ajouter mon mobile (facultatif)
+          </summary>
+          <div className="mt-2 flex flex-col gap-2">
+            <label htmlFor="capture-telephone" className="flex flex-col gap-1">
+              <span className="sr-only">Mobile</span>
+              <input
+                id="capture-telephone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="06 12 34 56 78"
+                value={telephone}
+                onChange={(e) => setTelephone(e.target.value)}
+                aria-describedby="capture-telephone-aide"
+                className="rounded-md border bg-white px-3 py-1.5 text-base md:py-2"
+                style={{ borderColor: 'var(--h3c-bordure)' }}
+              />
+              <span
+                id="capture-telephone-aide"
+                className="text-xs"
+                style={{ color: 'var(--h3c-texte-secondaire)' }}
+              >
+                Pour vos rappels par SMS. Format : 06 12 34 56 78 ou +33 6 12 34 56 78.
+              </span>
+            </label>
+            <label
+              htmlFor="cap-cons-sms"
+              className="flex cursor-pointer items-start gap-3 leading-snug"
+            >
+              <input
+                id="cap-cons-sms"
+                type="checkbox"
+                checked={consSms}
+                onChange={(e) => setConsSms(e.target.checked)}
+                className="mt-1 h-4 w-4"
+              />
+              <span>
+                Recevez aussi vos rappels et déclics par SMS. J'accepte de recevoir
+                des SMS de Cyrille Novou et je peux me désinscrire à tout moment.
+              </span>
+            </label>
+          </div>
+        </details>
 
         {erreur && (
           <p
@@ -230,12 +219,12 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false }: Props) {
         )}
 
         <p
-          className="text-xs leading-relaxed"
+          className="text-xs leading-snug md:leading-relaxed"
           style={{ color: 'var(--h3c-texte-secondaire)' }}
         >
-          Vos donnees sont stockees sur un serveur en France, chiffrees pour la
-          partie sensible. Vous pouvez demander la suppression a tout moment en
-          repondant a un email.
+          Vos données sont stockées sur un serveur en France, chiffrées pour la
+          partie sensible. Vous pouvez demander la suppression à tout moment en
+          répondant à un email.
         </p>
 
         <button

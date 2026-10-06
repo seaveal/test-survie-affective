@@ -28,7 +28,6 @@ export interface CaptureValues {
   /** Mobile au format E.164 (+33...), déjà normalisé par CaptureScreen. Absent si non fourni. */
   telephone?: string
   consentementMarketing: boolean
-  consentementDonneesSante: boolean
   /** Opt-in SMS explicite (mission 2026-06-16). True seulement si numéro valide ET case cochée. */
   consentementSms: boolean
 }
@@ -38,7 +37,6 @@ export interface TestCompletePayload {
   prenom?: string
   telephone?: string
   consentement_marketing: boolean
-  consentement_donnees_sante: boolean
   consentement_sms: boolean
   source_acquisition?:
     | 'instagram'
@@ -62,7 +60,6 @@ export interface TestCompletePayload {
     scoreIntensite: Resultat['scoreIntensite']
     statutLivre: Resultat['statutLivre']
     situation: Resultat['situation']
-    etatEmotionnel: Resultat['etatEmotionnel']
     pretAAgir: Resultat['pretAAgir']
     reponsesBrutes: Record<string, unknown>
   }
@@ -319,7 +316,6 @@ export function buildPayload(
     prenom: capture.prenom || undefined,
     telephone: capture.telephone || undefined,
     consentement_marketing: capture.consentementMarketing,
-    consentement_donnees_sante: capture.consentementDonneesSante,
     consentement_sms: capture.consentementSms,
     utm,
     fbp: fb.fbp,
@@ -334,7 +330,6 @@ export function buildPayload(
       scoreIntensite: resultat.scoreIntensite,
       statutLivre: resultat.statutLivre,
       situation: resultat.situation,
-      etatEmotionnel: resultat.etatEmotionnel,
       pretAAgir: resultat.pretAAgir,
       reponsesBrutes,
     },

@@ -2,9 +2,10 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../src/App'
+import { questionsContexte, questionsTypage } from '../src/data/questions'
 
 /**
- * Test e2e du parcours complet : welcome → 30 questions → capture email → page résultat allégée.
+ * Test e2e du parcours complet : welcome → 25 questions → capture email → page résultat allégée.
  *
  * Sprint 2 (2026-05-22) : la page résultat est désormais ALLÉGÉE.
  * À l'écran : niveau 1 seul (nom profil + intensité) + bloc "le détail arrive par email".
@@ -24,7 +25,7 @@ async function repondreToutTypage(
   user: ReturnType<typeof userEvent.setup>,
   optionId: string,
 ) {
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < questionsTypage.length; i++) {
     const boutons = screen.getAllByRole('button')
     const tousLesBoutonsAriaPressed = boutons.filter(
       (b) => b.getAttribute('aria-pressed') !== null,
@@ -53,7 +54,7 @@ async function repondreContexte(
   user: ReturnType<typeof userEvent.setup>,
   index: number,
 ) {
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < questionsContexte.length; i++) {
     const boutons = screen.getAllByRole('button')
     const tousAriaPressed = boutons.filter(
       (b) => b.getAttribute('aria-pressed') !== null,
@@ -103,7 +104,7 @@ describe('e2e : parcours complet', () => {
     localStorage.clear()
   })
 
-  it('Welcome → 30 questions → Capture → page résultat allégée affichée', async () => {
+  it('Welcome → 25 questions → Capture → page résultat allégée affichée', async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -115,7 +116,7 @@ describe('e2e : parcours complet', () => {
 
     // 2. ProgressBar visible
     expect(screen.getByRole('progressbar')).toBeInTheDocument()
-    expect(screen.getByText(/Question 1 sur 30/)).toBeInTheDocument()
+    expect(screen.getByText(/Question 1 sur 25/)).toBeInTheDocument()
 
     // 3. Phase typage : on clique 20 fois sur l'option A
     await repondreToutTypage(user, 'A')
@@ -172,5 +173,15 @@ describe('e2e : parcours complet', () => {
     // Queue localStorage contient la capture
     const queue = JSON.parse(localStorage.getItem('tsa.pending-captures') ?? '[]')
     expect(queue).toHaveLength(1)
+    // 2026-10-06 : payload v2 (25 questions), sans état émotionnel ni consentement
+    // santé ; le contexte ne porte que les trois réponses réellement données.
+    const envoi = queue[0].payload ?? queue[0]
+    expect(envoi).not.toHaveProperty('consentement_donnees_sante')
+    expect(envoi.resultat).not.toHaveProperty('etatEmotionnel')
+    expect(envoi.resultat.reponsesBrutes.v).toBe(2)
+    expect(Object.keys(envoi.resultat.reponsesBrutes.typage)).toHaveLength(16)
+    expect(Object.keys(envoi.resultat.reponsesBrutes.contexte).sort()).toEqual(
+      ['pretAAgir', 'situation', 'statutLivre'],
+    )
   }, 30000)
 })

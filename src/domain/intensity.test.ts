@@ -8,7 +8,6 @@ const baseReponses = (): Reponses => ({
   contexte: {
     statutLivre: 'pas_lu',
     situation: 'celibat_long',
-    etatEmotionnel: 'fonctionnel',
     pretAAgir: 'incertain',
   },
 })

@@ -13,13 +13,13 @@ import {
 } from './types'
 
 const POINTS_PAR_REPONSE = 3
-const NB_QUESTIONS_TYPAGE = 20
 
 /**
  * Calcule le score brut par profil à partir des réponses de typage.
  * Pure : ne mute pas l'entrée, mêmes entrées → mêmes sorties.
  *
- * @throws si le nombre de réponses n'est pas exactement 20 (typage incomplet),
+ * @throws si le nombre de réponses diffère du nombre de questions de typage fournies
+ *         (16 depuis le 2026-10-06 : dérivé de la liste, plus de nombre en dur ; typage incomplet),
  *         ou si une réponse référence une option inexistante dans la question
  *         correspondante.
  */
@@ -28,6 +28,7 @@ export function calculerScoreProfils(
   questions: QuestionTypage[],
 ): ScoreProfils {
   const reponsesIds = Object.keys(reponses.typage)
+  const NB_QUESTIONS_TYPAGE = questions.length
   if (reponsesIds.length !== NB_QUESTIONS_TYPAGE) {
     throw new Error(
       `Typage incomplet : ${reponsesIds.length} réponse(s) reçue(s), ${NB_QUESTIONS_TYPAGE} attendues.`,

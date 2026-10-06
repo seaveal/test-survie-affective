@@ -65,6 +65,8 @@ interface Props {
  * - CTA : « Découvrir mon masque en 3 minutes » conservé (variante n°1 du rapport,
  *   témoin). La variante « résultat immédiat » décrit un flux qui n'est pas le
  *   nôtre (l'email vient avant l'écran de résultat).
+ * - 2026-10-06 (décision Cyrille, Test à 25 questions) : plus aucune mention de
+ *   durée à l'écran ; bouton « Découvrir mon masque ».
  *
  * Charte voix v2 : 0 tiret cadratin, 0 point-virgule.
  */
@@ -214,7 +216,7 @@ function BoutonTest({
       data-testid={`cta-${emplacement}`}
       className="tsa-cta-terracotta rounded-lg px-10 py-4 text-base font-medium text-white shadow-md md:text-lg"
     >
-      Découvrir mon masque en 3 minutes
+      Découvrir mon masque
     </button>
   )
 }
@@ -231,7 +233,7 @@ function EchangeEmail() {
       style={{ color: 'var(--h3c-texte-secondaire)' }}
       data-testid="echange-email"
     >
-      À la fin des 30 questions, vous laissez votre email&nbsp;: votre masque
+      À la fin des 25 questions, vous laissez votre email&nbsp;: votre masque
       s&apos;affiche à l&apos;écran, votre profil complet et une séance de
       descente dans le corps, offerte, arrivent dans votre boîte. Sans carte bancaire.
     </p>
@@ -245,9 +247,7 @@ function CaracteristiquesTest() {
       style={{ color: 'var(--h3c-texte-secondaire)' }}
       aria-label="Caractéristiques du test"
     >
-      <li>30 questions</li>
-      <li aria-hidden>·</li>
-      <li>3 minutes</li>
+      <li>25 questions</li>
       <li aria-hidden>·</li>
       <li>Gratuit</li>
       <li aria-hidden>·</li>
@@ -309,7 +309,7 @@ export function Welcome({ onCommencer }: Props) {
               className="mb-4 text-center text-base md:text-lg"
               style={{ color: 'var(--h3c-texte-principal)' }}
             >
-              Découvrez lequel en 3 minutes. Faites le test maintenant.
+              Découvrez lequel. Faites le test maintenant.
             </p>
             <BoutonTest onClick={lancer} emplacement="haut" />
             <EchangeEmail />

@@ -42,30 +42,44 @@ describe('CaptureScreen — sprint 2', () => {
   //     422. Les deux gardes se levent ensemble, ou pas du tout.
   // Les tests qui suivent verrouillent cet etat exact, des deux cotes.
 
-  it('les trois cases de consentement partent decochees', () => {
+  it('les deux cases de consentement partent décochées', () => {
     render(<CaptureScreen onSubmit={vi.fn()} />)
     const mktCheckbox = screen.getByLabelText(/emails de Cyrille Novou/i) as HTMLInputElement
-    const smsCheckbox = screen.getByLabelText(/rappels et declics par sms/i) as HTMLInputElement
-    const santeCheckbox = screen.getByLabelText(/etat emotionnel/i) as HTMLInputElement
+    const smsCheckbox = screen.getByLabelText(/rappels et déclics par sms/i) as HTMLInputElement
     expect(mktCheckbox.checked).toBe(false)
     expect(smsCheckbox.checked).toBe(false)
-    expect(santeCheckbox.checked).toBe(false)
   })
 
-  it("refus consentement sante n'empeche pas le submit (test reste passable)", async () => {
+  // 2026-10-06 (Test à 25 questions) : la question « état émotionnel » est
+  // retirée, la case « données de santé » disparaît avec elle.
+  it("plus de case « données de santé » ni de champ santé dans l'envoi", async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn()
     render(<CaptureScreen onSubmit={onSubmit} />)
-    const emailInput = screen.getByRole('textbox', { name: /email/i })
-    await user.type(emailInput, 'a@b.fr')
-    // sante reste decoche par defaut
+    expect(screen.queryByLabelText(/état émotionnel|etat emotionnel|santé|sante/i)).toBeNull()
+    expect(screen.getAllByRole('checkbox')).toHaveLength(2)
+    await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
     await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
     await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
-    expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({
-        consentementDonneesSante: false,
-      }),
-    )
+    expect(onSubmit).toHaveBeenCalledTimes(1)
+    expect(onSubmit.mock.calls[0][0]).not.toHaveProperty('consentementDonneesSante')
+  })
+
+  it('mobile et SMS repliés dans un <details> fermé par défaut', () => {
+    render(<CaptureScreen onSubmit={vi.fn()} />)
+    const details = screen.getByTestId('capture-mobile') as HTMLDetailsElement
+    expect(details.tagName).toBe('DETAILS')
+    expect(details.open).toBe(false)
+    expect(details.querySelector('summary')?.textContent).toMatch(/Ajouter mon mobile \(facultatif\)/)
+    expect(details.querySelector('#capture-telephone')).not.toBeNull()
+    expect(details.querySelector('#cap-cons-sms')).not.toBeNull()
+  })
+
+  it('textes accentués : « Dernière étape », « 25 questions »', () => {
+    render(<CaptureScreen onSubmit={vi.fn()} />)
+    expect(screen.getByText('Dernière étape')).toBeInTheDocument()
+    expect(screen.getByText(/répondre aux 25 questions/)).toBeInTheDocument()
+    expect(screen.queryByText(/trente/i)).toBeNull()
   })
 
   it('refus du marketing : le submit est bloque, en accord avec le validateur serveur', async () => {
@@ -117,7 +131,7 @@ describe('CaptureScreen — sprint 2', () => {
 
   it('SMS decoche par defaut, champ mobile optionnel', () => {
     render(<CaptureScreen onSubmit={vi.fn()} />)
-    const sms = screen.getByLabelText(/rappels et declics par sms/i) as HTMLInputElement
+    const sms = screen.getByLabelText(/rappels et déclics par sms/i) as HTMLInputElement
     expect(sms.checked).toBe(false)
     expect(screen.getByLabelText(/mobile/i)).toBeInTheDocument()
   })
@@ -128,7 +142,7 @@ describe('CaptureScreen — sprint 2', () => {
     render(<CaptureScreen onSubmit={onSubmit} />)
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
     await user.type(screen.getByLabelText(/mobile/i), '06 12 34 56 78')
-    await user.click(screen.getByLabelText(/rappels et declics par sms/i))
+    await user.click(screen.getByLabelText(/rappels et déclics par sms/i))
     await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
     await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
     expect(onSubmit).toHaveBeenCalledWith(
@@ -156,7 +170,7 @@ describe('CaptureScreen — sprint 2', () => {
     render(<CaptureScreen onSubmit={onSubmit} />)
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
     await user.type(screen.getByLabelText(/mobile/i), '123')
-    await user.click(screen.getByLabelText(/rappels et declics par sms/i))
+    await user.click(screen.getByLabelText(/rappels et déclics par sms/i))
     await user.click(screen.getByRole('button', { name: /recevoir mon profil/i }))
     expect(onSubmit).not.toHaveBeenCalled()
     expect(screen.getByRole('alert')).toBeInTheDocument()

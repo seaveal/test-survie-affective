@@ -12,7 +12,6 @@ const CAPTURE: CaptureValues = {
   email: 'alice@h3c.life',
   prenom: 'Alice',
   consentementMarketing: true,
-  consentementDonneesSante: false,
   consentementSms: false,
 }
 
@@ -24,7 +23,6 @@ const RESULTAT: Resultat = {
   scoreIntensite: 18,
   statutLivre: 'pas_lu',
   situation: 'couple_stable',
-  etatEmotionnel: 'tendu',
   pretAAgir: 'maintenant',
 }
 
@@ -44,7 +42,9 @@ describe('api/client', () => {
       expect(p.email).toBe('alice@h3c.life')
       expect(p.prenom).toBe('Alice')
       expect(p.consentement_marketing).toBe(true)
-      expect(p.consentement_donnees_sante).toBe(false)
+      // Plus de consentement santé ni d'état émotionnel depuis le 2026-10-06 (25 questions).
+      expect(p).not.toHaveProperty('consentement_donnees_sante')
+      expect(p.resultat).not.toHaveProperty('etatEmotionnel')
       expect(p.resultat.profilDominant).toBe('mendiant')
       expect(p.resultat.intensite).toBe('modere')
       expect(p.resultat.scoreIntensite).toBe(18)

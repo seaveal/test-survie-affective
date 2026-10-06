@@ -38,7 +38,7 @@ interface Props {
  *
  * Audit conversion 2026-08-30 (Landing Doctor, 58/100) :
  * - La demande avant le CTA porte le bénéfice et le temps (« Découvrez lequel en
- *   3 minutes ») et le bouton aussi : c'est la variante n°1 du rapport.
+ *   3 minutes », durée retirée le 2026-10-06, voir plus bas) et le bouton aussi : c'est la variante n°1 du rapport.
  * - Bloc « Après le test » entre les cartes et le second CTA : ce que le visiteur
  *   reçoit, et que Régénération lui sera présenté ensuite, sans obligation. Le
  *   rapport voyait une « arrière-pensée cachée » dans un programme payant nommé
@@ -62,8 +62,8 @@ interface Props {
  *   Funnel-VSL-Emails/_SPEC-TUNNEL-LIVRE-FIRST.md.
  * - Urgence : refusée pour la troisième fois (27/08, 30/08, 31/08). La phrase
  *   proposée faisait du test gratuit un filtre d'entrée pour Régénération.
- * - CTA : « Découvrir mon masque en 3 minutes » conservé (variante n°1 du rapport,
- *   témoin). La variante « résultat immédiat » décrit un flux qui n'est pas le
+ * - CTA : « Découvrir mon masque en 3 minutes » conservé alors (variante n°1 du
+ *   rapport, témoin), devenu « Découvrir mon masque » le 2026-10-06. La variante « résultat immédiat » décrit un flux qui n'est pas le
  *   nôtre (l'email vient avant l'écran de résultat).
  * - 2026-10-06 (décision Cyrille, Test à 25 questions) : plus aucune mention de
  *   durée à l'écran ; bouton « Découvrir mon masque ».
@@ -272,13 +272,15 @@ export function Welcome({ onCommencer }: Props) {
 
   return (
     <>
+      {/* Petits écrans (320 × 568) : haut resserré (pt-4, mb-3, titre mb-4) pour que
+          la bannière cookies ne recouvre pas le bouton principal. */}
       <main
-        className="mx-auto w-full max-w-3xl px-5 pb-10 pt-10 sm:px-6 md:px-8 md:pt-14"
+        className="mx-auto w-full max-w-3xl px-5 pb-10 pt-10 sm:px-6 md:px-8 md:pt-14 [@media(max-width:640px)_and_(max-height:600px)]:pt-4"
         style={{ color: 'var(--h3c-texte-principal)' }}
       >
         <section className="flex flex-col items-stretch">
           {/* Hero visuel — hors stagger : chaîne LCP */}
-          <div className="mx-auto mb-6 w-full max-w-2xl md:mb-8">
+          <div className="mx-auto mb-6 w-full max-w-2xl md:mb-8 [@media(max-width:640px)_and_(max-height:600px)]:mb-3">
             <MasquesHero />
           </div>
 
@@ -297,7 +299,7 @@ export function Welcome({ onCommencer }: Props) {
 
           {/* H1 centré — élément LCP, jamais animé */}
           <h1
-            className="mx-auto mb-7 max-w-2xl text-center text-3xl leading-tight sm:text-4xl md:mb-9 md:text-5xl"
+            className="mx-auto mb-7 max-w-2xl text-center text-3xl leading-tight sm:text-4xl md:mb-9 md:text-5xl [@media(max-width:640px)_and_(max-height:600px)]:mb-4"
             style={{ fontFamily: 'var(--font-titre)', fontWeight: 500 }}
           >
             En amour, vous rejouez toujours le même scénario

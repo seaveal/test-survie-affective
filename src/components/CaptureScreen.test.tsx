@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { CaptureScreen } from './CaptureScreen'
@@ -165,6 +165,33 @@ describe('CaptureScreen — sprint 2', () => {
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ telephone: undefined, consentementSms: false }),
     )
+  })
+
+  it('aria-invalid et le lien vers le message portent sur le champ fautif, et lui seul', async () => {
+    const user = userEvent.setup()
+    render(<CaptureScreen onSubmit={vi.fn()} />)
+    const email = screen.getByRole('textbox', { name: /email/i })
+    const mkt = screen.getByLabelText(/emails de cyrille novou/i)
+    const tel = screen.getByLabelText(/mobile/i)
+    const etat = () =>
+      [email, mkt, tel].map((el) => `${el.getAttribute('aria-invalid')}|${el.getAttribute('aria-describedby') ?? ''}`)
+
+    expect(mkt).toHaveAttribute('aria-required', 'true')
+    // Email malformé (validation native contournée : on teste notre garde)
+    await user.type(email, 'x@y')
+    fireEvent.submit(screen.getByTestId('capture-screen'))
+    expect(etat()).toEqual(['true|capture-erreur', 'null|', 'null|capture-telephone-aide'])
+    // Case marketing décochée
+    await user.type(email, '.fr')
+    fireEvent.submit(screen.getByTestId('capture-screen'))
+    expect(etat()).toEqual(['null|', 'true|capture-erreur', 'null|capture-telephone-aide'])
+    // SMS coché avec un numéro invalide
+    await user.click(mkt)
+    await user.type(tel, '123')
+    await user.click(screen.getByLabelText(/rappels et déclics par sms/i))
+    fireEvent.submit(screen.getByTestId('capture-screen'))
+    expect(etat()).toEqual(['null|', 'null|', 'true|capture-telephone-aide capture-erreur'])
+    expect(screen.getByRole('alert')).toHaveAttribute('id', 'capture-erreur')
   })
 
   it('consentement SMS coche + numero invalide : bloque le submit (resultats jamais conditionnes mais consentement sans objet)', async () => {

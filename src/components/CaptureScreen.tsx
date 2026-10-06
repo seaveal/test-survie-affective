@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { CaptureValues } from '../api/client'
 import { normaliserTelephone } from '../domain/phone'
 
@@ -22,6 +22,9 @@ interface Props {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+/** Champ fautif : il porte seul aria-invalid et le lien vers le message. */
+type ChampFautif = 'email' | 'mkt' | 'sms'
+
 export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = null }: Props) {
   const [email, setEmail] = useState('')
   const [prenom, setPrenom] = useState('')
@@ -43,20 +46,35 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
   // du tout. Les deux se levent ensemble, ou pas du tout.
   const [consMkt, setConsMkt] = useState(false)
   const [consSms, setConsSms] = useState(false)
-  const [erreur, setErreur] = useState<string | null>(null)
+  const [erreur, setErreur] = useState<{ champ: ChampFautif; message: string } | null>(null)
+  const boutonRef = useRef<HTMLButtonElement>(null)
+
+  // Un message d'erreur allonge le formulaire : on ramène le bouton à l'écran
+  // (et le message, qui le précède juste au-dessus). Absent de jsdom, d'où `?.`.
+  useEffect(() => {
+    if (erreur || erreurServeur) boutonRef.current?.scrollIntoView?.({ block: 'nearest' })
+  }, [erreur, erreurServeur])
+
+  const signaler = (champ: ChampFautif) =>
+    erreur?.champ === champ
+      ? { 'aria-invalid': true as const, 'aria-describedby': 'capture-erreur' }
+      : {}
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const normalise = email.trim().toLowerCase()
     if (!EMAIL_RE.test(normalise)) {
-      setErreur('Merci de saisir un email valide.')
+      setErreur({ champ: 'email', message: 'Merci de saisir un email valide.' })
       return
     }
     // Garde tenu en accord avec le validateur serveur, qui refuse `false` par
     // un 422 (cf. le commentaire de `consMkt`). Un message ici vaut mieux qu'un
     // echec dur la-bas. Les deux tombent ensemble le jour de la decision.
     if (!consMkt) {
-      setErreur("Le consentement marketing est requis pour recevoir votre profil par email.")
+      setErreur({
+        champ: 'mkt',
+        message: "Le consentement marketing est requis pour recevoir votre profil par email.",
+      })
       return
     }
     // SMS : entierement optionnel. Le consentement n'est valable qu'avec un
@@ -65,9 +83,11 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
     // correction explicite (sinon le consentement serait sans objet).
     const telE164 = normaliserTelephone(telephone)
     if (consSms && telE164 === null) {
-      setErreur(
-        'Pour recevoir les SMS, indiquez un numéro de mobile valide (ex : 06 12 34 56 78). Ce champ reste facultatif.',
-      )
+      setErreur({
+        champ: 'sms',
+        message:
+          'Pour recevoir les SMS, indiquez un numéro de mobile valide (ex : 06 12 34 56 78). Ce champ reste facultatif.',
+      })
       return
     }
     const smsOptIn = consSms && telE164 !== null
@@ -82,7 +102,7 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-2 px-4 py-3 md:gap-6 md:px-6 md:py-10">
+    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-2 px-4 py-2 md:gap-6 md:px-6 md:py-10">
       <header className="text-center">
         <p
           className="text-sm uppercase tracking-wide"
@@ -102,7 +122,7 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
 
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-2 rounded-xl p-3 md:gap-5 md:p-6"
+        className="flex flex-col gap-2 rounded-xl px-3 py-2 md:gap-5 md:p-6"
         style={{ background: 'var(--h3c-fond-card)' }}
         data-testid="capture-screen"
       >
@@ -117,8 +137,7 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            aria-invalid={erreur ? 'true' : 'false'}
-            aria-describedby={erreur ? 'capture-erreur' : undefined}
+            {...signaler('email')}
             className="rounded-md border bg-white px-3 py-1.5 text-base md:py-2"
             style={{ borderColor: 'var(--h3c-bordure)' }}
           />
@@ -149,6 +168,8 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
               type="checkbox"
               checked={consMkt}
               onChange={(e) => setConsMkt(e.target.checked)}
+              aria-required="true"
+              {...signaler('mkt')}
               className="mt-1 h-4 w-4"
             />
             <span>
@@ -170,8 +191,11 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
           </p>
         </fieldset>
 
-        {/* Mobile et SMS : facultatifs, repliés par défaut (2026-10-06) pour que
-            le bouton d'envoi tienne dans l'écran d'un téléphone. */}
+        {/* Mobile et SMS : facultatifs, repliés par défaut (2026-10-06). Sur
+            téléphone, le bouton d'envoi tient dans l'écran en 390 × 680 et
+            360 × 640, message d'erreur compris (mention de stockage passée sous
+            le bouton, `order-last`) ; en 320 × 568 ou mobile déplié, la page
+            défile jusqu'à lui. */}
         <details className="text-sm" data-testid="capture-mobile">
           <summary className="cursor-pointer font-medium">
             Ajouter mon mobile (facultatif)
@@ -187,7 +211,12 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
                 placeholder="06 12 34 56 78"
                 value={telephone}
                 onChange={(e) => setTelephone(e.target.value)}
-                aria-describedby="capture-telephone-aide"
+                aria-describedby={
+                  erreur?.champ === 'sms'
+                    ? 'capture-telephone-aide capture-erreur'
+                    : 'capture-telephone-aide'
+                }
+                aria-invalid={erreur?.champ === 'sms' ? true : undefined}
                 className="rounded-md border bg-white px-3 py-1.5 text-base md:py-2"
                 style={{ borderColor: 'var(--h3c-bordure)' }}
               />
@@ -225,12 +254,12 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
             className="text-sm"
             style={{ color: 'var(--h3c-alerte, #b91c1c)' }}
           >
-            {erreur ?? erreurServeur}
+            {erreur?.message ?? erreurServeur}
           </p>
         )}
 
         <p
-          className="text-xs leading-snug md:leading-relaxed"
+          className="order-last text-xs leading-snug md:order-none md:leading-relaxed"
           style={{ color: 'var(--h3c-texte-secondaire)' }}
         >
           Vos données sont stockées sur un serveur en France. Vous pouvez
@@ -240,7 +269,8 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
         <button
           type="submit"
           disabled={envoiEnCours}
-          className="tsa-cta-terracotta rounded-md px-6 py-3 text-base font-medium text-white transition disabled:opacity-50"
+          ref={boutonRef}
+          className="tsa-cta-terracotta scroll-mb-12 rounded-md md:scroll-mb-0 px-6 py-3 text-base font-medium text-white transition disabled:opacity-50"
           data-testid="capture-envoyer"
         >
           {envoiEnCours ? 'Envoi en cours...' : TEXTES_CAPTURE.bouton}

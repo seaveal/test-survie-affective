@@ -83,7 +83,7 @@ describe('CaptureScreen — sprint 2', () => {
 
   it('textes validés le 2026-10-06 (A2, variante fin de Test)', () => {
     render(<CaptureScreen onSubmit={vi.fn()} />)
-    expect(screen.getByText('Dernière étape')).toBeInTheDocument()
+    expect(screen.getByText('Votre profil offert par email')).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       /^Où voulez-vous recevoir votre profil \?$/,
     )

@@ -12,7 +12,7 @@ interface Props {
  * Regroupés ici pour qu'une autre branche les remplace d'un bloc.
  */
 const TEXTES_CAPTURE = {
-  surtitre: 'Dernière étape',
+  surtitre: 'Votre profil offert par email',
   titre: 'Où voulez-vous recevoir votre profil ?',
   phrase:
     "Vous avez répondu aux 25 questions. Indiquez votre email pour recevoir votre profil complet. Votre masque s'affichera à l'écran après cette étape.",

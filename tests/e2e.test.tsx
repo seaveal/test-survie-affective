@@ -180,7 +180,13 @@ describe('e2e livraison 2 : email après la 3e réponse', () => {
     expect(vers('/api/test-jalon').map((a) => a.corps!.jalon)).toEqual(['arrivee', 'commencer', 'email_affiche'])
     expect(vers('/api/test-jalon')[0].corps).toMatchObject({ utm_source: 'ig', utm_medium: 'social' })
     // Jalons une fois par chargement : un second passage par l'accueil n'en renvoie aucun (m6).
+    // « Recommencer » vide aussi la file des fins en attente et le jeton gardé (relecture L2, N1) :
+    // une fin du Test abandonné, rejouée plus tard, écraserait le profil du nouveau Test.
+    localStorage.setItem('tsa.pending-captures', JSON.stringify([{ email: 'x@y.z' }]))
+    localStorage.setItem('tsa.reprise', 'jeton-perime')
     await user.click(screen.getByRole('button', { name: /Recommencer le test/i }))
+    expect(localStorage.getItem('tsa.pending-captures')).toBe('[]')
+    expect(localStorage.getItem('tsa.reprise')).toBeNull()
     await commencerLeTest(user)
     expect(vers('/api/test-jalon')).toHaveLength(3)
   })

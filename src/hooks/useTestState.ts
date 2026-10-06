@@ -25,6 +25,7 @@ import {
   type EtatProgression,
   type Jalon,
   type TestCompleteResponse,
+  viderFinsEnAttente,
 } from '../api/client'
 
 // Livraison 2 (2026-10-06) : accueil → 3 réponses → email → 22 réponses → résultat.
@@ -270,6 +271,8 @@ export function useTestState(): UseTestState {
   }, [jalon, restaurer])
 
   const recommencer = useCallback(() => {
+    viderFinsEnAttente()
+    garderJetonReprise(null)
     setEtape('welcome')
     setIndexCourant(0)
     setResultat(null)

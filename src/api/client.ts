@@ -98,6 +98,12 @@ function writeQueue(items: TestCompletePayload[]): void {
   }
 }
 
+/** « Recommencer » : une fin encore en file appartient au Test abandonné ; rejouée
+ *  plus tard avec l'email, elle écraserait le profil du nouveau Test (relecture L2, N1). */
+export function viderFinsEnAttente(): void {
+  writeQueue([])
+}
+
 function enqueue(payload: TestCompletePayload): void {
   const q = readQueue()
   q.push(payload)

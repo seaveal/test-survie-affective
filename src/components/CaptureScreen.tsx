@@ -91,11 +91,11 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
         >
           {TEXTES_CAPTURE.surtitre}
         </p>
-        <h1 className="mt-1 text-xl md:mt-2 md:text-4xl">{TEXTES_CAPTURE.titre}</h1>
+        <h1 className="mt-1 text-xl [@media(max-width:640px)_and_(max-height:700px)]:text-lg md:mt-2 md:text-4xl">{TEXTES_CAPTURE.titre}</h1>
       </header>
 
       <p
-        className="text-[0.8125rem] leading-snug md:text-base md:leading-relaxed"
+        className="text-[0.8125rem] leading-snug [@media(max-width:640px)_and_(max-height:700px)]:text-xs md:text-base md:leading-relaxed"
         style={{ color: 'var(--h3c-texte-secondaire)' }}
       >
         {TEXTES_CAPTURE.phrase}
@@ -120,7 +120,7 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             {...signaler('email')}
-            className="rounded-md border bg-white px-3 py-1.5 text-base md:py-2"
+            className="rounded-md border bg-white px-3 py-1.5 text-base [@media(max-width:640px)_and_(max-height:700px)]:py-1 md:py-2"
             style={{ borderColor: 'var(--h3c-bordure)' }}
           />
         </label>
@@ -133,7 +133,7 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
             autoComplete="given-name"
             value={prenom}
             onChange={(e) => setPrenom(e.target.value)}
-            className="rounded-md border bg-white px-3 py-1.5 text-base md:py-2"
+            className="rounded-md border bg-white px-3 py-1.5 text-base [@media(max-width:640px)_and_(max-height:700px)]:py-1 md:py-2"
             style={{ borderColor: 'var(--h3c-bordure)' }}
           />
         </label>
@@ -143,7 +143,7 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
 
           <label
             htmlFor="cap-cons-mkt"
-            className="flex cursor-pointer items-start gap-3 text-sm leading-snug md:leading-relaxed"
+            className="flex cursor-pointer items-start gap-3 text-sm leading-snug [@media(max-width:640px)_and_(max-height:700px)]:text-xs md:leading-relaxed"
           >
             <input
               id="cap-cons-mkt"

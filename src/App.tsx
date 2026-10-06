@@ -32,6 +32,7 @@ function App() {
         className="flex min-h-screen items-center justify-center px-6 text-sm"
         style={{ color: 'var(--h3c-texte-secondaire)' }}
         aria-busy="true"
+        role="status"
       >
         Chargement de votre Test…
       </main>

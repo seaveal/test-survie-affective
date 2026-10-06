@@ -274,7 +274,7 @@ describe('api/client', () => {
       expect(queue).toHaveLength(1)
     })
 
-    it.each([422, 410, 404])('retourne null et N’EMPILE PAS un %i (livraison 2 : aucun 4xx en file)', async (status) => {
+    it.each([422, 410, 404])('rend { refus } et N’EMPILE PAS un %i (livraison 2 : aucun 4xx définitif en file)', async (status) => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
         ok: false,
         status,
@@ -282,7 +282,7 @@ describe('api/client', () => {
       } as unknown as Response)
       const payload = buildPayload(CAPTURE, RESULTAT)
       const res = await submitTestComplete(payload)
-      expect(res).toBeNull()
+      expect(res).toEqual({ refus: status })
       expect(localStorage.getItem('tsa.pending-captures')).toBeNull()
     })
 

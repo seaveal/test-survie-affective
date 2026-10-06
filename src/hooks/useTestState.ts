@@ -15,6 +15,7 @@ import {
   emettreEvenement,
   envoyerJalon,
   garderJetonReprise,
+  lireJetonContact,
   lireJetonReprise,
   lireProgression,
   nouvelEventId,
@@ -47,6 +48,7 @@ interface UseTestState {
   resultat: Resultat | null
   envoiEnCours: boolean
   envoiReussi: boolean
+  envoiRefuse: boolean
   erreurCapture: string | null
   apiResponse: TestCompleteResponse | null
   commencer: () => void
@@ -91,7 +93,27 @@ function reponsesEnvoyees(r: Reponses, n: number): Brut {
   return out
 }
 
-/** Réponses rendues par le serveur, fusionnées sur l'état vide. */
+/** Valeur admise par la question (option existante). */
+function valeurValide(q: Question, v: unknown): boolean {
+  if (q.type === 'typage') return q.options.some((o) => o.id === v)
+  return (q.options as { valeur: unknown }[]).some((o) => o.valeur === v)
+}
+
+/**
+ * Réponses rendues par le serveur, réduites aux questions en vigueur et aux
+ * options existantes (question retirée ou inconnue, option disparue : ignorée,
+ * la question est reposée), au format de l'API.
+ */
+function reponsesValides(brut: Brut): Brut {
+  const out: Brut = { typage: {}, intensite: {}, contexte: {} }
+  for (const q of questions) {
+    const v = valeurDe(brut, q)
+    if (valeurValide(q, v)) (out[q.type] as Record<string, unknown>)[q.type === 'contexte' ? (q.champCible as string) : String(q.id)] = v
+  }
+  return out
+}
+
+/** Réponses (déjà validées) fusionnées sur l'état vide. */
 function reponsesRestaurees(brut: Brut): Reponses {
   const bloc = (k: string) => (brut[k] && typeof brut[k] === 'object' ? brut[k] : {}) as Record<string, never>
   return {
@@ -109,15 +131,17 @@ function premiereSansReponse(brut: Brut): number {
 }
 
 export function useTestState(): UseTestState {
-  // Jeton lu une fois au chargement : tsa.reprise, sinon le `?c=` du courriel.
-  const [jetonInitial] = useState(lireJetonReprise)
-  const [etape, setEtape] = useState<Etape>(jetonInitial ? 'chargement' : 'welcome')
+  // Lus une fois au chargement : jeton de cycle (tsa.reprise), jeton de contact (`?c=` du courriel).
+  const [sources] = useState(() => ({ stocke: lireJetonReprise(), contact: lireJetonContact() }))
+  const [etape, setEtape] = useState<Etape>(sources.stocke || sources.contact ? 'chargement' : 'welcome')
   const [indexCourant, setIndexCourant] = useState(0)
   const [reponses, setReponses] = useState<Reponses>(() => reponsesRestaurees({}))
   const [resultat, setResultat] = useState<Resultat | null>(null)
   const [envoiEnCours, setEnvoiEnCours] = useState(false)
   const [envoiReussi, setEnvoiReussi] = useState(false)
   const [erreurCapture, setErreurCapture] = useState<string | null>(null)
+  // Fin refusée par l'API (4xx définitif) : rien n'est gardé, l'écran le dit.
+  const [envoiRefuse, setEnvoiRefuse] = useState(false)
   const [apiResponse, setApiResponse] = useState<TestCompleteResponse | null>(null)
   // Jeton servi par l'API pour CE Test (null tant que /api/test-debut n'a pas répondu).
   const jetonRef = useRef<string | null>(null)
@@ -130,6 +154,8 @@ export function useTestState(): UseTestState {
   const repriseLancee = useRef(false)
   // Position la plus avancée atteinte : un retour en arrière ne retire rien au serveur.
   const maxAtteint = useRef(0)
+  // Dernier état des réponses, pour la sauvegarde d'un jeton adopté tardivement.
+  const reponsesRef = useRef<Reponses>(reponsesVides)
   // Sauvegarde sans rafale : une requête à la fois, la suivante part avec le dernier état.
   const file = useRef({ enVol: false, attente: null as Brut | null })
 
@@ -148,15 +174,6 @@ export function useTestState(): UseTestState {
     emettreEvenement('lead', { event_id: eventIdRef.current })
   }, [])
 
-  const adopterJeton = useCallback(
-    (jeton: string) => {
-      jetonRef.current = jeton
-      garderJetonReprise(jeton)
-      emettreLead()
-    },
-    [emettreLead],
-  )
-
   const sauvegarder = useCallback(async (etat: Brut) => {
     const f = file.current
     if (f.enVol) {
@@ -170,29 +187,47 @@ export function useTestState(): UseTestState {
     f.enVol = false
   }, [])
 
+  const adopterJeton = useCallback(
+    (jeton: string) => {
+      jetonRef.current = jeton
+      garderJetonReprise(jeton)
+      emettreLead()
+      // Jeton arrivé après la borne : les réponses données entre-temps partent tout de suite.
+      if (maxAtteint.current > REPONSES_AVANT_EMAIL) void sauvegarder(reponsesEnvoyees(reponsesRef.current, maxAtteint.current))
+    },
+    [emettreLead, sauvegarder],
+  )
+
   // Reprise : GET une seule fois au chargement (garde contre le double effet de StrictMode).
   useEffect(() => {
-    if (!jetonInitial || repriseLancee.current) return
+    const { stocke, contact } = sources
+    if (!(stocke || contact) || repriseLancee.current) return
     repriseLancee.current = true
-    void lireProgression(jetonInitial).then((r) => {
-      if (r.etat === 'en-cours') {
-        const brut = r.reponses as Brut
-        jetonRef.current = jetonInitial
-        garderJetonReprise(jetonInitial)
+    void (async () => {
+      let r = stocke ? await lireProgression({ jeton: stocke }) : null
+      // tsa.reprise périmé (ou absent) : le lien du courriel prend le relais.
+      if (r?.etat === 'oublier') garderJetonReprise(null)
+      if ((!r || r.etat === 'oublier') && contact) r = await lireProgression({ c: contact })
+      return r
+    })().then((r) => {
+      if (r?.etat === 'en-cours') {
+        const brut = reponsesValides(r.reponses as Brut)
+        jetonRef.current = r.jeton
+        garderJetonReprise(r.jeton)
         emailDemandeRef.current = true
-        setReponses(reponsesRestaurees(brut))
+        reponsesRef.current = reponsesRestaurees(brut)
+        setReponses(reponsesRef.current)
         maxAtteint.current = premiereSansReponse(brut)
         setIndexCourant(maxAtteint.current)
         setEtape('questions')
         return
       }
-      // Terminé ou 404 : jeton oublié. Erreur réseau (trois essais) : gardé pour
-      // un prochain chargement, y compris celui du lien `?c=` que la page retire
-      // de l'adresse ; pas utilisé ici (il écraserait la progression du serveur).
-      garderJetonReprise(r.etat === 'oublier' ? null : jetonInitial)
+      // Terminé, 404 ou 410 : tsa.reprise déjà oublié. Erreur réseau (trois
+      // essais) : tsa.reprise gardé pour un prochain chargement, comme le jeton
+      // du lien que le bloc de suivi garde pour la session.
       setEtape('welcome')
     })
-  }, [jetonInitial])
+  }, [sources])
 
   useEffect(() => {
     if (etape === 'welcome') jalon('arrivee')
@@ -213,13 +248,15 @@ export function useTestState(): UseTestState {
     setEnvoiReussi(false)
     setApiResponse(null)
     setErreurCapture(null)
+    setEnvoiRefuse(false)
     jetonRef.current = null
     captureRef.current = null
     eventIdRef.current = null
     leadEmisRef.current = false
     emailDemandeRef.current = false
     maxAtteint.current = 0
-    setReponses(reponsesRestaurees({}))
+    reponsesRef.current = reponsesVides
+    setReponses(reponsesVides)
   }, [])
 
   const retour = useCallback(() => {
@@ -251,13 +288,17 @@ export function useTestState(): UseTestState {
         contexte: nouvelles.contexte,
       })
       if (jeton) payload.jeton = jeton
-      else if (eventIdRef.current) {
-        payload.event_id = eventIdRef.current
-        emettreLead()
-      }
+      else if (eventIdRef.current) payload.event_id = eventIdRef.current
       setEnvoiEnCours(true)
       try {
         const res = await submitTestComplete(payload)
+        if (res && 'refus' in res) {
+          // Refus définitif : aucun lead pour une demande que le serveur a rejetée.
+          setEnvoiRefuse(true)
+          return
+        }
+        // Repli : le lead part ici (envoyé, ou gardé en file pour plus tard).
+        if (!jeton) emettreLead()
         setApiResponse(res)
         setEnvoiReussi(res !== null)
         if (res !== null) garderJetonReprise(null)
@@ -275,6 +316,7 @@ export function useTestState(): UseTestState {
         void finaliser(nouvelles)
         return
       }
+      reponsesRef.current = nouvelles
       setIndexCourant(next)
       maxAtteint.current = Math.max(maxAtteint.current, next)
       if (next === REPONSES_AVANT_EMAIL && !emailDemandeRef.current) {
@@ -344,7 +386,12 @@ export function useTestState(): UseTestState {
       setErreurCapture(null)
       setEnvoiEnCours(true)
       eventIdRef.current = nouvelEventId()
-      const appel = demarrerTest(capture, eventIdRef.current, reponsesEnvoyees(reponses, REPONSES_AVANT_EMAIL))
+      const appel = demarrerTest(
+        capture,
+        eventIdRef.current,
+        reponsesEnvoyees(reponses, Math.max(REPONSES_AVANT_EMAIL, maxAtteint.current)),
+        jetonRef.current ?? lireJetonReprise(),
+      )
       const borne = new Promise<null>((ok) => setTimeout(() => ok(null), BORNE_DEBUT_MS))
       const r = await Promise.race([appel, borne])
       setEnvoiEnCours(false)
@@ -358,7 +405,19 @@ export function useTestState(): UseTestState {
       emailDemandeRef.current = true
       if (r?.etat === 'ok') adopterJeton(r.jeton)
       // Réponse tardive : le jeton est adopté à son arrivée (Test pas recommencé entre-temps).
-      else if (r === null) void appel.then((t) => t.etat === 'ok' && captureRef.current === capture && adopterJeton(t.jeton))
+      else if (r === null)
+        void appel.then((t) => {
+          if (captureRef.current !== capture) return // Test recommencé entre-temps
+          if (t.etat === 'ok') adopterJeton(t.jeton)
+          else if (t.etat === 'refus') {
+            // Refus tardif : pas de repli, l'email est redemandé (le Test reprend où il en était).
+            captureRef.current = null
+            eventIdRef.current = null
+            emailDemandeRef.current = false
+            setErreurCapture(MESSAGES_REFUS[t.status])
+            setEtape((e) => (e === 'questions' ? 'capture' : e))
+          }
+        })
       setEtape('questions')
     },
     [reponses, adopterJeton],
@@ -373,6 +432,7 @@ export function useTestState(): UseTestState {
       resultat,
       envoiEnCours,
       envoiReussi,
+      envoiRefuse,
       erreurCapture,
       apiResponse,
       commencer,
@@ -391,6 +451,7 @@ export function useTestState(): UseTestState {
       resultat,
       envoiEnCours,
       envoiReussi,
+      envoiRefuse,
       erreurCapture,
       apiResponse,
       commencer,

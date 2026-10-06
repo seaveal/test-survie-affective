@@ -119,13 +119,14 @@ class ErreurHttp extends Error {
  * le rejouer à chaque ouverture ne ferait que répéter le refus.
  */
 function rejouable(err: unknown): boolean {
-  return !(err instanceof ErreurHttp) || err.status >= 500
+  // 408 et 429 (limiteur, IP mobile partagée) sont passagers : rejoués.
+  return !(err instanceof ErreurHttp) || err.status >= 500 || err.status === 408 || err.status === 429
 }
 
-/** fetch borné à 10 s. Lève sur panne réseau ou délai ; rend la réponse sinon. */
-async function appel(method: string, chemin: string, corps?: unknown): Promise<Response> {
+/** fetch borné (10 s par défaut). Lève sur panne réseau ou délai ; rend la réponse sinon. */
+async function appel(method: string, chemin: string, corps?: unknown, delaiMs = 10_000): Promise<Response> {
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 10_000)
+  const timeout = setTimeout(() => controller.abort(), delaiMs)
   try {
     return await fetch(`${getApiUrl()}${chemin}`, {
       method,
@@ -179,7 +180,7 @@ export function nouvelEventId(): string {
  */
 export async function submitTestComplete(
   payload: TestCompletePayload,
-): Promise<TestCompleteResponse | null> {
+): Promise<TestCompleteResponse | { refus: number } | null> {
   // Chantier 8 : Lead dédupliqué Pixel↔CAPI. On génère l'event_id UNE fois,
   // on pousse l'événement browser (dataLayer → GTM → Pixel, si consenti) et le
   // même id part au serveur (CAPI). Les retries de queue gardent l'event_id
@@ -195,8 +196,12 @@ export async function submitTestComplete(
   } catch (err) {
     // eslint-disable-next-line no-console
     console.warn('[tsa] échec envoi test-complete', err)
-    if (rejouable(err)) enqueue(payload)
-    return null
+    if (rejouable(err)) {
+      enqueue(payload)
+      return null
+    }
+    // Refus définitif (4xx) : rien n'est gardé, l'écran doit le dire.
+    return { refus: err instanceof ErreurHttp ? err.status : 0 }
   }
 }
 
@@ -388,13 +393,17 @@ function champsCapture(capture: CaptureValues) {
 /** Clé propre à la page : le jeton de reprise rendu par /api/test-debut. */
 export const REPRISE_KEY = 'tsa.reprise'
 
+/** Jeton de cycle gardé par la page (contrat v2). */
 export function lireJetonReprise(): string | undefined {
   try {
-    const local = localStorage.getItem(REPRISE_KEY)
-    if (local) return local
+    return localStorage.getItem(REPRISE_KEY) || undefined
   } catch {
-    // stockage indisponible : on tente le jeton de l'adresse
+    return undefined // stockage indisponible
   }
+}
+
+/** Jeton de contact du lien du courriel (`?c=`), exposé par le bloc de suivi. */
+export function lireJetonContact(): string | undefined {
   try {
     return window.h3cContact?.() || undefined
   } catch {
@@ -426,6 +435,7 @@ export async function demarrerTest(
   capture: CaptureValues,
   eventId: string,
   reponses: Record<string, unknown>,
+  jeton?: string,
 ): Promise<ResultatDebut> {
   const base = buildPayload(capture, {} as Resultat)
   const corps = {
@@ -436,6 +446,7 @@ export async function demarrerTest(
     fbc: base.fbc,
     landing_url: base.landing_url,
     reponses,
+    ...(jeton ? { jeton } : {}),
   }
   try {
     const res = await appel('POST', '/api/test-debut', corps)
@@ -463,8 +474,8 @@ export async function sauvegarderProgression(
 }
 
 export type EtatProgression =
-  | { etat: 'en-cours'; reponses: Record<string, unknown> }
-  | { etat: 'oublier' } // terminé ou 404 : le jeton ne sert plus
+  | { etat: 'en-cours'; reponses: Record<string, unknown>; jeton: string }
+  | { etat: 'oublier' } // terminé, 404 ou 410 : le jeton ne sert plus
   | { etat: 'erreur' } // réseau, 5xx : accueil normal, jeton gardé
 
 // Reprise : une panne au chargement ne renvoie pas le visiteur à zéro (il
@@ -472,25 +483,33 @@ export type EtatProgression =
 // tentatives, ~0,8 s puis 2 s, écran d'attente maintenu ; jamais après un 404
 // ni un `termine`, qui sont des réponses définitives.
 const ATTENTES_REPRISE_MS = [800, 2000]
+// Délai d'abandon d'une lecture : 4 s (au pire ~15 s d'écran d'attente, contre 33 s).
+const DELAI_LECTURE_MS = 4000
 
-export async function lireProgression(jeton: string): Promise<EtatProgression> {
-  let r = await lireProgressionUneFois(jeton)
+/** Jeton de cycle (`tsa.reprise`) ou jeton de contact du lien (`c`). */
+export type SourceReprise = { jeton: string } | { c: string }
+
+export async function lireProgression(source: SourceReprise): Promise<EtatProgression> {
+  let r = await lireProgressionUneFois(source)
   for (const ms of ATTENTES_REPRISE_MS) {
     if (r.etat !== 'erreur') break
     await new Promise((fin) => setTimeout(fin, ms))
-    r = await lireProgressionUneFois(jeton)
+    r = await lireProgressionUneFois(source)
   }
   return r
 }
 
-async function lireProgressionUneFois(jeton: string): Promise<EtatProgression> {
+async function lireProgressionUneFois(source: SourceReprise): Promise<EtatProgression> {
+  const [cle, valeur] = 'jeton' in source ? ['jeton', source.jeton] : ['c', source.c]
   try {
-    const res = await appel('GET', `/api/test-progression?c=${encodeURIComponent(jeton)}`)
-    if (res.status === 404) return { etat: 'oublier' }
+    const res = await appel('GET', `/api/test-progression?${cle}=${encodeURIComponent(valeur)}`, undefined, DELAI_LECTURE_MS)
+    if (res.status === 404 || res.status === 410) return { etat: 'oublier' }
     if (!res.ok) return { etat: 'erreur' }
-    const data = (await res.json()) as { termine?: boolean; reponses?: Record<string, unknown> }
+    const data = (await res.json()) as { termine?: boolean; reponses?: Record<string, unknown>; jeton?: unknown }
     if (data.termine) return { etat: 'oublier' }
-    return data.reponses ? { etat: 'en-cours', reponses: data.reponses } : { etat: 'erreur' }
+    // Le serveur rend le jeton de cycle courant ; par `?jeton=`, c'est celui envoyé.
+    const jeton = typeof data.jeton === 'string' && data.jeton ? data.jeton : 'jeton' in source ? source.jeton : ''
+    return data.reponses && jeton ? { etat: 'en-cours', reponses: data.reponses, jeton } : { etat: 'erreur' }
   } catch {
     return { etat: 'erreur' }
   }

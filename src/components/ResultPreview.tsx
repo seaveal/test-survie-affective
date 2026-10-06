@@ -21,6 +21,8 @@ interface Props {
   envoiReussi: boolean
   apercu?: boolean
   envoiEnCours?: boolean
+  /** Fin refusée par l'API (4xx) : rien n'est conservé ni envoyé. */
+  envoiRefuse?: boolean
 }
 
 // Une valeur vide explicite permet de désactiver la vidéo. Sinon : montage validé.
@@ -217,7 +219,7 @@ export function KitBloc({ profil }: { profil: ProfilId }) {
   )
 }
 
-export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCours = false }: Props) {
+export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCours = false, envoiRefuse = false }: Props) {
   const profil = getProfil(resultat.profilDominant)
 
   return (
@@ -265,7 +267,8 @@ export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCo
           borderLeft: '4px solid var(--h3c-accent-secondaire)',
         }}
       >
-        <h2 className="text-xl">{envoiReussi || apercu ? 'Votre rapport arrive dans une dizaine de minutes' : 'Votre demande est en cours d’envoi'}</h2>
+        <h2 className="text-xl">{envoiRefuse ? 'Votre adresse n’a pas pu être enregistrée.' : envoiReussi || apercu ? 'Votre rapport arrive dans une dizaine de minutes' : 'Votre demande est en cours d’envoi'}</h2>
+        {!envoiRefuse && (<>
         <p className="mt-3 text-base leading-relaxed">
           Vous recevrez par email le détail de votre profil, votre feuille de route
           et votre séance guidée offerte.
@@ -276,7 +279,8 @@ export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCo
         >
           {apercu ? 'Cet aperçu utilise un profil d’exemple et ne déclenche aucun envoi.' : 'Pensez à vérifier vos spams si vous ne trouvez pas le message.'}
         </p>
-        {!envoiReussi && !envoiEnCours && (
+        </>)}
+        {!envoiReussi && !envoiEnCours && !envoiRefuse && (
           <p
             role="status"
             className="mt-4 text-sm"

@@ -101,7 +101,7 @@ function App() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col">
       <ResultPreview resultat={s.resultat} envoiReussi={s.envoiReussi}
-            envoiEnCours={s.envoiEnCours} />
+            envoiEnCours={s.envoiEnCours} envoiRefuse={s.envoiRefuse} />
       <div className="px-6 pb-12 pt-4 text-center">
         <button
           type="button"

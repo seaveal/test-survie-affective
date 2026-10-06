@@ -113,6 +113,7 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
           </span>
           <input
             id="capture-email"
+            autoFocus
             type="email"
             required
             autoComplete="email"

@@ -46,7 +46,13 @@ async function passerLecranCapture(
 const JETON = 'h1.' + 'a'.repeat(40)
 type Appel = { methode: string; chemin: string; corps: Record<string, unknown> | null }
 let appels: Appel[]
-let reglage: { debut?: number | 'reseau'; put?: 'reseau'; get?: number | Record<string, unknown> }
+let reglage: {
+  debut?: number | 'reseau' | { status: number; delai: number }
+  put?: 'reseau'
+  get?: number | Record<string, unknown>
+  getC?: number | Record<string, unknown>
+  fin?: number
+}
 let suivi: ReturnType<typeof vi.fn>
 
 function repondre(status: number, data: unknown = {}): Response {
@@ -59,7 +65,12 @@ function fauxServeur(url: string, init?: RequestInit): Promise<Response> {
   appels.push({ methode: init?.method ?? 'GET', chemin: u.pathname + u.search, corps })
   if (u.pathname === '/api/test-debut') {
     if (reglage.debut === 'reseau') return Promise.reject(new TypeError('Failed to fetch'))
-    if (reglage.debut) return Promise.resolve(repondre(reglage.debut))
+    const d = reglage.debut
+    if (typeof d === 'object') {
+      const r = d.status === 200 ? repondre(200, { ok: true, jeton: JETON }) : repondre(d.status)
+      return new Promise((ok) => setTimeout(() => ok(r), d.delai))
+    }
+    if (d) return Promise.resolve(repondre(d))
     return Promise.resolve(repondre(200, { ok: true, jeton: JETON }))
   }
   if (u.pathname === '/api/test-progression' && init?.method === 'PUT') {
@@ -67,10 +78,11 @@ function fauxServeur(url: string, init?: RequestInit): Promise<Response> {
     return Promise.resolve(repondre(200, { ok: true }))
   }
   if (u.pathname === '/api/test-progression') {
-    const g = reglage.get ?? 404
+    const g = (u.searchParams.has('c') ? reglage.getC : reglage.get) ?? 404
     return Promise.resolve(typeof g === 'number' ? repondre(g) : repondre(200, g))
   }
   if (u.pathname === '/api/test-jalon') return Promise.resolve(repondre(204))
+  if (reglage.fin) return Promise.resolve(repondre(reglage.fin))
   return Promise.resolve(repondre(200, { contact_id: 'c', test_id: 't', cadeau_coupon_expire_le: '', nurturing_planifie: 0 }))
 }
 
@@ -227,7 +239,7 @@ describe('e2e livraison 2 : email après la 3e réponse', () => {
     render(<App />)
     expect(screen.getByText(/Chargement de votre Test/)).toBeInTheDocument()
     expect(await screen.findByText(/Question 8 sur 25/)).toBeInTheDocument()
-    expect(vers('/api/test-progression', 'GET')[0].chemin).toBe(`/api/test-progression?c=${JETON}`)
+    expect(vers('/api/test-progression', 'GET')[0].chemin).toBe(`/api/test-progression?jeton=${JETON}`)
     expect(vers('/api/test-jalon')).toHaveLength(0)
     expect(localStorage.getItem('tsa.reprise')).toBe(JETON)
     // La suite sauvegarde avec le jeton repris, sans redemander l'email.
@@ -252,10 +264,10 @@ describe('e2e livraison 2 : email après la 3e réponse', () => {
 
   it('reprise par le lien du courriel (window.h3cContact) quand tsa.reprise est vide', async () => {
     window.h3cContact = () => JETON
-    reglage.get = { termine: false, reponses: reponsesServeur(10) }
+    reglage.getC = { termine: false, reponses: reponsesServeur(10), jeton: 'cycle-lien' }
     render(<App />)
     expect(await screen.findByText(/Question 11 sur 25/)).toBeInTheDocument()
-    expect(localStorage.getItem('tsa.reprise')).toBe(JETON)
+    expect(localStorage.getItem('tsa.reprise')).toBe('cycle-lien') // jeton de cycle rendu, jamais le jeton de contact
   })
 
   it.each([{ termine: true }, 404] as const)('reprise %o : jeton oublié, accueil normal', async (get) => {
@@ -264,10 +276,149 @@ describe('e2e livraison 2 : email après la 3e réponse', () => {
     render(<App />)
     expect(await screen.findByTestId('cta-haut')).toBeInTheDocument()
     expect(localStorage.getItem('tsa.reprise')).toBeNull()
-    expect(vers('/api/test-jalon').map((a) => a.corps!.jalon)).toEqual(['arrivee'])
+    // Le jalon part d'un effet postérieur à l'affichage (constat M1).
+    await waitFor(() => expect(vers('/api/test-jalon').map((a) => a.corps!.jalon)).toEqual(['arrivee']))
     // Réponse définitive : aucune nouvelle tentative.
     expect(vers('/api/test-progression', 'GET')).toHaveLength(1)
   })
+
+  it('reprise : réponses hors questionnaire ignorées, la fin part quand même (constat S1)', async () => {
+    localStorage.setItem('tsa.reprise', JETON)
+    const r = reponsesServeur(5)
+    const q1 = questions[0]
+    r.typage['3'] = 'A' // question retirée
+    r.typage['29'] = 'A' // question retirée
+    r.typage['999'] = 'A' // inconnue
+    r.typage[String(q1.id)] = 'Z' // option inexistante : question à reposer
+    reglage.get = { termine: false, reponses: r, jeton: JETON }
+    const user = userEvent.setup()
+    render(<App />)
+    expect(await screen.findByText(/Question 1 sur 25/)).toBeInTheDocument()
+    await repondreN(user, 25)
+    await waitFor(() => expect(vers('/api/test-complete')).toHaveLength(1))
+    const corps = vers('/api/test-complete')[0].corps!
+    expect(corps.jeton).toBe(JETON)
+    const typage = (corps.resultat as { reponsesBrutes: { typage: Record<string, unknown> } }).reponsesBrutes.typage
+    expect(Object.keys(typage)).not.toContain('3')
+    expect(Object.keys(typage)).not.toContain('999')
+  })
+
+  it('tsa.reprise périmé : GET ?jeton= puis ?c= du lien ; le jeton de cycle rendu est adopté (constat M2, contrat v2)', async () => {
+    localStorage.setItem('tsa.reprise', 'cycle-perime')
+    window.h3cContact = () => JETON
+    reglage.get = 404
+    reglage.getC = { termine: false, reponses: reponsesServeur(3), jeton: 'cycle-2' }
+    const user = userEvent.setup()
+    render(<App />)
+    expect(await screen.findByText(/Question 4 sur 25/)).toBeInTheDocument()
+    expect(vers('/api/test-progression', 'GET').map((a) => a.chemin)).toEqual([
+      '/api/test-progression?jeton=cycle-perime',
+      `/api/test-progression?c=${encodeURIComponent(JETON)}`,
+    ])
+    expect(localStorage.getItem('tsa.reprise')).toBe('cycle-2')
+    await repondreN(user, 1)
+    await waitFor(() => expect(vers('/api/test-progression', 'PUT')[0]?.corps!.jeton).toBe('cycle-2'))
+  })
+
+  it('tsa.reprise périmé sans lien : accueil, jeton oublié', async () => {
+    localStorage.setItem('tsa.reprise', 'cycle-perime')
+    reglage.get = 410
+    render(<App />)
+    expect(await screen.findByTestId('cta-haut')).toBeInTheDocument()
+    expect(localStorage.getItem('tsa.reprise')).toBeNull()
+  })
+
+  it('écran de l’email : le focus arrive sur le champ email (constat M4)', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await commencerLeTest(user)
+    await repondreN(user, 3)
+    expect(await screen.findByTestId('capture-screen')).toBeInTheDocument()
+    expect(document.activeElement?.id).toBe('capture-email')
+  })
+
+  it('refus 410 arrivé après la borne : écran de l’email rouvert avec le message, aucun lead (constat S2)', async () => {
+    reglage.debut = { status: 410, delai: 2800 }
+    const user = userEvent.setup()
+    render(<App />)
+    await commencerLeTest(user)
+    await repondreN(user, 3)
+    await passerLecranCapture(user)
+    expect(await screen.findByText(/Question 4 sur 25/, {}, { timeout: 4000 })).toBeInTheDocument()
+    await repondreN(user, 1)
+    expect(await screen.findByText(/supprimée de nos fichiers/, {}, { timeout: 4000 })).toBeInTheDocument()
+    expect(screen.getByTestId('capture-screen')).toBeInTheDocument()
+    expect(leads()).toHaveLength(0)
+    reglage.debut = undefined
+    await passerLecranCapture(user)
+    expect(await screen.findByText(/Question 5 sur 25/)).toBeInTheDocument()
+    expect(vers('/api/test-debut')).toHaveLength(2)
+    expect(Object.keys((vers('/api/test-debut')[1].corps!.reponses as { typage: object }).typage).length).toBeGreaterThan(0)
+    expect(leads()).toHaveLength(1)
+  }, 15_000)
+
+  it('jeton arrivé après la borne : un PUT part à l’adoption (constat M6)', async () => {
+    reglage.debut = { status: 200, delai: 2800 }
+    const user = userEvent.setup()
+    render(<App />)
+    await commencerLeTest(user)
+    await repondreN(user, 3)
+    await passerLecranCapture(user)
+    expect(await screen.findByText(/Question 4 sur 25/, {}, { timeout: 4000 })).toBeInTheDocument()
+    await repondreN(user, 2)
+    await waitFor(() => expect(vers('/api/test-progression', 'PUT')).toHaveLength(1), { timeout: 3000 })
+    expect(leads()).toHaveLength(1)
+  }, 15_000)
+
+  it.each([404, 503])('API sans /api/test-debut (%i) : repli, fin par test-complete avec email, un lead (constat B1)', async (st) => {
+    reglage.debut = st
+    const user = userEvent.setup()
+    render(<App />)
+    await commencerLeTest(user)
+    await repondreN(user, 3)
+    await passerLecranCapture(user)
+    await repondreN(user, 22)
+    await waitFor(() => expect(vers('/api/test-complete')).toHaveLength(1))
+    const corps = vers('/api/test-complete')[0].corps!
+    expect(corps.email).toBeTruthy()
+    expect(corps).not.toHaveProperty('telephone')
+    expect(corps).not.toHaveProperty('consentement_sms')
+    expect(Object.keys((corps.resultat as { reponsesBrutes: { typage: object } }).reponsesBrutes.typage)).toHaveLength(16)
+    expect(leads()).toHaveLength(1)
+  })
+
+  it.each([
+    [422, false],
+    [429, true],
+  ])('fin en repli rendue %i : file=%s ; message exact, lead seulement si la demande vit (constat S2)', async (st, enFile) => {
+    reglage.debut = 404
+    reglage.fin = st
+    const user = userEvent.setup()
+    render(<App />)
+    await commencerLeTest(user)
+    await repondreN(user, 3)
+    await passerLecranCapture(user)
+    await repondreN(user, 22)
+    await waitFor(() => expect(vers('/api/test-complete')).toHaveLength(1))
+    await waitFor(() => expect(screen.queryByText(/conservée sur cet appareil|n’a pas pu être enregistrée/)).not.toBeNull())
+    expect(JSON.parse(localStorage.getItem('tsa.pending-captures') ?? '[]')).toHaveLength(enFile ? 1 : 0)
+    expect(screen.queryByText(/conservée sur cet appareil/) !== null).toBe(enFile)
+    expect(screen.queryByText(/n’a pas pu être enregistrée/) !== null).toBe(!enFile)
+    expect(leads()).toHaveLength(enFile ? 1 : 0)
+  })
+
+  it('test-debut envoie le jeton de cycle que la page tient', async () => {
+    localStorage.setItem('tsa.reprise', JETON)
+    reglage.get = 503
+    const user = userEvent.setup()
+    render(<App />)
+    expect(await screen.findByTestId('cta-haut', {}, { timeout: 12_000 })).toBeInTheDocument()
+    await commencerLeTest(user)
+    await repondreN(user, 3)
+    await passerLecranCapture(user)
+    await waitFor(() => expect(vers('/api/test-debut')).toHaveLength(1))
+    expect(vers('/api/test-debut')[0].corps!.jeton).toBe(JETON)
+  }, 20_000)
 
   describe('reprise en panne réseau : deux nouvelles tentatives', () => {
     beforeEach(() => vi.useFakeTimers())
@@ -292,6 +443,8 @@ describe('e2e livraison 2 : email après la 3e réponse', () => {
       expect(vers('/api/test-progression', 'GET')).toHaveLength(2)
     })
 
+    // Contrat v2 : le jeton de contact du lien n'entre jamais dans tsa.reprise
+    // (le bloc de suivi le garde pour la session) ; le jeton de cycle, lui, reste.
     it.each(['tsa.reprise', 'lien ?c='])('trois échecs (%s) : accueil normal, jeton gardé', async (source) => {
       if (source === 'tsa.reprise') localStorage.setItem('tsa.reprise', JETON)
       else window.h3cContact = () => JETON
@@ -304,7 +457,7 @@ describe('e2e livraison 2 : email après la 3e réponse', () => {
       await act(() => vi.advanceTimersByTimeAsync(500))
       expect(screen.getByTestId('cta-haut')).toBeInTheDocument()
       expect(vers('/api/test-progression', 'GET')).toHaveLength(3)
-      expect(localStorage.getItem('tsa.reprise')).toBe(JETON)
+      expect(localStorage.getItem('tsa.reprise')).toBe(source === 'tsa.reprise' ? JETON : null)
     })
   })
 })

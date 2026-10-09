@@ -469,6 +469,18 @@ export async function demarrerTest(
 }
 
 /**
+ * POST /api/test-consentement : la seconde proposition, sur la page de résultat
+ * (décision Cyrille du 2026-10-09). Ne lève jamais ; rend vrai si c'est enregistré.
+ */
+export async function accepterSuite(jeton: string): Promise<boolean> {
+  try {
+    return (await appel('POST', '/api/test-consentement', { jeton })).ok
+  } catch {
+    return false
+  }
+}
+
+/**
  * PUT /api/test-progression. Ne lève jamais ; l'échec est silencieux.
  * Rend false si le jeton est mort (404, 410 : remplacé par un autre appareil),
  * true sinon (réseau, 5xx, 409 : la prochaine réponse renverra l'état complet).

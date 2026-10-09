@@ -25,26 +25,20 @@ describe('CaptureScreen — sprint 2', () => {
     render(<CaptureScreen onSubmit={onSubmit} />)
     const emailInput = screen.getByRole('textbox', { name: /email/i })
     await user.type(emailInput, '  ALICE@H3C.LIFE  ')
-    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
+    await user.click(screen.getByLabelText(/textes de Cyrille Novou/i))
     await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ email: 'alice@h3c.life' }),
     )
   })
 
-  // Correctif RGPD-VX34 (audit emailing 2026-08-09). Deux vices avaient ete
-  // releves ; UN SEUL est corrige ici, et la distinction compte :
-  //   - case marketing PRE-COCHEE (recital 32 / CJUE Planet49) : corrige, elle
-  //     part decochee. Aucun arbitrage n'etait requis, c'est un vice pur.
-  //   - refus BLOQUANT la remise du profil (art. 7.4) : NON corrige. Le lever
-  //     coute des leads, donc c'est une decision de Cyrille (rang 3, decision 2),
-  //     et son jumeau serveur `require_marketing_consent` refuse `false` par un
-  //     422. Les deux gardes se levent ensemble, ou pas du tout.
-  // Les tests qui suivent verrouillent cet etat exact, des deux cotes.
+  // Correctif RGPD-VX34 (audit emailing 2026-08-09) : la case part décochée
+  // (considérant 32, Planet49). Depuis le 2026-10-09 (décision Cyrille, art. 7 §4),
+  // elle est aussi FACULTATIVE : le profil part sans elle. Le serveur l'accepte.
 
   it('la case des emails part décochée', () => {
     render(<CaptureScreen onSubmit={vi.fn()} />)
-    const mktCheckbox = screen.getByLabelText(/emails de Cyrille Novou/i) as HTMLInputElement
+    const mktCheckbox = screen.getByLabelText(/textes de Cyrille Novou/i) as HTMLInputElement
     expect(mktCheckbox.checked).toBe(false)
   })
 
@@ -57,7 +51,7 @@ describe('CaptureScreen — sprint 2', () => {
     expect(screen.queryByLabelText(/état émotionnel|etat emotionnel|santé|sante/i)).toBeNull()
     expect(screen.getAllByRole('checkbox')).toHaveLength(1)
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
-    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
+    await user.click(screen.getByLabelText(/textes de Cyrille Novou/i))
     await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
     expect(onSubmit).toHaveBeenCalledTimes(1)
     expect(onSubmit.mock.calls[0][0]).not.toHaveProperty('consentementDonneesSante')
@@ -72,7 +66,7 @@ describe('CaptureScreen — sprint 2', () => {
     expect(container.querySelector('details, input[type="tel"]')).toBeNull()
     expect(screen.queryByText(/mobile|sms/i)).toBeNull()
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
-    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
+    await user.click(screen.getByLabelText(/textes de Cyrille Novou/i))
     await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
     expect(onSubmit.mock.calls[0][0]).toEqual({
       email: 'a@b.fr',
@@ -111,22 +105,16 @@ describe('CaptureScreen — sprint 2', () => {
     expect(container.textContent).not.toMatch(/minute/i)
   })
 
-  it('refus du marketing : le submit est bloque, en accord avec le validateur serveur', async () => {
-    // Le decouplage (remettre le profil malgre un refus, art. 7.4) est une
-    // decision de Cyrille, pas un correctif : il coute des leads. Tant qu'elle
-    // n'est pas rendue, le garde reste, et il DOIT rester : son jumeau serveur
-    // `require_marketing_consent` refuse `false` par un 422. Le retirer ici seul
-    // remplacerait un message lisible par un echec dur, sans profil du tout.
-    // Le jour de la decision, les deux tombent ensemble et ce banc s'inverse.
+  it('case laissée vide : le submit passe, consentementMarketing=false', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn()
     render(<CaptureScreen onSubmit={onSubmit} />)
-    const emailInput = screen.getByRole('textbox', { name: /email/i })
-    await user.type(emailInput, 'a@b.fr')
-    // la case marketing est laissee vide : c'est le refus
+    await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
     await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
-    expect(onSubmit).not.toHaveBeenCalled()
-    expect(screen.getByRole('alert')).toBeInTheDocument()
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'a@b.fr', consentementMarketing: false }),
+    )
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('acceptation du marketing : la case cochee remonte consentementMarketing=true', async () => {
@@ -134,20 +122,17 @@ describe('CaptureScreen — sprint 2', () => {
     const onSubmit = vi.fn()
     render(<CaptureScreen onSubmit={onSubmit} />)
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@b.fr')
-    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
+    await user.click(screen.getByLabelText(/textes de Cyrille Novou/i))
     await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ consentementMarketing: true }),
     )
   })
 
-  it("l'ecran dit vrai sur ce que la case conditionne", () => {
-    // Le texte ne doit RIEN promettre que le garde dement : tant que le refus
-    // bloque, ecrire « cette case ne conditionne rien » serait un mensonge a
-    // l'utilisateur. Ce banc verrouille l'accord entre le dire et le faire.
+  it("l'écran dit que le profil ne dépend pas de la case", () => {
     render(<CaptureScreen onSubmit={vi.fn()} />)
-    expect(screen.getByText(/cochez\s+cette case pour les recevoir/i)).toBeInTheDocument()
-    expect(screen.queryByText(/ne conditionne rien/i)).not.toBeInTheDocument()
+    expect(screen.getByText(/dans tous les cas : cette case est facultative/i)).toBeInTheDocument()
+    expect(screen.queryByText(/cochez\s+cette case pour les recevoir/i)).not.toBeInTheDocument()
   })
 
   it('bouton desactive et libelle change quand envoiEnCours=true', () => {
@@ -160,20 +145,20 @@ describe('CaptureScreen — sprint 2', () => {
     const user = userEvent.setup()
     render(<CaptureScreen onSubmit={vi.fn()} />)
     const email = screen.getByRole('textbox', { name: /email/i })
-    const mkt = screen.getByLabelText(/emails de cyrille novou/i)
+    const mkt = screen.getByLabelText(/textes de cyrille novou/i)
     const etat = () =>
       [email, mkt].map((el) => `${el.getAttribute('aria-invalid')}|${el.getAttribute('aria-describedby') ?? ''}`)
 
-    expect(mkt).toHaveAttribute('aria-required', 'true')
+    expect(mkt).not.toHaveAttribute('aria-required')
     // Email malformé (validation native contournée : on teste notre garde)
     await user.type(email, 'x@y')
     fireEvent.submit(screen.getByTestId('capture-screen'))
     expect(etat()).toEqual(['true|capture-erreur', 'null|'])
-    // Case marketing décochée
+    expect(screen.getByRole('alert')).toHaveAttribute('id', 'capture-erreur')
+    // La case vide n'est jamais une faute.
     await user.type(email, '.fr')
     fireEvent.submit(screen.getByTestId('capture-screen'))
-    expect(etat()).toEqual(['null|', 'true|capture-erreur'])
-    expect(screen.getByRole('alert')).toHaveAttribute('id', 'capture-erreur')
+    expect(etat()).toEqual(['null|', 'null|'])
   })
 
   it("bouton d'envoi : classe terracotta partagée, aucune couleur en dur", () => {

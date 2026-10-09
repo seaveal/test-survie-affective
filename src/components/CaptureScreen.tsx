@@ -10,6 +10,11 @@ const TEXTES_CAPTURE = {
     'Votre email permet de vous envoyer votre profil complet et de sauvegarder vos réponses pour reprendre plus tard. Votre masque s’affichera à l’écran à la fin du Test de Survie Affective.',
   bouton: 'Sauvegarder et continuer',
   sousBouton: 'Profil complet et séance de descente dans le corps offerts. Sans carte bancaire.',
+  // Case facultative (décision Cyrille du 2026-10-09).
+  caseSuite:
+    'Oui, je veux recevoir la suite par email : les textes de Cyrille Novou sur mon profil, ses séances guidées et ses propositions d’accompagnement. Je peux me désinscrire en un clic, en bas de chaque email.',
+  noteCase:
+    'Votre profil complet et votre séance offerte vous sont envoyés dans tous les cas : cette case est facultative.',
 } as const
 
 interface Props {
@@ -22,26 +27,15 @@ interface Props {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /** Champ fautif : il porte seul aria-invalid et le lien vers le message. */
-type ChampFautif = 'email' | 'mkt'
+type ChampFautif = 'email'
 
 export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = null }: Props) {
   const [email, setEmail] = useState('')
   const [prenom, setPrenom] = useState('')
-  // Consentement marketing : case DECOCHEE par defaut.
-  //
-  // Une case pre-cochee ne vaut pas acte positif clair (RGPD recital 32, CJUE
-  // Planet49 C-673/17). Ce vice-la n'appelle aucun arbitrage : il est corrige.
-  //
-  // Le SECOND vice — conditionner la remise du profil a l'opt-in, contraire a
-  // l'art. 7.4 — n'est PAS corrige ici, et c'est deliberé. Le lever coute des
-  // leads, donc c'est une decision de Cyrille (audit 2026-08-09, rang 3 et
-  // decision 2). Le garde ci-dessous reste donc en place.
-  //
-  // Il DOIT rester tant que la decision n'est pas rendue : son jumeau serveur
-  // `require_marketing_consent` (tsa-api models.py) refuse `false` par un 422.
-  // Retirer le garde ici sans retirer celui-la ne decouple rien — cela remplace
-  // un message clair par un echec dur, et le visiteur n'obtient plus de profil
-  // du tout. Les deux se levent ensemble, ou pas du tout.
+  // Consentement marketing : case DÉCOCHÉE par défaut (RGPD considérant 32, CJUE
+  // Planet49) et FACULTATIVE depuis le 2026-10-09 (décision Cyrille, art. 7 §4) : le
+  // profil part avec ou sans elle. Qui ne coche pas se voit reproposer la suite sur
+  // la page de résultat (ResultPreview, POST /api/test-consentement).
   const [consMkt, setConsMkt] = useState(false)
   const [erreur, setErreur] = useState<{ champ: ChampFautif; message: string } | null>(null)
   const boutonRef = useRef<HTMLButtonElement>(null)
@@ -62,16 +56,6 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
     const normalise = email.trim().toLowerCase()
     if (!EMAIL_RE.test(normalise)) {
       setErreur({ champ: 'email', message: 'Merci de saisir un email valide.' })
-      return
-    }
-    // Garde tenu en accord avec le validateur serveur, qui refuse `false` par
-    // un 422 (cf. le commentaire de `consMkt`). Un message ici vaut mieux qu'un
-    // echec dur la-bas. Les deux tombent ensemble le jour de la decision.
-    if (!consMkt) {
-      setErreur({
-        champ: 'mkt',
-        message: "Le consentement marketing est requis pour recevoir votre profil par email.",
-      })
       return
     }
     setErreur(null)
@@ -150,26 +134,20 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
               type="checkbox"
               checked={consMkt}
               onChange={(e) => setConsMkt(e.target.checked)}
-              aria-required="true"
-              {...signaler('mkt')}
               className="mt-1 h-4 w-4"
             />
             <span>
-              J'accepte de recevoir les emails de Cyrille Novou : ses textes, ses
-              séances guidées et ses propositions d'accompagnement. Je peux me
-              désinscrire en un clic, en bas de chaque email.
+              {TEXTES_CAPTURE.caseSuite}
             </span>
           </label>
 
-          {/* Art. 7.4 : la gratuité du consentement doit être visible à l'écran,
-              pas seulement vraie dans le code. */}
+          {/* Art. 7 §4 : que le profil ne dépend pas de la case doit se lire à
+              l'écran, pas seulement être vrai dans le code. */}
           <p
             className="text-xs leading-snug md:leading-relaxed"
             style={{ color: 'var(--h3c-texte-secondaire)' }}
           >
-            Votre profil et votre cadeau vous sont envoyés par email : cochez
-            cette case pour les recevoir. Vous pouvez vous désinscrire à tout
-            moment, en un clic, depuis n'importe lequel de ces emails.
+            {TEXTES_CAPTURE.noteCase}
           </p>
         </fieldset>
 

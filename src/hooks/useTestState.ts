@@ -10,6 +10,7 @@ import type {
   StatutLivre,
 } from '../domain/types'
 import {
+  accepterSuite,
   buildPayload,
   demarrerTest,
   emettreEvenement,
@@ -38,7 +39,7 @@ export const REPONSES_AVANT_EMAIL = 3
 export const BORNE_DEBUT_MS = 2500
 
 const MESSAGES_REFUS: Record<410 | 422, string> = {
-  422: 'Votre adresse n’a pas pu être enregistrée. Vérifiez-la, cochez la case des emails, puis validez à nouveau.',
+  422: 'Votre adresse n’a pas pu être enregistrée. Vérifiez-la, puis validez à nouveau.',
   410: 'Cette adresse a été supprimée de nos fichiers. Indiquez une autre adresse pour continuer.',
 }
 
@@ -60,6 +61,9 @@ interface UseTestState {
   repondreIntensite: (valeur: 1 | 2 | 3 | 4 | 5) => void
   repondreContexte: (valeur: string) => void
   soumettreCapture: (capture: CaptureValues) => Promise<void>
+  /** Case laissée vide à l'écran de l'email : la suite est reproposée sur le résultat. */
+  suiteAProposer: boolean
+  accepterSuite: () => Promise<boolean>
 }
 
 const reponsesVides: Reponses = {
@@ -489,6 +493,15 @@ export function useTestState(): UseTestState {
     [reponses, adopterJeton, envoyerFin],
   )
 
+  // Seconde proposition (2026-10-09) : seulement si la case est restée vide et que le
+  // jeton du Test désigne la personne (la route ne demande rien d'autre).
+  const suiteAProposer =
+    envoiReussi && !!jetonRef.current && captureRef.current?.consentementMarketing === false
+  const accepterSuiteDuTest = useCallback(
+    () => (jetonRef.current ? accepterSuite(jetonRef.current) : Promise.resolve(false)),
+    [],
+  )
+
   return useMemo(
     () => ({
       etape,
@@ -508,6 +521,8 @@ export function useTestState(): UseTestState {
       repondreIntensite,
       repondreContexte,
       soumettreCapture,
+      suiteAProposer,
+      accepterSuite: accepterSuiteDuTest,
     }),
     [
       etape,
@@ -527,6 +542,8 @@ export function useTestState(): UseTestState {
       repondreIntensite,
       repondreContexte,
       soumettreCapture,
+      suiteAProposer,
+      accepterSuiteDuTest,
     ],
   )
 }

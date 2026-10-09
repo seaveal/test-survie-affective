@@ -24,18 +24,16 @@ async function commencerLeTest(user: ReturnType<typeof userEvent.setup>) {
 async function passerLecranCapture(
   user: ReturnType<typeof userEvent.setup>,
   email: string = 'cyrille+e2e@cyrillenovou.com',
+  cocher = true,
 ) {
   // CaptureScreen affiche un champ email + 3 cases consentement (marketing, SMS,
   // donnees de sante) + bouton "Recevoir mon profil"
   expect(screen.getByTestId('capture-screen')).toBeInTheDocument()
   const emailInput = screen.getByRole('textbox', { name: /email/i })
   await user.type(emailInput, email)
-  // Les trois cases partent decochees depuis le correctif RGPD-VX34 (une case
-  // pre-cochee ne vaut pas consentement : recital 32, CJUE Planet49). Ce
-  // parcours coche donc explicitement le marketing, comme le visiteur devra le
-  // faire : le garde reste en place tant que le decouplage n'est pas decide,
-  // et il est tenu en accord avec le validateur serveur, qui refuse `false`.
-  await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
+  // La case part décochée (RGPD-VX34) et elle est facultative depuis le 2026-10-09 :
+  // ce parcours la coche, sauf demande contraire.
+  if (cocher) await user.click(screen.getByLabelText(/textes de Cyrille Novou/i))
   await user.click(screen.getByRole('button', { name: /sauvegarder et continuer/i }))
 }
 
@@ -130,6 +128,34 @@ describe('e2e livraison 2 : email après la 3e réponse', () => {
     delete window.h3cAttribution
     delete window.h3cFb
     delete window.h3cContact
+  })
+
+  it('case laissée vide : profil remis, la suite reproposée sur le résultat, un clic l’enregistre', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await commencerLeTest(user)
+    await repondreN(user, 3)
+    await passerLecranCapture(user, 'cyrille+e2e@cyrillenovou.com', false)
+    expect(await screen.findByText(/Question 4 sur 25/)).toBeInTheDocument()
+    expect(vers('/api/test-debut')[0].corps).toMatchObject({ consentement_marketing: false })
+    await repondreN(user, 22)
+    expect(vers('/api/test-complete')[0].corps).toMatchObject({ jeton: JETON, consentement_marketing: false })
+    await user.click(await screen.findByTestId('suite-accepter'))
+    expect(await screen.findByTestId('suite-ok')).toBeInTheDocument()
+    expect(vers('/api/test-consentement').map((a) => a.corps)).toEqual([{ jeton: JETON }])
+  })
+
+  it('case cochée : aucune seconde proposition', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await commencerLeTest(user)
+    await repondreN(user, 3)
+    await passerLecranCapture(user)
+    await screen.findByText(/Question 4 sur 25/)
+    await repondreN(user, 22)
+    await screen.findByRole('button', { name: /Recommencer le test/i })
+    await waitFor(() => expect(vers('/api/test-complete')).toHaveLength(1))
+    expect(screen.queryByTestId('suite-par-email')).toBeNull()
   })
 
   it('chemin nominal : email après la 3e, PUT, fin directe avec jeton, un seul lead, trois jalons', async () => {
@@ -482,7 +508,7 @@ describe('e2e livraison 2 : email après la 3e réponse', () => {
     await commencerLeTest(user)
     await repondreN(user, 3)
     await user.type(screen.getByRole('textbox', { name: /email/i }), 'a@exemple.fr')
-    await user.click(screen.getByLabelText(/emails de Cyrille Novou/i))
+    await user.click(screen.getByLabelText(/textes de Cyrille Novou/i))
     const b = screen.getByRole('button', { name: /sauvegarder et continuer/i })
     act(() => {
       b.click()

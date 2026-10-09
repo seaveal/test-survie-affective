@@ -23,6 +23,52 @@ interface Props {
   envoiEnCours?: boolean
   /** Fin refusée par l'API (4xx) : rien n'est conservé ni envoyé. */
   envoiRefuse?: boolean
+  /** Présent quand la case des emails est restée vide : la suite est reproposée. */
+  accepterSuite?: () => Promise<boolean>
+}
+
+// Seconde proposition (décision Cyrille du 2026-10-09). Le bouton vaut consentement :
+// il dit qui écrit, quoi, et comment se désinscrire.
+const TEXTES_SUITE = {
+  phrase:
+    'Voulez-vous recevoir la suite ? Les textes de Cyrille Novou sur votre profil, ses séances guidées et ses propositions d’accompagnement.',
+  bouton: 'Oui, je veux la suite',
+  mention: 'Désinscription en un clic, en bas de chaque email.',
+  merci: 'C’est noté : la suite arrive dans votre email.',
+  erreur: 'L’inscription n’a pas pu être enregistrée. Cliquez de nouveau dans un instant.',
+} as const
+
+function SuiteParEmail({ accepter }: { accepter: () => Promise<boolean> }) {
+  const [etat, setEtat] = useState<'offre' | 'envoi' | 'ok' | 'erreur'>('offre')
+  if (etat === 'ok') {
+    return <p role="status" className="mt-5 text-base" data-testid="suite-ok">{TEXTES_SUITE.merci}</p>
+  }
+  return (
+    <div className="mt-5 border-t pt-5" style={{ borderColor: 'var(--h3c-bordure)' }}
+         data-testid="suite-par-email">
+      <p className="text-base leading-relaxed">{TEXTES_SUITE.phrase}</p>
+      <button
+        type="button"
+        disabled={etat === 'envoi'}
+        onClick={async () => {
+          setEtat('envoi')
+          setEtat((await accepter()) ? 'ok' : 'erreur')
+        }}
+        className="tsa-cta-terracotta mt-3 rounded-md px-5 py-2.5 text-base font-medium text-white transition disabled:opacity-50"
+        data-testid="suite-accepter"
+      >
+        {TEXTES_SUITE.bouton}
+      </button>
+      <p className="mt-2 text-xs" style={{ color: 'var(--h3c-texte-secondaire)' }}>
+        {TEXTES_SUITE.mention}
+      </p>
+      {etat === 'erreur' && (
+        <p role="alert" className="mt-2 text-sm" style={{ color: 'var(--h3c-alerte, #b91c1c)' }}>
+          {TEXTES_SUITE.erreur}
+        </p>
+      )}
+    </div>
+  )
 }
 
 // Une valeur vide explicite permet de désactiver la vidéo. Sinon : montage validé.
@@ -219,7 +265,7 @@ export function KitBloc({ profil }: { profil: ProfilId }) {
   )
 }
 
-export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCours = false, envoiRefuse = false }: Props) {
+export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCours = false, envoiRefuse = false, accepterSuite }: Props) {
   const profil = getProfil(resultat.profilDominant)
 
   return (
@@ -292,6 +338,7 @@ export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCo
             dans une dizaine de minutes.
           </p>
         )}
+        {envoiReussi && !apercu && accepterSuite && <SuiteParEmail accepter={accepterSuite} />}
       </section>
 
       {/* C5-05 (audit cycle 5) — LE BLOC D'ACHAT NE PART PAS EN LIGNE QUAND LA

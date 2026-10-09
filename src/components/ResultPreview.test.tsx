@@ -232,3 +232,37 @@ describe('bloc kit v2 sous la VSL', () => {
     expect(screen.queryByTestId('kit-bloc')).toBeNull()
   })
 })
+
+// Seconde proposition (décision Cyrille du 2026-10-09) : qui a laissé la case vide à
+// l'écran de l'email se voit reproposer la suite, en un clic, sous le rapport.
+describe('<ResultPreview> — seconde proposition de la suite par email', () => {
+  it('sans accepterSuite (case cochée, ou aperçu), rien ne s’affiche', () => {
+    render(<ResultPreview resultat={RESULTAT} envoiReussi />)
+    expect(screen.queryByTestId('suite-par-email')).toBeNull()
+  })
+
+  it('un clic pose le consentement et le dit', async () => {
+    const accepter = vi.fn().mockResolvedValue(true)
+    render(<ResultPreview resultat={RESULTAT} envoiReussi accepterSuite={accepter} />)
+    expect(screen.getByText(/textes de Cyrille Novou/i)).toBeInTheDocument()
+    expect(screen.getByText(/désinscription en un clic/i)).toBeInTheDocument()
+    await act(async () => { fireEvent.click(screen.getByTestId('suite-accepter')) })
+    expect(accepter).toHaveBeenCalledTimes(1)
+    expect(screen.getByTestId('suite-ok')).toBeInTheDocument()
+    expect(screen.queryByTestId('suite-accepter')).toBeNull()
+  })
+
+  it('un refus du serveur laisse le bouton et affiche une erreur', async () => {
+    render(<ResultPreview resultat={RESULTAT} envoiReussi
+                          accepterSuite={vi.fn().mockResolvedValue(false)} />)
+    await act(async () => { fireEvent.click(screen.getByTestId('suite-accepter')) })
+    expect(screen.getByRole('alert')).toBeInTheDocument()
+    expect(screen.getByTestId('suite-accepter')).toBeInTheDocument()
+  })
+
+  it('pas avant que le Test soit reçu par le serveur', () => {
+    render(<ResultPreview resultat={RESULTAT} envoiReussi={false}
+                          accepterSuite={vi.fn()} />)
+    expect(screen.queryByTestId('suite-par-email')).toBeNull()
+  })
+})

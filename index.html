@@ -2,7 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-<!-- H3C-TRACKING:BEGIN cfg=9c05ff325012 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
+<!-- H3C-TRACKING:BEGIN cfg=9238153dd9b9 site=test/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
 <script>
 (function () {
   'use strict';
@@ -352,6 +352,31 @@
   // ViewContent) que sous l'accord « publicité » (`h3cAccordPub`).
   var TSA_API = 'https://api.souverainauquotidien.com', idOpaque = null;
   window.h3cAccordPub = function () { var c = readChoice(); return !!(c && c.ads); };
+
+  // Identifiant partagé avec le PageView navigateur, avant tout chargement GTM.
+  if (!window.h3cPageViewId) window.h3cPageViewId = window.h3cEventId();
+  // PAGE_VIEW_CAPI:BEGIN — bloc retiré du rendu Circle.
+  (function pageViewCapi() {
+    if (!TSA_API || window.__h3cPageViewSent) return;
+    window.__h3cPageViewSent = true;
+    // Jumeau serveur inconditionnel ; pub ne gouverne que l'enrichissement contact.
+    try {
+      var fb = window.h3cFb();
+      var at = window.h3cAttribution();
+      var contact = window.h3cContact();
+      fetch(TSA_API + '/api/capi/page-view', { method: 'POST', keepalive: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_id: window.h3cPageViewId, url: location.href.slice(0, 500),
+          fbp: fb.fbp ? fb.fbp.slice(0, 100) : undefined,
+          fbc: fb.fbc ? fb.fbc.slice(0, 400) : undefined,
+          attribution: at, contact: contact ? contact.slice(0, 500) : undefined,
+          pub: !!window.h3cAccordPub()
+        }) }).catch(function () {});
+    } catch (e) {}
+  })();
+  // PAGE_VIEW_CAPI:END
+
   function identifier() {
     if (idOpaque && phActif && window.posthog && window.posthog.identify) window.posthog.identify(idOpaque);
   }

@@ -1,119 +1,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { KitVsl, ResultPreview } from './ResultPreview'
+import { describe, expect, it, vi } from 'vitest'
+import { ResultPreview } from './ResultPreview'
 import type { Resultat } from '../domain/types'
 
-beforeEach(() => {
-  vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue()
-})
-afterEach(() => vi.restoreAllMocks())
-
-// Le bloc VSL du kit doit rendre correctement AVANT que la vidéo soit tournée :
-// texte et bouton présents, et aucun emplacement de lecteur (ni iframe, ni
-// placeholder visible). Une fois l'URL renseignée, le lecteur apparaît sans que
-// rien d'autre bouge.
-describe('<KitVsl> — bloc kit sur la page de livraison du profil', () => {
-  it("sans URL de VSL : pas de lecteur, mais le texte et le bouton restent", () => {
-    const { container } = render(<KitVsl url="" />)
-
-    expect(container.querySelector('iframe')).toBeNull()
-    expect(screen.queryByTestId('kit-vsl-lecteur')).toBeNull()
-    expect(screen.getByText(/Le tarif est de 48/)).toBeInTheDocument()
-    expect(
-      screen.getByRole('link', { name: /Je découvre le KIT/ }),
-    ).toHaveAttribute('href', 'https://h3c.fr/kit-test-profil')
-  })
-
-  it('avec une URL de VSL : le lecteur est rendu, le texte et le bouton restent', () => {
-    render(<KitVsl url="https://exemple.test/vsl-kit" boutonApresS="" />)
-
-    const lecteur = screen.getByTestId('kit-vsl-lecteur')
-    expect(lecteur).toHaveAttribute('src', 'https://exemple.test/vsl-kit')
-    expect(screen.getByText(/Le tarif est de 48/)).toBeInTheDocument()
-    expect(
-      screen.getByRole('link', { name: /Je découvre le KIT/ }),
-    ).toHaveAttribute('href', 'https://h3c.fr/kit-test-profil')
-  })
-
-  // Le bouton d'achat passe sous la vidéo : il n'apparaît qu'après le délai posé
-  // à la main pour cette VSL. Sans lecteur ou sans délai, rien ne change.
-  it('sans délai : le bouton est là dès le premier rendu, lecteur ou pas', () => {
-    render(<KitVsl url="https://exemple.test/vsl-kit" boutonApresS="" />)
-
-    expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
-    expect(screen.getByTestId('kit-vsl-lecteur')).toBeInTheDocument()
-  })
-
-  it('sans lecteur : un délai posé ne retire jamais le bouton', () => {
-    render(<KitVsl url="" boutonApresS="600" />)
-
-    expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
-  })
-
-  it("avec un délai de 5 s : le bouton n'est pas là, puis il est là", () => {
-    vi.useFakeTimers()
-    try {
-      render(<KitVsl url="https://exemple.test/vsl-kit" boutonApresS="5" />)
-
-      expect(screen.getByTestId('kit-vsl-lecteur')).toBeInTheDocument()
-      expect(screen.queryByTestId('kit-achat')).toBeNull()
-      expect(screen.queryByText(/Le tarif est de 48/)).toBeNull()
-
-      act(() => void vi.advanceTimersByTime(4999))
-      expect(screen.queryByTestId('kit-achat')).toBeNull()
-
-      act(() => void vi.advanceTimersByTime(1))
-      expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
-      expect(screen.getByText(/Le tarif est de 48/)).toBeInTheDocument()
-      expect(
-        screen.getByRole('link', { name: /Je découvre le KIT/ }),
-      ).toHaveAttribute('href', 'https://h3c.fr/kit-test-profil')
-    } finally {
-      vi.useRealTimers()
-    }
-  })
-
-  it('invite à regarder la vidéo pour commencer à sortir de la dépendance affective', () => {
-    render(<KitVsl url="" />)
-    expect(screen.getByText(/de la dépendance affective/)).toBeInTheDocument()
-  })
-
-  it('MP4 carré : lecture intégrée et délai facultatif, sans minuteur à l’arrêt', () => {
-    vi.useFakeTimers()
-    try {
-      render(<KitVsl />)
-      const video = screen.getByTestId('kit-vsl-lecteur') as HTMLVideoElement
-      expect(video.tagName).toBe('VIDEO')
-      expect(video).not.toHaveAttribute('controls')
-      expect(video).toHaveAttribute('playsinline')
-      expect(video).toHaveAttribute('preload', 'metadata')
-      expect(video).toHaveAttribute('autoplay')
-      expect(video).toHaveStyle({ aspectRatio: '1 / 1' })
-      expect(video.querySelector('track')).toBeNull()
-      act(() => void vi.advanceTimersByTime(600000))
-      expect(screen.queryByTestId('kit-achat')).toBeNull()
-      fireEvent.timeUpdate(video, {target:{currentTime:359.9}})
-      expect(screen.queryByTestId('kit-achat')).toBeNull()
-      fireEvent.timeUpdate(video, {target:{currentTime:360}})
-      expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
-      fireEvent.timeUpdate(video, {target:{currentTime:10}})
-      expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
-    } finally {
-      vi.useRealTimers()
-    }
-  })
-
-  it('une erreur vidéo propose le fichier sans révéler le bouton avant six minutes', () => {
-    render(<KitVsl />)
-    fireEvent.error(screen.getByTestId('kit-vsl-lecteur'))
-    expect(screen.getByRole('status')).toHaveTextContent('La vidéo n’a pas pu démarrer')
-    expect(screen.queryByTestId('kit-achat')).toBeNull()
-  })
-})
-
-// C5-05 — la vente fermée ne met AUCUN chemin d'achat sur la page de livraison du
-// profil : le bloc n'est pas rendu du tout. `VITE_KIT_VENTE_OUVERTE` est posée au
-// build par le script de mise en production, à OUVRIR_LA_VENTE="oui" seulement.
 const RESULTAT: Resultat = {
   profilDominant: 'mendiant',
   profilSecondaire: null,
@@ -125,40 +14,7 @@ const RESULTAT: Resultat = {
   pretAAgir: 'maintenant',
 }
 
-describe('bloc kit et état de la vente', () => {
-  function rendre(valeur: string) {
-    vi.stubEnv('VITE_KIT_VENTE_OUVERTE', valeur)
-    return render(<ResultPreview resultat={RESULTAT} envoiReussi />)
-  }
-
-  afterEach(() => {
-    vi.unstubAllEnvs()
-  })
-
-  it('vente fermée (variable absente) : aucun bloc kit, aucun lien vers la caisse', () => {
-    rendre('')
-
-    expect(screen.queryByTestId('kit-vsl')).toBeNull()
-    expect(screen.queryByText(/Je découvre le KIT/)).toBeNull()
-  })
-
-  it('vente ouverte : vidéo sans sous-titres et bouton après six minutes', () => {
-    rendre('oui')
-
-    expect(screen.getByTestId('kit-vsl')).toBeInTheDocument()
-    const video = screen.getByTestId('kit-vsl-lecteur')
-    expect(video.querySelector('track')).toBeNull()
-    expect(screen.queryByTestId('kit-achat')).toBeNull()
-    fireEvent.timeUpdate(video, {target:{currentTime:360}})
-    expect(screen.getByTestId('kit-achat')).toBeInTheDocument()
-    expect(
-      screen.getByRole('link', { name: /Je découvre le KIT/ }),
-    ).toHaveAttribute('href', 'https://h3c.fr/kit-test-profil')
-  })
-})
-
-
-describe('attente du rapport et démarrage de la vidéo', () => {
+describe('attente du rapport', () => {
   it('affiche la vignette de Cyrille en tête, vente ouverte ou fermée', () => {
     render(<ResultPreview resultat={RESULTAT} envoiReussi />)
     const vignette = screen.getByRole('img', { name: 'Cyrille Novou' })
@@ -175,61 +31,6 @@ describe('attente du rapport et démarrage de la vidéo', () => {
     render(<ResultPreview resultat={RESULTAT} envoiReussi={false} />)
     expect(screen.getByTestId('result-retry-note')).toHaveTextContent('Revenez sur le test')
     expect(screen.queryByRole('heading', {name: 'Votre rapport arrive dans une dizaine de minutes'})).toBeNull()
-  })
-
-  it('permet de lancer la vidéo au toucher si le navigateur bloque le démarrage', async () => {
-    const play = vi.spyOn(HTMLMediaElement.prototype, 'play')
-      .mockRejectedValueOnce(new DOMException('NotAllowed', 'NotAllowedError'))
-      .mockResolvedValue()
-    render(<KitVsl />)
-    expect(await screen.findByText('Touchez la vidéo pour lancer la lecture.')).toBeInTheDocument()
-    const video = screen.getByTestId('kit-vsl-lecteur')
-    await act(async () => fireEvent.click(video))
-    expect(play).toHaveBeenCalledTimes(2)
-    expect(screen.queryByText('Touchez la vidéo pour lancer la lecture.')).toBeNull()
-  })
-})
-
-// Décision Cyrille du 30/09 : le bloc du kit (BLOC-kit-resultat-test_v2) se place
-// SOUS la VSL, avec l'ouverture du profil affiché et SANS lien ; le bouton
-// qui apparaît à six minutes reste le seul lien vers le kit.
-describe('bloc kit v2 sous la VSL', () => {
-  afterEach(() => vi.unstubAllEnvs())
-
-  it.each([
-    ['mendiant', 'Mendiant de luxe'],
-    ['sauveur', 'Sauveur épuisé'],
-    ['controleur', 'Contrôleur anxieux'],
-    ['fantome', 'Fantôme relationnel'],
-  ] as const)('%s : VSL puis bloc du profil, bouton sous la vidéo, un seul lien kit', (id, nom) => {
-    vi.stubEnv('VITE_KIT_VENTE_OUVERTE', 'oui')
-    const { container } = render(<ResultPreview resultat={{ profilDominant: id }} envoiReussi />)
-
-    const bloc = screen.getByTestId('kit-bloc')
-    expect(bloc).toHaveTextContent(`Vous vous reconnaissez dans « ${nom} » ?`)
-    expect(bloc).toHaveTextContent('Vous aviez décidé de réagir autrement')
-    expect(bloc).toHaveTextContent('Le kit est facultatif.')
-    expect(bloc).not.toHaveTextContent('Vous reconnaissez cette soirée')
-    expect(bloc.textContent!.match(/Vous vous reconnaissez dans/g)).toHaveLength(1)
-    expect(bloc.querySelector('a')).toBeNull()
-
-    const video = screen.getByTestId('kit-vsl-lecteur')
-    expect(video.compareDocumentPosition(bloc) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    const liensKit = () => container.querySelectorAll('a[href*="kit"]')
-    expect(liensKit()).toHaveLength(0)
-
-    fireEvent.timeUpdate(video, { target: { currentTime: 360 } })
-    const achat = screen.getByTestId('kit-achat')
-    expect(video.compareDocumentPosition(achat) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(achat.compareDocumentPosition(bloc) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(liensKit()).toHaveLength(1)
-    expect(achat).toContainElement(liensKit()[0] as HTMLElement)
-  })
-
-  it('vente fermée : pas de bloc kit', () => {
-    vi.stubEnv('VITE_KIT_VENTE_OUVERTE', '')
-    render(<ResultPreview resultat={RESULTAT} envoiReussi />)
-    expect(screen.queryByTestId('kit-bloc')).toBeNull()
   })
 })
 
@@ -267,30 +68,23 @@ describe('<ResultPreview> — seconde proposition de la suite par email', () => 
   })
 })
 
-describe('<ResultPreview> — bloc rendez-vous (décision Cyrille du 18/10/2026)', () => {
-  afterEach(() => {
-    vi.unstubAllEnvs()
-  })
-
-  it('propose l’appel de trente minutes AVANT le kit, vers le lien court suivi rdv-test', () => {
-    vi.stubEnv('VITE_KIT_VENTE_OUVERTE', 'oui')
+// Décision Cyrille du 18/10/2026 : l'appel de trente minutes est la SEULE proposition de la
+// page de résultat ; le kit (vidéo et bloc) en est retiré.
+describe('<ResultPreview> — bloc rendez-vous, seule proposition', () => {
+  it('propose l’appel de trente minutes vers le lien court suivi rdv-test', () => {
     const { container } = render(<ResultPreview resultat={RESULTAT} envoiReussi />)
     const bouton = screen.getByTestId('rdv-bouton')
     expect(bouton.getAttribute('href')).toBe('https://h3c.fr/rdv-test')
     expect(bouton.textContent).toBe('Réserver mon appel de 30 minutes')
-    const rdv = container.querySelector('[data-testid="rdv-bloc"]')!
-    const kit = container.querySelector('[data-testid="kit-vsl"]')!
-    expect(rdv.compareDocumentPosition(kit) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(screen.getByText('Ou commencez par le kit de démarrage, ci-dessous.')).toBeTruthy()
     expect(container.textContent).not.toMatch(/youcanbook/i)
   })
 
-  it('vente du kit fermée : le bloc rendez-vous reste, sans renvoi vers le kit', () => {
-    vi.stubEnv('VITE_KIT_VENTE_OUVERTE', '')
+  it('aucun kit sur la page : ni vidéo, ni bloc, ni lien vers la caisse du kit', () => {
     const { container } = render(<ResultPreview resultat={RESULTAT} envoiReussi />)
-    expect(screen.getByTestId('rdv-bouton').getAttribute('href')).toBe('https://h3c.fr/rdv-test')
     expect(container.querySelector('[data-testid="kit-vsl"]')).toBeNull()
-    expect(screen.queryByText('Ou commencez par le kit de démarrage, ci-dessous.')).toBeNull()
+    expect(container.querySelector('[data-testid="kit-bloc"]')).toBeNull()
+    expect(container.querySelector('a[href*="kit-test-profil"]')).toBeNull()
+    expect(container.textContent).not.toMatch(/kit de démarrage|48 €/)
   })
 
   it('l’aperçu (exemple de résultat) montre aussi le bloc rendez-vous', () => {

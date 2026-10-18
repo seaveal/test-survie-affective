@@ -230,6 +230,36 @@ const OUVERTURES: Record<ProfilId, string> = {
   fantome: 'Vous vous reconnaissez dans « Fantôme relationnel » ? Quelqu’un vous demande ce que vous ressentez. Vous répondez : « On en parlera demain. » Puis vous quittez la pièce, alors que vous aviez envie de rester près de cette personne.',
 }
 
+// Bloc rendez-vous (décision Cyrille du 18/10/2026 : « l'upsell du test est le kit et non
+// l'appel avec moi », puis « l'update de la page de résultat est une priorité car on va
+// booster les 2 réels »). Premier appel à l'action de la page, AVANT le kit : un appel offert
+// de trente minutes. Lien court suivi `h3c.fr/rdv-test` (utm page-resultat, créé le 18/10),
+// jamais l'URL YouCanBookMe en dur. Texte court écrit directement (exception du 12/10),
+// sans date ni compte de créneaux : la page est evergreen.
+export function RdvBloc({ kitVisible }: { kitVisible: boolean }) {
+  const p = 'mt-4 text-base leading-relaxed'
+  return (
+    <section className="mx-6 mb-6" data-testid="rdv-bloc">
+      <h2 className="text-xl">Votre prochain pas : trente minutes avec moi</h2>
+      <p className={p}>
+        Vous venez de mettre un nom sur votre profil. Ce qui se rejoue dans votre relation, lui, continue au prochain silence.
+      </p>
+      <p className={p}>
+        Un appel de trente minutes, offert, en visio ou au téléphone. Vous me racontez ce qui se rejoue, je nomme le mécanisme, et si l’un de mes accompagnements vous convient, je vous le propose. Sinon, vous repartez avec une lecture claire de votre situation.
+      </p>
+      <a
+        href="https://h3c.fr/rdv-test"
+        className="mt-6 block rounded-lg px-6 py-4 text-center text-base font-medium text-white shadow-md transition hover:scale-[1.02]"
+        style={{ background: 'var(--h3c-accent-primaire)' }}
+        data-testid="rdv-bouton"
+      >
+        Réserver mon appel de 30 minutes
+      </a>
+      {kitVisible && <p className="mt-3 text-sm">Ou commencez par le kit de démarrage, ci-dessous.</p>}
+    </section>
+  )
+}
+
 export function KitBloc({ profil }: { profil: ProfilId }) {
   const p = 'mt-4 text-base leading-relaxed'
   return (
@@ -351,6 +381,7 @@ export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCo
           derrière une constante : Vite la replie, et tout le bloc — bouton et lien de
           caisse compris — DISPARAÎT du bundle quand elle est vide, ce qu'un grep
           prouve (mémoire `test-sa-spa-greper-le-bundle`). */}
+      <RdvBloc kitVisible={Boolean(import.meta.env.VITE_KIT_VENTE_OUVERTE)} />
       {import.meta.env.VITE_KIT_VENTE_OUVERTE ? (
         <>
           <KitVsl />

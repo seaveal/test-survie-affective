@@ -266,3 +266,35 @@ describe('<ResultPreview> — seconde proposition de la suite par email', () => 
     expect(screen.queryByTestId('suite-par-email')).toBeNull()
   })
 })
+
+describe('<ResultPreview> — bloc rendez-vous (décision Cyrille du 18/10/2026)', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('propose l’appel de trente minutes AVANT le kit, vers le lien court suivi rdv-test', () => {
+    vi.stubEnv('VITE_KIT_VENTE_OUVERTE', 'oui')
+    const { container } = render(<ResultPreview resultat={RESULTAT} envoiReussi />)
+    const bouton = screen.getByTestId('rdv-bouton')
+    expect(bouton.getAttribute('href')).toBe('https://h3c.fr/rdv-test')
+    expect(bouton.textContent).toBe('Réserver mon appel de 30 minutes')
+    const rdv = container.querySelector('[data-testid="rdv-bloc"]')!
+    const kit = container.querySelector('[data-testid="kit-vsl"]')!
+    expect(rdv.compareDocumentPosition(kit) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByText('Ou commencez par le kit de démarrage, ci-dessous.')).toBeTruthy()
+    expect(container.textContent).not.toMatch(/youcanbook/i)
+  })
+
+  it('vente du kit fermée : le bloc rendez-vous reste, sans renvoi vers le kit', () => {
+    vi.stubEnv('VITE_KIT_VENTE_OUVERTE', '')
+    const { container } = render(<ResultPreview resultat={RESULTAT} envoiReussi />)
+    expect(screen.getByTestId('rdv-bouton').getAttribute('href')).toBe('https://h3c.fr/rdv-test')
+    expect(container.querySelector('[data-testid="kit-vsl"]')).toBeNull()
+    expect(screen.queryByText('Ou commencez par le kit de démarrage, ci-dessous.')).toBeNull()
+  })
+
+  it('l’aperçu (exemple de résultat) montre aussi le bloc rendez-vous', () => {
+    render(<ResultPreview resultat={RESULTAT} envoiReussi apercu />)
+    expect(screen.getByTestId('rdv-bouton')).toBeTruthy()
+  })
+})

@@ -27,6 +27,12 @@
 // légale et ne se mesure pas (garde h3c_links.CHEMINS_LEGAUX). /cgv/ reste servi
 // et redirige vers la même cible, pour les liens déjà indexés.
 //
+// Correction 2026-10-24 (audit T19, C15-04) : il n'y a plus un seul exemplaire.
+// Le registre `CGV-versions.md` tient deux documents depuis le 12/08 : celles du
+// livre (livre./cgv.html) et celles de Régénération, kit compris
+// (regeneration./cgv/, seule à porter la grille du 18/10). Le lien vise donc
+// /cgv/, qui présente les deux : la cible ne se corrige plus qu'à un endroit.
+//
 // Ce qui NE change pas, et pourquoi :
 //  - URL_MENTIONS reste local. La page de `livre` porte un « Objet du site » qui
 //    dit « le site livre.souverainauquotidien.com présente et commercialise
@@ -40,7 +46,7 @@
 //    par un document plus récent en apparence, plus pauvre en fait.
 
 const URL_MENTIONS = '/mentions-legales/'
-const URL_CGV = 'https://livre.souverainauquotidien.com/cgv.html'
+const URL_CGV = '/cgv/'
 const URL_PRIVACY = '/privacy/'
 
 export function DisclaimerFooter() {

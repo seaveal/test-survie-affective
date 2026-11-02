@@ -539,7 +539,15 @@ async function lireProgressionUneFois(source: SourceReprise): Promise<EtatProgre
   }
 }
 
-export type Jalon = 'arrivee' | 'commencer' | 'email_affiche'
+export type Jalon =
+  | 'arrivee'
+  | 'commencer'
+  | 'email_affiche'
+  // Bilan RETROUVEZ-VOUS (SPEC §3) : posés par sa page. `rv_email_donne` et
+  // `rv_test_fini` sont comptés par le serveur (test-debut, rv-complete), comme pour le Test.
+  | 'rv_arrivee'
+  | 'rv_commencer'
+  | 'rv_email_affiche'
 
 /** POST /api/test-jalon en keepalive. Jamais attendu, jamais levé. */
 export function envoyerJalon(jalon: Jalon): void {
@@ -554,4 +562,111 @@ export function envoyerJalon(jalon: Jalon): void {
   } catch {
     // mesure seulement : sans impact sur le Test
   }
+}
+
+// ---------------------------------------------------------------------------
+// Bilan RETROUVEZ-VOUS (2026-11-02) : POST /api/rv-complete (SPEC §4). Même
+// enveloppe que /api/test-complete, sans `resultat` : le serveur recalcule tout.
+// Un envoi raté (réseau, délai, 5xx, 408, 429) attend dans `rv.fin-en-attente`
+// et repart au prochain chargement de la page, comme la file du Test.
+// ---------------------------------------------------------------------------
+
+export interface RvCompletePayload {
+  email?: string
+  prenom?: string
+  consentement_marketing?: boolean
+  jeton?: string
+  utm?: UtmParams
+  event_id?: string
+  fbp?: string
+  fbc?: string
+  landing_url?: string
+  reponses: Record<string, number | null>
+  situation: string | null
+  pret_a_agir: string | null
+}
+
+export interface RvCompleteResponse {
+  contact_id: string
+  bilan_id: string
+  priorite: string
+  priorite_2: string | null
+  scores: Record<string, number | null>
+}
+
+const FILE_RV_KEY = 'rv.fin-en-attente'
+
+function lireFileRv(): RvCompletePayload[] {
+  try {
+    const raw = localStorage.getItem(FILE_RV_KEY)
+    return raw ? (JSON.parse(raw) as RvCompletePayload[]) : []
+  } catch {
+    return []
+  }
+}
+
+function ecrireFileRv(items: RvCompletePayload[]): void {
+  try {
+    localStorage.setItem(FILE_RV_KEY, JSON.stringify(items))
+  } catch {
+    // stockage indisponible ou plein : perte acceptée (mode dégradé, comme le Test)
+  }
+}
+
+/** « Recommencer le bilan » : la fin du bilan abandonné ne repart pas plus tard. */
+export function viderFinsRvEnAttente(): void {
+  ecrireFileRv([])
+}
+
+/** Enveloppe de /api/test-complete (capture, UTM, fbp, fbc, page) plus le contenu du bilan. */
+export function buildRvPayload(
+  capture: CaptureValues | null,
+  contenu: Pick<RvCompletePayload, 'reponses' | 'situation' | 'pret_a_agir'>,
+): RvCompletePayload {
+  const { utm, fbp, fbc, landing_url } = buildPayload(capture, {} as Resultat)
+  return { ...(capture ? champsCapture(capture) : {}), utm, fbp, fbc, landing_url, ...contenu }
+}
+
+async function posterRv(payload: RvCompletePayload): Promise<RvCompleteResponse> {
+  const res = await appel('POST', '/api/rv-complete', payload)
+  if (!res.ok) {
+    const text = await res.text()
+    throw new ErreurHttp(res.status, `API ${res.status} : ${text.slice(0, 200)}`)
+  }
+  return (await res.json()) as RvCompleteResponse
+}
+
+/**
+ * Envoie la fin du bilan. Ne lève jamais. Rend la réponse, `{ refus }` sur un 4xx
+ * définitif (rien n'est gardé), ou null quand l'envoi est mis en file.
+ */
+export async function submitRvComplete(
+  payload: RvCompletePayload,
+): Promise<RvCompleteResponse | { refus: number } | null> {
+  try {
+    return await posterRv(payload)
+  } catch (err) {
+    console.warn('[rv] échec envoi rv-complete', err)
+    if (rejouable(err)) {
+      ecrireFileRv([...lireFileRv(), payload])
+      return null
+    }
+    return { refus: err instanceof ErreurHttp ? err.status : 0 }
+  }
+}
+
+/** Au montage de la page : rejoue les fins en attente. Un 4xx sort de la file. */
+export async function rejouerFinsRv(): Promise<void> {
+  const q = lireFileRv()
+  if (q.length === 0) return
+  const reste: RvCompletePayload[] = []
+  for (const item of q) {
+    try {
+      await posterRv(item)
+    } catch (err) {
+      if (rejouable(err)) reste.push(item)
+    }
+  }
+  // Une fin ratée pendant le rejeu s'est ajoutée au bout de la file : elle reste.
+  ecrireFileRv([...reste, ...lireFileRv().slice(q.length)])
 }

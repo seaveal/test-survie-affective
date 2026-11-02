@@ -17,8 +17,13 @@ const TEXTES_CAPTURE = {
     'Votre profil complet et votre séance offerte vous sont envoyés dans tous les cas : cette case est facultative.',
 } as const
 
+/** Textes de l'écran, remplaçables par un autre test (RETROUVEZ-VOUS). */
+export type TextesCapture = Record<keyof typeof TEXTES_CAPTURE, string>
+
 interface Props {
   onSubmit: (values: CaptureValues) => void
+  /** Défaut : les textes du Test de Survie Affective. */
+  textes?: TextesCapture
   envoiEnCours?: boolean
   /** Refus de l'API (422, 410) : message affiché, l'email est redemandé. */
   erreurServeur?: string | null
@@ -29,7 +34,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 /** Champ fautif : il porte seul aria-invalid et le lien vers le message. */
 type ChampFautif = 'email'
 
-export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = null }: Props) {
+export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = null, textes = TEXTES_CAPTURE }: Props) {
   const [email, setEmail] = useState('')
   const [prenom, setPrenom] = useState('')
   // Consentement marketing : case DÉCOCHÉE par défaut (RGPD considérant 32, CJUE
@@ -73,16 +78,16 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
           className="text-sm uppercase tracking-wide"
           style={{ color: 'var(--h3c-texte-secondaire)' }}
         >
-          {TEXTES_CAPTURE.surtitre}
+          {textes.surtitre}
         </p>
-        <h1 className="mt-1 text-xl [@media(max-width:640px)_and_(max-height:700px)]:text-lg md:mt-2 md:text-4xl">{TEXTES_CAPTURE.titre}</h1>
+        <h1 className="mt-1 text-xl [@media(max-width:640px)_and_(max-height:700px)]:text-lg md:mt-2 md:text-4xl">{textes.titre}</h1>
       </header>
 
       <p
         className="text-[0.8125rem] leading-snug [@media(max-width:640px)_and_(max-height:700px)]:text-xs md:text-base md:leading-relaxed"
         style={{ color: 'var(--h3c-texte-secondaire)' }}
       >
-        {TEXTES_CAPTURE.phrase}
+        {textes.phrase}
       </p>
 
       <form
@@ -137,7 +142,7 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
               className="mt-1 h-4 w-4"
             />
             <span>
-              {TEXTES_CAPTURE.caseSuite}
+              {textes.caseSuite}
             </span>
           </label>
 
@@ -147,7 +152,7 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
             className="text-xs leading-snug md:leading-relaxed"
             style={{ color: 'var(--h3c-texte-secondaire)' }}
           >
-            {TEXTES_CAPTURE.noteCase}
+            {textes.noteCase}
           </p>
         </fieldset>
 
@@ -189,7 +194,7 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
           style={{ color: 'var(--h3c-texte-secondaire)' }}
           data-testid="capture-sous-bouton"
         >
-          {TEXTES_CAPTURE.sousBouton}
+          {textes.sousBouton}
         </p>
       </form>
     </main>

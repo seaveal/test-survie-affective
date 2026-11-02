@@ -49,7 +49,7 @@ const URL_MENTIONS = '/mentions-legales/'
 const URL_CGV = '/cgv/'
 const URL_PRIVACY = '/privacy/'
 
-export function DisclaimerFooter() {
+export function DisclaimerFooter({ nomTest = 'Le Test de Survie Affective' }: { nomTest?: string }) {
   return (
     <footer
       className="mx-auto mt-8 max-w-2xl px-6 pb-10 pt-6"
@@ -59,7 +59,7 @@ export function DisclaimerFooter() {
       }}
     >
       <p className="text-xs leading-relaxed">
-        <strong>Avertissement.</strong> Le Test de Survie Affective et le programme
+        <strong>Avertissement.</strong> {nomTest} et le programme
         Régénération relèvent du coaching et du développement personnel. Ils ne
         constituent pas un soin médical, ni une psychothérapie au sens de la loi
         du 25 juillet 1985. Ils ne se substituent pas à un suivi par un

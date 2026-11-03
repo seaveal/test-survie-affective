@@ -215,7 +215,12 @@ export default function AppRdv() {
     facultatif?: boolean
   }) => (
     <form onSubmit={suivant(props.champs)} noValidate>
-      {salut && <p className="mb-2 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{salut}</p>}
+      {premier && (
+        <div className="mb-8 space-y-3 text-base leading-relaxed">
+          {T.pitch.map((p) => <p key={p}>{p}</p>)}
+        </div>
+      )}
+      {salut &&<p className="mb-2 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{salut}</p>}
       <h1 ref={titre} tabIndex={-1} id="rdv-question" className="text-2xl leading-snug outline-none">{props.question}</h1>
       {props.facultatif && <p className="mt-1 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{T.objectif.facultatif}</p>}
       {props.aide && <p id="rdv-aide" className="mt-2 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{props.aide}</p>}
@@ -593,7 +598,11 @@ function Cadre({ children }: { children: ReactNode }) {
   return (
     <>
       <main className="mx-auto max-w-lg px-4 pt-6" style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}>
-        <p className="mb-6 text-xs uppercase tracking-[0.14em]" style={{ color: 'var(--h3c-accent-terracotta)', fontFamily: 'var(--font-eyebrow)' }}>{T.entete}</p>
+        {/* mt-6 : le titre commence sous le bouton « Cookies », fixé en haut à droite. */}
+        <header className="mb-6 mt-6" style={{ color: 'var(--h3c-accent-terracotta)', fontFamily: 'var(--font-eyebrow)' }}>
+          <p className="text-2xl font-semibold uppercase leading-tight tracking-[0.04em] sm:text-3xl">{T.entete}</p>
+          <p className="mt-1 text-sm uppercase tracking-[0.14em]">{T.enteteDetail}</p>
+        </header>
         {children}
       </main>
       <footer className="mx-auto mt-8 max-w-lg px-4 pt-6" style={{ paddingBottom: 'calc(8rem + env(safe-area-inset-bottom))', color: 'var(--h3c-texte-secondaire)', borderTop: '1px solid var(--h3c-bordure)' }}>

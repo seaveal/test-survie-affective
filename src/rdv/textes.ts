@@ -7,7 +7,17 @@
 export const AIDE_LIBRE = 'Quelques mots suffisent. Vous n’avez pas à tout raconter.'
 
 export const T = {
-  entete: 'Rendez-vous offert · 30 minutes · en visio sur Zoom',
+  entete: 'Rendez-vous offert',
+  enteteDetail: '30 minutes · en visio sur Zoom',
+  // Pitch de la page YouCanBookMe `cyrillenovou-30mn`, mot pour mot (page publique relue le
+  // 03/11/2026 à 23h30), demande de Cyrille du même soir. Une phrase en est retirée :
+  // « Vous me racontez ce qui se rejoue dans vos relations, et je nomme le mécanisme avec des
+  // mots simples », formule rejetée par Cyrille le 03/11 au matin.
+  pitch: [
+    'Cet appel de trente minutes, en visio ou au téléphone, est offert à toute personne qui retrouve la même histoire d’une relation à l’autre.',
+    'Si l’un de mes accompagnements vous convient, je vous le présente.',
+    'Vous repartez avec une lecture claire de votre situation. Prévoyez un endroit où vous pouvez parler librement.',
+  ],
   continuer: 'Continuer',
   passer: 'Passer cette question',
   retour: 'Retour',

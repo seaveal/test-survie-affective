@@ -43,9 +43,18 @@ echo "==> 3/5 : npm run test:run (deploiement ANNULE si rouge)"
 sudo -u agents npm run test:run
 
 # Page /rdv/ (chantier RDV page maison, 03/11/2026) : parcours complet sur iPhone (WebKit) et
-# Android (Chromium) contre une API simulee. Rouge = pas de deploiement. Prerequis, une fois,
-# en root : les bibliotheques systeme de WebKit
-#   /home/agents/code/test-survie-affective/node_modules/.bin/playwright install-deps webkit
+# Android (Chromium) contre une API simulee. Rouge = pas de deploiement.
+# Ce script tourne en root : il pose lui-meme, au premier passage, les bibliotheques systeme de
+# WebKit (apt), puis garde un temoin pour ne plus toucher apt aux deploiements suivants. Sans
+# cela, le premier deploiement du Test lance apres l'ajout de la suite echouait ici.
+PW="$REPO_DIR/node_modules/.bin/playwright"
+TEMOIN_PW=/var/lib/test-sq-front/playwright-webkit-deps.ok
+if [[ ! -f "$TEMOIN_PW" ]]; then
+  echo "==> 3a/5 : bibliotheques systeme de WebKit (une seule fois)"
+  "$PW" install-deps webkit
+  mkdir -p "$(dirname "$TEMOIN_PW")" && touch "$TEMOIN_PW"
+fi
+sudo -u agents "$PW" install webkit chromium   # navigateurs de l'utilisateur agents, sans effet s'ils sont la
 echo "==> 3b/5 : npm run test:e2e (page /rdv/, deploiement ANNULE si rouge)"
 sudo -u agents env CI=1 npm run test:e2e
 

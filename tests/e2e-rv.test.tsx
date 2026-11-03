@@ -152,7 +152,7 @@ describe('e2e RETROUVEZ-VOUS', () => {
     expect(screen.getByText("Vous avez compris ce qui s'est passé. Et pourtant, c'est encore aussi difficile.")).toBeInTheDocument()
     expect(screen.getByTestId('cta-haut')).toHaveTextContent('Commencer mon bilan')
     expect(screen.getByTestId('cta-bas')).toHaveTextContent('Commencer mon bilan')
-    expect(screen.getByText(/Le bilan RETROUVEZ-VOUS et le programme/)).toBeInTheDocument()
+    expect(screen.getByText(/Le bilan de RECONSTRUCTION AFFECTIVE et le programme/)).toBeInTheDocument()
   })
 
   it('parcours complet : email à la 3e, 25 + 2 questions, « Je préfère ne pas répondre » accepté, rv-complete, bouton rdv-retrouvez', async () => {
@@ -244,7 +244,7 @@ describe('e2e RETROUVEZ-VOUS', () => {
     attendreS1Absente()
   })
 
-  it('sécurité « Oui » : le bloc d’urgence remplace le bouton, rien d’enregistré, la fin part quand même', async () => {
+  it('sécurité « Oui » : le bloc d’urgence en tête de page, à la place du bouton, rien d’enregistré', async () => {
     const user = userEvent.setup()
     render(<AppRV />)
     await parcours(user, 'Oui')
@@ -253,8 +253,10 @@ describe('e2e RETROUVEZ-VOUS', () => {
     for (const n of ['17', '112', '114', '3919', '116 006']) expect(urgence).toHaveTextContent(n)
     expect(screen.getByRole('link', { name: '3919' })).toHaveAttribute('href', 'tel:3919')
     expect(screen.getByRole('link', { name: '114' })).toHaveAttribute('href', 'sms:114')
-    // Rien d'autre ne change : priorité et scores restent affichés.
+    // En tête de page, avant la priorité (décision de Cyrille du 03/11/2026) ; priorité et scores restent.
     expect(screen.getByTestId('priorite-titre')).toHaveTextContent(RESTITUTIONS_RV.priorites.attachement.titre)
+    expect(urgence.compareDocumentPosition(screen.getByTestId('priorite-titre')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByTestId('resultat-rv').firstElementChild).toBe(urgence)
     expect(screen.getByTestId('scores')).toBeInTheDocument()
     await waitFor(() => expect(vers('/api/rv-complete')).toHaveLength(1))
     expect(vers('/api/rv-complete')[0].corps!.reponses).toEqual(REPONSES_PLAN)
@@ -268,6 +270,25 @@ describe('e2e RETROUVEZ-VOUS', () => {
     expect(await screen.findByTestId('rdv-bouton')).toBeInTheDocument()
     expect(screen.queryByTestId('urgence')).toBeNull()
     attendreS1Absente()
+  })
+
+  it('priorité à 5 ou moins : la phrase « ressources » remplace la restitution, sans seconde priorité (03/11)', async () => {
+    const user = userEvent.setup()
+    render(<AppRV />)
+    await user.click(screen.getByTestId('cta-haut'))
+    for (let i = 0; i < 3; i++) await repondreQ(user, i === 0 ? 1 : 0)
+    await passerLecranCapture(user)
+    await screen.findByText(/Question 4 sur 28/)
+    for (let i = 3; i < 25; i++) await repondreQ(user, 0)
+    await user.click(screen.getByRole('button', { name: 'Je suis encore dans cette relation' }))
+    await user.click(screen.getByRole('button', { name: 'Je ne sais pas encore' }))
+    await user.click(screen.getByRole('button', { name: 'Non' }))
+    // realite 1/20, les autres 0 : priorité realite, seconde attachement par la règle des 2 points.
+    expect(await screen.findByTestId('priorite-titre')).toHaveTextContent(RESTITUTIONS_RV.priorites.realite.titre)
+    expect(screen.getByTestId('priorite-texte')).toHaveTextContent(RESTITUTIONS_RV.phrasesNiveaux.ressources)
+    expect(screen.queryByText(RESTITUTIONS_RV.priorites.realite.ecran)).toBeNull()
+    expect(screen.queryByTestId('priorite-2')).toBeNull()
+    expect(screen.getByTestId('rdv-bouton')).toBeInTheDocument()
   })
 
   it('aucune réponse comptée : priorité « incomplet », cinq « Résultat incomplet », appel proposé', async () => {
@@ -452,7 +473,7 @@ describe('e2e RETROUVEZ-VOUS', () => {
     try {
       await import('../src/main')
       expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(TEXTES_RV.accueil.titre)
-      expect(document.title).toBe("RETROUVEZ-VOUS, le bilan après une relation d'emprise · Cyrille Novou")
+      expect(document.title).toBe("Le bilan de RECONSTRUCTION AFFECTIVE, après une relation d'emprise · Cyrille Novou")
       expect(document.querySelector('meta[name="description"]')).toHaveAttribute('content', TEXTES_RV.meta.description)
     } finally {
       racine.remove()

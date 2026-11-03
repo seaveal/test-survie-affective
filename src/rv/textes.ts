@@ -14,12 +14,12 @@ const DIMENSIONS: Record<DimensionRv, string> = {
 
 export const TEXTES_RV = {
   meta: {
-    titre: "RETROUVEZ-VOUS, le bilan après une relation d'emprise · Cyrille Novou",
+    titre: "Le bilan de RECONSTRUCTION AFFECTIVE, après une relation d'emprise · Cyrille Novou",
     description:
       "Le bilan personnel de reconstruction après une relation d'emprise. Cinq dimensions, 5 à 7 minutes, gratuit. Votre priorité à l'écran, votre bilan complet par email.",
   },
   /** Nom porté par l'avertissement du pied de page. */
-  nomTest: 'Le bilan RETROUVEZ-VOUS',
+  nomTest: 'Le bilan de RECONSTRUCTION AFFECTIVE',
   chargement: 'Chargement de votre bilan…',
   dimensions: DIMENSIONS,
   accueil: {

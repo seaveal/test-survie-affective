@@ -77,7 +77,6 @@ export const TEXTES_RV = {
   },
   resultat: {
     priorite: 'Votre priorité',
-    seconde: 'Juste derrière, à deux points ou moins',
     /** Titre de la liste des cinq scores. */
     surtitre: 'Vos cinq repères',
     reperes:
@@ -86,6 +85,8 @@ export const TEXTES_RV = {
       "Quand une dimension compte trop peu de réponses, son repère reste vide : vous pouvez recommencer le bilan, ou en parler lors de l'appel.",
     emailOk: 'Votre bilan complet arrive par email dans quelques minutes, avec la séance de descente dans le corps offerte.',
     emailEnvoi: "Votre bilan est en cours d'envoi.",
+    /** Fin rangée sur l'appareil faute de connexion (audit 03/11, FRONT-11). */
+    emailFile: "Votre bilan n'est pas encore parti.",
     emailRefus: "Votre adresse n'a pas pu être enregistrée.",
     spams: 'Pensez à vérifier vos spams si vous ne trouvez pas le message.',
     enAttente:

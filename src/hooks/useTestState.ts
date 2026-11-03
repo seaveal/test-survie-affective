@@ -244,7 +244,9 @@ export function useTestState(): UseTestState {
       if ((!r || r.etat === 'oublier') && contact) r = await lireProgression({ c: contact })
       return r
     })().then((r) => {
-      if (r?.etat === 'en-cours') return restaurer(r)
+      // Un bilan RETROUVEZ-VOUS en cours (lien `?c=` d'un courriel) n'est jamais repris par le
+      // Test : il écrirait ses réponses sur le cycle du bilan (audit du 03/11/2026, FRONT-06).
+      if (r?.etat === 'en-cours' && r.reponses.jeu !== 'rv') return restaurer(r)
       // Terminé, 404 ou 410 : tsa.reprise déjà oublié. Erreur réseau (trois
       // essais) : tsa.reprise gardé pour un prochain chargement, comme le jeton
       // du lien que le bloc de suivi garde pour la session.
@@ -268,7 +270,7 @@ export function useTestState(): UseTestState {
     if (!stocke) return neuf()
     setEtape('chargement')
     void lireProgression({ jeton: stocke }).then((r) => {
-      if (r.etat === 'en-cours') return restaurer(r)
+      if (r.etat === 'en-cours' && r.reponses.jeu !== 'rv') return restaurer(r)
       if (r.etat === 'oublier') garderJetonReprise(null)
       neuf()
     })

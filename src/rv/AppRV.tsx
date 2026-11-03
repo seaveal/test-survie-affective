@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { flushPendingCaptures, rejouerFinsRv } from '../api/client'
+import { flushPendingCaptures } from '../api/client'
 import { CaptureScreen } from '../components/CaptureScreen'
 import { ContextCard } from '../components/ContextCard'
 import { ProgressBar } from '../components/ProgressBar'
@@ -15,9 +15,9 @@ import { WelcomeRV } from './WelcomeRV'
 function AppRV() {
   const s = useRvState()
 
-  // Au montage : les envois restés en attente sur cet appareil repartent (bilan et Test).
+  // Au montage : les captures du Test restées en attente repartent. Les fins du bilan
+  // restées en attente repartent dans useRvState, AVANT la reprise (FRONT-04).
   useEffect(() => {
-    void rejouerFinsRv()
     void flushPendingCaptures()
   }, [])
 
@@ -84,7 +84,7 @@ function AppRV() {
           <p className="-mb-4 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>
             {TEXTES_RV.questions.consigne}
           </p>
-          <RvLikertCard question={q} onChoisir={s.repondreQuestion} valeurChoisie={s.corps.reponses[q.id]} />
+          <RvLikertCard key={q.id} question={q} onChoisir={s.repondreQuestion} valeurChoisie={s.corps.reponses[q.id]} />
         </>
       ) : (
         <ContextCard

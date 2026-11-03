@@ -8,6 +8,7 @@ import {
   lireJetonContact,
   lireProgression,
   nouvelEventId,
+  rejouerFinsRv,
   sauvegarderProgression,
   submitRvComplete,
   viderFinsRvEnAttente,
@@ -182,17 +183,23 @@ export function useRvState() {
     setEtape('questions')
   }, [])
 
-  // Reprise : GET une seule fois au chargement (garde contre le double effet de StrictMode).
+  // Reprise : une seule fois au chargement (garde contre le double effet de StrictMode).
+  // Les fins restées en attente sur l'appareil partent D'ABORD : une fin rejouée clôt le
+  // cycle, que la lecture voit alors terminé ; lues en parallèle, la page rouvrait la
+  // question 27 d'un bilan déjà enregistré (audit du 03/11/2026, FRONT-04).
   useEffect(() => {
-    const { stocke, contact } = sources
-    if (!(stocke || contact) || repriseLancee.current) return
+    if (repriseLancee.current) return
     repriseLancee.current = true
+    const { stocke, contact } = sources
     void (async () => {
+      await rejouerFinsRv()
+      if (!(stocke || contact)) return undefined
       let r = stocke ? await lireProgression({ jeton: stocke }) : null
       if (r?.etat === 'oublier') garderJeton(null)
       if ((!r || r.etat === 'oublier') && contact) r = await lireProgression({ c: contact })
       return r
     })().then((r) => {
+      if (r === undefined) return
       const c = r?.etat === 'en-cours' ? corpsRepris(r.reponses) : null
       if (c && r?.etat === 'en-cours') return restaurer(r.jeton, c)
       setEtape('welcome')

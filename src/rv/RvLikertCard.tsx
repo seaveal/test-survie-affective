@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import type { ReponseRv } from '../domain/rv/types'
 import { ECHELLE_RV, type QuestionRv } from './questions'
 
@@ -10,10 +11,17 @@ interface Props {
 
 /** Même gabarit que LikertCard (Test), échelle 0 à 4 à libellés et sixième option sans chiffre. */
 export function RvLikertCard({ question, onChoisir, valeurChoisie }: Props) {
+  // Chaque question neuve prend le focus (montée par `key` dans AppRV) : un lecteur d'écran
+  // l'annonce, et le clavier ne reste pas sur une réponse de la question précédente (FRONT-08).
+  const titre = useRef<HTMLHeadingElement>(null)
+  useEffect(() => titre.current?.focus({ preventScroll: true }), [])
+  const idTitre = `rv-${question.id}`
   return (
     <section className="mx-auto flex w-full max-w-2xl flex-col gap-6">
-      <h2 className="text-xl leading-snug md:text-2xl">{question.enonce}</h2>
-      <ul className="flex flex-col gap-3">
+      <h2 ref={titre} id={idTitre} tabIndex={-1} className="text-xl leading-snug outline-none md:text-2xl">
+        {question.enonce}
+      </h2>
+      <ul aria-labelledby={idTitre} className="flex flex-col gap-3">
         {ECHELLE_RV.map((opt) => {
           const choisie = valeurChoisie === opt.valeur
           const chiffre = opt.valeur !== null

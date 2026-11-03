@@ -7,6 +7,7 @@
     "dev": "vite",
     "prebuild": "node scripts/prepare-vsl-media.mjs",
     "build": "tsc -b && vite build",
+    "postbuild": "node scripts/page-retrouvez-vous.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",

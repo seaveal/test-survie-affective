@@ -161,6 +161,9 @@ describe('e2e RETROUVEZ-VOUS', () => {
     await user.click(screen.getByTestId('cta-haut'))
     await repondreQ(user, PLAN[0])
     await repondreQ(user, PLAN[1])
+    // La question neuve prend le focus, reliée à ses réponses (FRONT-08).
+    expect(document.activeElement).toHaveTextContent(questionsRv[2].enonce)
+    expect(screen.getByRole('list')).toHaveAccessibleName(questionsRv[2].enonce)
     expect(screen.queryByTestId('capture-screen')).toBeNull()
     await repondreQ(user, PLAN[2])
     expect(screen.getByRole('heading', { name: 'Où voulez-vous recevoir votre bilan ?' })).toBeInTheDocument()
@@ -194,6 +197,9 @@ describe('e2e RETROUVEZ-VOUS', () => {
     expect(await screen.findByTestId('priorite-titre')).toHaveTextContent(RESTITUTIONS_RV.priorites.attachement.titre)
     expect(screen.getByText('Votre priorité')).toBeInTheDocument()
     expect(screen.getByTestId('priorite-2')).toHaveTextContent(RESTITUTIONS_RV.priorites.securite.titre)
+    // Seconde priorité : sa phrase `seconde` du canonique, jamais la restitution de la première (FRONT-05).
+    expect(screen.getByTestId('priorite-2')).toHaveTextContent(RESTITUTIONS_RV.priorites.securite.seconde)
+    expect(screen.getByTestId('priorite-2')).not.toHaveTextContent(RESTITUTIONS_RV.priorites.securite.ecran)
     expect(screen.getByTestId('score-realite')).toHaveTextContent('5/20 · Ressources disponibles')
     expect(screen.getByTestId('score-attachement')).toHaveTextContent('20/20 · Difficultés très présentes')
     expect(screen.getByTestId('score-securite')).toHaveTextContent('20/20 · Difficultés très présentes')
@@ -398,6 +404,8 @@ describe('e2e RETROUVEZ-VOUS', () => {
     const { unmount } = render(<AppRV />)
     await parcours(user)
     expect(await screen.findByTestId('resultat-attente')).toBeInTheDocument()
+    expect(screen.getByText(TEXTES_RV.resultat.emailFile)).toBeInTheDocument() // FRONT-11
+    expect(screen.queryByText(TEXTES_RV.resultat.spams)).toBeNull()
     const file = JSON.parse(localStorage.getItem('rv.fin-en-attente') ?? '[]')
     expect(file).toHaveLength(1)
     expect(file[0]).toMatchObject({ jeton: JETON, reponses: REPONSES_PLAN })
@@ -408,6 +416,11 @@ describe('e2e RETROUVEZ-VOUS', () => {
     await waitFor(() => expect(vers('/api/rv-complete')).toHaveLength(2))
     expect(vers('/api/rv-complete')[1].corps).toEqual(file[0])
     await waitFor(() => expect(localStorage.getItem('rv.fin-en-attente')).toBe('[]'))
+    // La fin rejouée part AVANT la lecture de reprise : le cycle clos n'est jamais rouvert
+    // à la question 27 (FRONT-04).
+    expect(await screen.findByTestId('cta-haut')).toBeInTheDocument()
+    const ordre = appels.map((a) => `${a.methode} ${a.chemin.split('?')[0]}`)
+    expect(ordre.lastIndexOf('POST /api/rv-complete')).toBeLessThan(ordre.lastIndexOf('GET /api/test-progression'))
   })
 
   it('fin refusée (422) : rien en file, l’écran le dit', async () => {

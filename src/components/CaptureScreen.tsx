@@ -184,7 +184,7 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
           className="tsa-cta-terracotta scroll-mb-12 rounded-md md:scroll-mb-0 px-6 py-3 text-base font-medium text-white transition disabled:opacity-50"
           data-testid="capture-envoyer"
         >
-          {envoiEnCours ? 'Envoi en cours...' : TEXTES_CAPTURE.bouton}
+          {envoiEnCours ? 'Envoi en cours...' : textes.bouton}
         </button>
 
         {/* Juste sous le bouton ; sur téléphone, la mention de stockage

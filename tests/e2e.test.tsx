@@ -312,6 +312,15 @@ describe('e2e livraison 2 : email après la 3e réponse', () => {
     expect(localStorage.getItem('tsa.reprise')).toBe('cycle-lien') // jeton de cycle rendu, jamais le jeton de contact
   })
 
+  it('lien du courriel vers un bilan RETROUVEZ-VOUS en cours : le Test ne le reprend pas (audit 03/11, FRONT-06)', async () => {
+    window.h3cContact = () => JETON
+    reglage.getC = { termine: false, reponses: { jeu: 'rv', v: 1, reponses: { Q01: 2 } }, jeton: 'cycle-rv' }
+    render(<App />)
+    expect(await screen.findByTestId('cta-haut')).toBeInTheDocument()
+    expect(localStorage.getItem('tsa.reprise')).toBeNull()
+    expect(vers('/api/test-progression', 'PUT')).toHaveLength(0)
+  })
+
   it.each([{ termine: true }, 404] as const)('reprise %o : jeton oublié, accueil normal', async (get) => {
     localStorage.setItem('tsa.reprise', JETON)
     reglage.get = get as never

@@ -116,10 +116,8 @@ export function ResultatRV({ resultat, securite, envoiReussi, envoiEnCours, envo
 
       {p2 && (
         <section className="mx-6 mt-6 rounded-xl p-6" style={carte} data-testid="priorite-2">
-          <h2 className="text-lg">
-            {T.seconde} : {p2.titre}
-          </h2>
-          <p className="mt-2 text-base leading-relaxed">{p2.ecran}</p>
+          <h2 className="text-lg">{p2.titre}</h2>
+          <p className="mt-2 text-base leading-relaxed">{p2.seconde}</p>
         </section>
       )}
 
@@ -144,7 +142,8 @@ export function ResultatRV({ resultat, securite, envoiReussi, envoiEnCours, envo
             )
           })}
         </ul>
-        {DIMENSIONS_RV.some((d) => resultat.scores[d] === null) && (
+        {/* Bilan entièrement incomplet : sa restitution dit déjà la même chose (audit 03/11, FRONT-12). */}
+        {resultat.priorite !== 'incomplet' && DIMENSIONS_RV.some((d) => resultat.scores[d] === null) && (
           <p className="mt-3 text-sm" style={secondaire} data-testid="incomplet">
             {T.incomplet}
           </p>
@@ -152,8 +151,10 @@ export function ResultatRV({ resultat, securite, envoiReussi, envoiEnCours, envo
       </section>
 
       <section className="mx-6 mt-6 rounded-xl p-6" style={{ ...carte, borderLeft: '4px solid var(--h3c-accent-secondaire)' }}>
-        <h2 className="text-lg">{envoiRefuse ? T.emailRefus : envoiReussi ? T.emailOk : T.emailEnvoi}</h2>
-        {!envoiRefuse && (
+        <h2 className="text-lg">
+          {envoiRefuse ? T.emailRefus : envoiReussi ? T.emailOk : envoiEnCours ? T.emailEnvoi : T.emailFile}
+        </h2>
+        {envoiReussi && (
           <p className="mt-3 text-sm" style={secondaire}>
             {T.spams}
           </p>

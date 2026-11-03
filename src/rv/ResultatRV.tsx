@@ -82,7 +82,7 @@ function Urgence() {
   const U = TEXTES_RV.urgence
   return (
     <section
-      className="mx-6 mt-6 rounded-xl p-6"
+      className="mx-6 mt-12 rounded-xl p-6"
       style={{ ...carte, border: '2px solid var(--h3c-accent-primaire)' }}
       data-testid="urgence"
     >
@@ -98,10 +98,19 @@ function Urgence() {
 
 export function ResultatRV({ resultat, securite, envoiReussi, envoiEnCours, envoiRefuse, accepterSuite, onRecommencer }: Props) {
   const p1 = RESTITUTIONS_RV.priorites[resultat.priorite]
-  const p2 = resultat.priorite_2 && RESTITUTIONS_RV.priorites[resultat.priorite_2]
+  // Priorité à 5 ou moins (« Ressources disponibles ») : la phrase de ce niveau remplace la
+  // restitution, qui affirmerait une difficulté, et aucune seconde priorité n'est montrée
+  // (décision de Cyrille du 03/11/2026, audit FRONT-07). L'appel reste proposé.
+  const s1 = resultat.priorite === 'incomplet' ? null : resultat.scores[resultat.priorite]
+  const ressources = s1 !== null && niveau(s1) === 'ressources'
+  const p2 = !ressources && resultat.priorite_2 && RESTITUTIONS_RV.priorites[resultat.priorite_2]
+  const urgence = securite === 'oui'
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col" data-testid="resultat-rv">
-      <section className="flex flex-col gap-3 px-6 pt-12 text-center">
+      {/* Réponse « Oui » à la question de sécurité : le bloc d'urgence en tête de page, à la
+          place de l'appel (décision de Cyrille du 03/11/2026). */}
+      {urgence && <Urgence />}
+      <section className={`flex flex-col gap-3 px-6 text-center ${urgence ? 'pt-8' : 'pt-12'}`}>
         <p
           className="text-xs uppercase md:text-sm"
           style={{ color: 'var(--h3c-accent-terracotta)', fontFamily: 'var(--font-eyebrow)', letterSpacing: '0.14em' }}
@@ -111,7 +120,9 @@ export function ResultatRV({ resultat, securite, envoiReussi, envoiEnCours, envo
         <h1 className="text-3xl md:text-4xl" data-testid="priorite-titre">
           {p1.titre}
         </h1>
-        <p className="mt-2 text-base leading-relaxed">{p1.ecran}</p>
+        <p className="mt-2 text-base leading-relaxed" data-testid="priorite-texte">
+          {ressources ? RESTITUTIONS_RV.phrasesNiveaux.ressources : p1.ecran}
+        </p>
       </section>
 
       {p2 && (
@@ -167,10 +178,7 @@ export function ResultatRV({ resultat, securite, envoiReussi, envoiEnCours, envo
         {envoiReussi && accepterSuite && <SuiteParEmail accepter={accepterSuite} />}
       </section>
 
-      {/* Réponse « Oui » à la question de sécurité : le bloc d'urgence remplace l'appel, rien d'autre ne change. */}
-      {securite === 'oui' ? (
-        <Urgence />
-      ) : (
+      {!urgence && (
         <section className="mx-6 mt-6" data-testid="appel">
           <p className="text-base leading-relaxed">{T.demande}</p>
           <a

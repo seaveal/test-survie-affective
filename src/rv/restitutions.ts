@@ -6,6 +6,8 @@ import type { DimensionRv, NiveauRv } from '../domain/rv/types'
 export const RESTITUTIONS_RV: {
   priorites: Record<DimensionRv | 'incomplet', { titre: string, ecran: string, seconde: string }>
   niveaux: Record<NiveauRv, string>
+  /** Phrase de chaque niveau (section niveaux) ; « ressources » remplace la restitution quand la priorité est à 5 ou moins (décision de Cyrille du 03/11/2026). */
+  phrasesNiveaux: Record<NiveauRv, string>
   scoreIncomplet: string
 } = {
   priorites: {
@@ -45,6 +47,12 @@ export const RESTITUTIONS_RV: {
     fragilites: "Fragilités ponctuelles",
     difficultes: "Difficultés fréquentes",
     tres_presentes: "Difficultés très présentes",
+  },
+  phrasesNiveaux: {
+    ressources: "Peu de difficultés rapportées en ce moment, ce qui n'efface pas ce que cette relation a pu vous coûter.",
+    fragilites: "Des difficultés présentes dans certaines situations, à repérer plutôt qu'à craindre.",
+    difficultes: "Une dimension à examiner avec attention, car les difficultés y reviennent souvent.",
+    tres_presentes: "Une dimension fortement mobilisée en ce moment, qui mérite votre attention en priorité.",
   },
   scoreIncomplet: 'Résultat incomplet',
 }

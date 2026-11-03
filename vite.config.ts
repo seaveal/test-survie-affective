@@ -8,6 +8,8 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
+    // e2e/ : suite Playwright de la page /rdv/ (npm run test:e2e), pas Vitest.
+    exclude: ['**/node_modules/**', 'e2e/**'],
     css: true,
     coverage: {
       provider: 'v8',

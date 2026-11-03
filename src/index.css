@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Les classes de la page /rdv/ n'entrent pas dans la feuille du Test ; son build (vite.rdv.config.ts) retire cette ligne. */
+@source not "./rdv";
 
 /* Polices auto-hébergées — audit conversion 2026-08-27.
    Avant : un <link> vers fonts.googleapis.com dans le <head>, donc une

@@ -7,7 +7,7 @@
 # Etapes :
 #   1. git pull origin main (passer une autre branche en 1er argument)
 #   2. npm install si package-lock change
-#   3. npm run test:run (refuse de deployer si rouge)
+#   3. npm run test:run puis npm run test:e2e (refuse de deployer si rouge)
 #   4. npm run build
 #   5. rsync dist/ vers /opt/test-sq-front/dist/ avec ownership caddy
 #
@@ -41,6 +41,13 @@ sudo -u agents npm ci --silent 2>/dev/null || sudo -u agents npm install --silen
 
 echo "==> 3/5 : npm run test:run (deploiement ANNULE si rouge)"
 sudo -u agents npm run test:run
+
+# Page /rdv/ (chantier RDV page maison, 03/11/2026) : parcours complet sur iPhone (WebKit) et
+# Android (Chromium) contre une API simulee. Rouge = pas de deploiement. Prerequis, une fois,
+# en root : les bibliotheques systeme de WebKit
+#   /home/agents/code/test-survie-affective/node_modules/.bin/playwright install-deps webkit
+echo "==> 3b/5 : npm run test:e2e (page /rdv/, deploiement ANNULE si rouge)"
+sudo -u agents env CI=1 npm run test:e2e
 
 echo "==> 4/5 : npm run build (production)"
 # `.env.production` n'est pas versionne (.gitignore) : il vit sur le VPS et porte aussi

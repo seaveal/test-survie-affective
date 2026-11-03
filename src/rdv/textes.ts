@@ -22,7 +22,7 @@ export const T = {
     email: 'Votre adresse e-mail',
     emailAide: 'C’est là que vous recevrez la réponse à votre demande.',
     telephone: 'Votre numéro de téléphone',
-    telephoneAide: 'Pour vous joindre si la visio décroche.',
+    telephoneAide: 'Pour vous joindre si la visio se coupe.',
     sms: 'Recevoir aussi les rappels du rendez-vous par SMS',
     smsAide: 'Cette case ne concerne que les rappels. Si votre demande est acceptée, un SMS vous le confirme sur ce numéro.',
   },
@@ -37,10 +37,10 @@ export const T = {
     aucun: 'Aucun créneau n’est libre pour le moment. Revenez dans quelques heures : de nouveaux créneaux s’ouvrent chaque jour.',
     bouton: 'Demander ce créneau',
     envoi: 'Envoi de votre demande…',
-    sous: 'Votre demande est confirmée après la réponse de Cyrille, sous 24 heures.',
+    sous: 'Votre demande n’est confirmée qu’après la réponse de Cyrille, sous 24 heures.',
     pris: 'Ce créneau vient d’être pris. Choisissez-en un autre : vos réponses sont gardées.',
     dejaDemande:
-      'Une demande est déjà enregistrée pour cette adresse. Retrouvez l’e-mail reçu à ce moment-là pour la modifier ou l’annuler. Vous ne le trouvez pas ? Écrivez à cyrille@h3c.life.',
+      'Une demande est déjà enregistrée pour cette adresse e-mail ou ce numéro. L’e-mail reçu après cette demande contient les liens pour la reprogrammer ou l’annuler. Vous ne le trouvez pas ? Écrivez à cyrille@h3c.life.',
   },
   fuseau: {
     question: 'Dans quel fuseau horaire êtes-vous ?',
@@ -51,17 +51,19 @@ export const T = {
     aucun: 'Aucun fuseau ne correspond à cette recherche.',
   },
   confirmation: {
-    bandeau: 'Votre demande est bien envoyée. Elle sera confirmée après la réponse de Cyrille, sous 24 heures.',
+    bandeau: 'Votre demande est bien envoyée. Elle ne sera confirmée qu’après la réponse de Cyrille, sous 24 heures.',
     creneau: 'Créneau demandé :',
     titre: 'Voici ce qui se passe maintenant',
     son: 'Lancer avec le son',
+    // Ce qui part réellement (relevé YouCanBookMe du 03/11 à 16h45) : l'accusé « Votre demande
+    // de rendez-vous — je vous réponds sous 24 h » tout de suite, puis, si Cyrille valide, l'email
+    // d'acceptation avec le lien Zoom (YouCanBookMe, puis A1 de tsa-api). Pas d'autre email entre.
     etapes: [
-      ['Maintenant', 'Rien d’autre à faire. Surveillez votre boîte mail.'],
-      ['Sous 24 heures', 'Un e-mail de réponse à votre demande.'],
-      ['Après la confirmation', 'Un second e-mail avec le lien de la visio Zoom.'],
+      ['Maintenant', 'Un e-mail vous confirme que votre demande est bien reçue.'],
+      ['Sous 24 heures', 'La réponse de Cyrille, par e-mail. S’il valide le créneau, cet e-mail vous donne le lien de la visio Zoom.'],
     ] as [string, string][],
     rienTitre: 'Vous ne recevez rien ?',
-    rien: 'Passé 24 heures, regardez dans vos courriers indésirables. Si rien n’est arrivé, écrivez à',
+    rien: 'Regardez d’abord dans vos courriers indésirables. Toujours rien 24 heures après votre demande ? Écrivez à',
   },
   repli: 'Un instant, nous vous redirigeons vers l’agenda de Cyrille…',
 } as const

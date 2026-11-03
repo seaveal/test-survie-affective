@@ -1,52 +1,49 @@
 // Après le build : écrit dist/retrouvez-vous.html (et dist/retrouvez-vous/index.html),
-// copie de dist/index.html avec le titre, la description, les aperçus de lien et le
-// canonical du bilan RETROUVEZ-VOUS (audit du 03/11/2026, FRONT-02). Sans ce fichier,
-// un lien partagé (WhatsApp, Facebook, YouTube) annonçait le Test de Survie Affective :
-// les aperçus n'exécutent pas JavaScript. Caddy réécrit /retrouvez-vous vers ce fichier.
-// Textes lus dans src/rv/textes.ts (source unique). Une balise attendue introuvable
-// arrête le build : jamais de page du bilan aux couleurs du Test.
+// copie de dist/index.html avec le titre, la description, les aperçus de lien, le canonical,
+// le texte d'accueil et les données structurées du bilan RETROUVEZ-VOUS (« le bilan de
+// RECONSTRUCTION AFFECTIVE »). Les aperçus de lien n'exécutent pas JavaScript, et la page doit
+// se référencer pour elle-même (Cyrille, 03/11/2026 : « on veut dominer le SEO »).
+// Caddy réécrit /retrouvez-vous vers ce fichier.
+// Textes : TEXTES_RV, importé de src/rv/textes.ts (Node lit le TypeScript sans compilation).
+// Une balise attendue introuvable arrête le build : jamais de page du bilan aux couleurs du Test.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { TEXTES_RV } from '../src/rv/textes.ts'
 
 const URL_RV = 'https://test.souverainauquotidien.com/retrouvez-vous'
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-
-export function textesRv(ts) {
-  const bloc = (re, nom) => {
-    const m = ts.match(re)
-    if (!m) throw new Error(`textes.ts : bloc ${nom} introuvable`)
-    return m[1]
-  }
-  const prendre = (b, cle) => {
-    // La chaîne doit finir la valeur (virgule, accolade ou fin de ligne) : une concaténation
-    // `'a' + 'b'` est refusée au lieu d'être lue « a » (revue du 03/11, D-07).
-    const m = b.match(new RegExp(String.raw`\b${cle}:\s*(?:"([^"]*)"|'((?:[^'\\]|\\.)*)')\s*(?=,|\}|$)`, 'm'))
-    if (!m) throw new Error(`textes.ts : ${cle} introuvable`)
-    const v = (m[1] ?? m[2]).replace(/\\'/g, "'")
-    // Guillemet échappé, \u…, concaténation : la lecture serait fausse sans le dire
-    // (revue du 03/11, REV-09). Refus lisible plutôt qu'un titre tronqué publié.
-    if (v.includes('\\') || v !== v.trim() || !v) throw new Error(`textes.ts : ${cle} illisible (« ${v} »)`)
-    return v
-  }
-  const meta = bloc(/\bmeta:\s*\{([\s\S]*?)\}/, 'meta')
-  const accueil = bloc(/\baccueil:\s*\{([\s\S]*?)\bcorps:/, 'accueil')
-  return {
-    titre: prendre(meta, 'titre'),
-    description: prendre(meta, 'description'),
-    surtitre: prendre(accueil, 'surtitre'),
-    h1: prendre(accueil, 'titre'),
-  }
-}
 
 /** Remplace exactement une occurrence de `re` ; sinon erreur (balise du Test changée). */
 function une(html, re, rempl, nom) {
   const n = (html.match(new RegExp(re.source, 'g')) || []).length
   if (n !== 1) throw new Error(`index.html : ${nom} trouvé ${n} fois (attendu 1)`)
-  return html.replace(re, rempl)
+  return html.replace(re, () => rempl)
 }
 
-export function pageRv(html, t) {
-  const T = esc(t.titre), D = esc(t.description)
+/** Données structurées du bilan : la page, son auteur et son livre (repris du Test). */
+function donneesStructurees(html, t) {
+  const m = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)
+  if (!m) throw new Error('index.html : JSON-LD du Test introuvable')
+  const graphe = JSON.parse(m[1])['@graph'] ?? []
+  const garde = graphe.filter((n) => n['@type'] === 'Person' || n['@type'] === 'Book')
+  const auteur = garde.find((n) => n['@type'] === 'Person')
+  if (!auteur || garde.length !== 2) throw new Error('index.html : Person et Book attendus dans le JSON-LD')
+  const page = {
+    '@type': 'WebPage',
+    '@id': `${URL_RV}#page`,
+    url: URL_RV,
+    name: t.meta.titre,
+    description: t.meta.description,
+    inLanguage: 'fr-FR',
+    isAccessibleForFree: true,
+    author: { '@id': auteur['@id'] },
+  }
+  const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': [page, ...garde] }, null, 2)
+  return json.replace(/</g, '\\u003c')
+}
+
+export function pageRv(html, t = TEXTES_RV) {
+  const T = esc(t.meta.titre), D = esc(t.meta.description), A = t.accueil
   html = une(html, /<title>[^<]*<\/title>/, `<title>${T}</title>`, '<title>')
   html = une(html, /<meta\s+name="description"\s+content="[^"]*"\s*\/>/, `<meta name="description" content="${D}" />`, 'meta description')
   html = une(html, /<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${URL_RV}" />`, 'canonical')
@@ -60,20 +57,35 @@ export function pageRv(html, t) {
   html = html.replace(/\s*<meta property="og:image[^>]*\/>/g, '')
   html = une(html, /<meta name="twitter:image" content="[^"]*" \/>/, '', 'twitter:image')
   html = une(html, /<meta name="twitter:card" content="summary_large_image" \/>/, '<meta name="twitter:card" content="summary" />', 'twitter:card')
-  // Données structurées du Test (Quiz, Service…) : elles décriraient une autre page.
-  html = une(html, /\s*<!-- Données structurées JSON-LD[^>]*-->\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/, '', 'JSON-LD')
+  // Données structurées : la page du bilan, son auteur et son livre ; ni le Quiz ni le Service du Test.
+  html = une(html, /<!-- Données structurées JSON-LD[^>]*-->\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/,
+    `<!-- Données structurées JSON-LD du bilan (scripts/page-retrouvez-vous.mjs) -->\n    <script type="application/ld+json">\n${donneesStructurees(html, t)}\n    </script>`, 'JSON-LD')
+  // Le texte de l'accueil en clair : les robots et les visiteurs sans JavaScript lisent la page.
+  const p = (s) => `        <p>${esc(s)}</p>`
   html = une(html, /<noscript>\s*<header>[\s\S]*?<\/noscript>/, `<noscript>
       <header>
-        <p style="text-transform:uppercase;font-size:0.875rem;letter-spacing:0.14em;color:#A8432B;">${esc(t.surtitre)}</p>
-        <h1>${esc(t.h1)}</h1>
-        <p>${D}</p>
-        <p>Ce bilan se fait dans le navigateur et nécessite JavaScript. Activez JavaScript, puis rechargez cette page.</p>
+        <p style="text-transform:uppercase;font-size:0.875rem;letter-spacing:0.14em;color:#A8432B;">${esc(A.surtitre)}</p>
+        <h1>${esc(A.titre)}</h1>
+${p(A.sousTitre)}
+${p(A.demande)}
+        <p><strong>${esc(A.bouton)}</strong> : ce bilan se fait dans le navigateur et nécessite JavaScript. Activez JavaScript, puis rechargez cette page.</p>
+${p(A.sousBouton)}
       </header>
+      <main>
+${A.corps.map(p).join('\n')}
+        <ul>
+${A.dimensions.map((d) => `          <li>${esc(d)}</li>`).join('\n')}
+        </ul>
+        <h2>${esc(A.apresTitre)}</h2>
+${p(A.apres)}
+${p(A.demandeBas)}
+${p(A.prudence)}
+      </main>
       <footer>
         <p><a href="/mentions-legales/">Mentions légales</a> · <a href="/cgv/">CGV</a> · <a href="/privacy/">Politique de confidentialité</a></p>
       </footer>
     </noscript>`, 'noscript')
-  for (const reste of ['og-image.png', 'application/ld+json', 'Découvrez votre masque', 'Test de dépendance affective gratuit']) {
+  for (const reste of ['og-image.png', '"Quiz"', '"Service"', 'Découvrez votre masque', 'Test de dépendance affective gratuit']) {
     if (html.includes(reste)) throw new Error(`page du bilan : « ${reste} » encore présent`)
   }
   return html
@@ -81,8 +93,7 @@ export function pageRv(html, t) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const racine = fileURLToPath(new URL('..', import.meta.url))
-  const t = textesRv(readFileSync(`${racine}src/rv/textes.ts`, 'utf8'))
-  const html = pageRv(readFileSync(`${racine}dist/index.html`, 'utf8'), t)
+  const html = pageRv(readFileSync(`${racine}dist/index.html`, 'utf8'))
   writeFileSync(`${racine}dist/retrouvez-vous.html`, html)
   mkdirSync(`${racine}dist/retrouvez-vous`, { recursive: true })
   writeFileSync(`${racine}dist/retrouvez-vous/index.html`, html)

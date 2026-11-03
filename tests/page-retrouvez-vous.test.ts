@@ -36,3 +36,11 @@ test('titre, description, canonical et aperçus de lien du bilan', () => {
 test('une balise du Test introuvable arrête le build', () => {
   expect(() => pageRv(readFileSync('index.html', 'utf8').replace('<title>', '<title data-x>'), t)).toThrow(/<title>/)
 })
+
+test('une chaîne que la lecture rendrait fausse (concaténation, échappement) arrête le build', () => {
+  const ts = readFileSync('src/rv/textes.ts', 'utf8')
+  const avec = (titre: string) => ts.replace(/(meta: \{\s*titre: )"[^"]*"/, `$1${titre}`)
+  expect(() => textesRv(avec(`'Le bilan' + ' de RECONSTRUCTION'`))).toThrow(/titre/)
+  expect(() => textesRv(avec(`"Le \\"bilan"`))).toThrow(/titre/)
+  expect(textesRv(avec(`'Le bilan d\\'essai'`)).titre).toBe("Le bilan d'essai")
+})

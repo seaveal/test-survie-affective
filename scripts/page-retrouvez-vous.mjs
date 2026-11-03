@@ -2,7 +2,7 @@
 // copie de dist/index.html avec le titre, la description, les aperçus de lien et le
 // canonical du bilan RETROUVEZ-VOUS (audit du 03/11/2026, FRONT-02). Sans ce fichier,
 // un lien partagé (WhatsApp, Facebook, YouTube) annonçait le Test de Survie Affective :
-// les aperçus n'exécutent pas JavaScript. Caddy sert {path}.html en premier.
+// les aperçus n'exécutent pas JavaScript. Caddy réécrit /retrouvez-vous vers ce fichier.
 // Textes lus dans src/rv/textes.ts (source unique). Une balise attendue introuvable
 // arrête le build : jamais de page du bilan aux couleurs du Test.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
@@ -18,7 +18,9 @@ export function textesRv(ts) {
     return m[1]
   }
   const prendre = (b, cle) => {
-    const m = b.match(new RegExp(String.raw`\b${cle}:\s*(?:"([^"]*)"|'((?:[^'\\]|\\.)*)')`))
+    // La chaîne doit finir la valeur (virgule, accolade ou fin de ligne) : une concaténation
+    // `'a' + 'b'` est refusée au lieu d'être lue « a » (revue du 03/11, D-07).
+    const m = b.match(new RegExp(String.raw`\b${cle}:\s*(?:"([^"]*)"|'((?:[^'\\]|\\.)*)')\s*(?=,|\}|$)`, 'm'))
     if (!m) throw new Error(`textes.ts : ${cle} introuvable`)
     const v = (m[1] ?? m[2]).replace(/\\'/g, "'")
     // Guillemet échappé, \u…, concaténation : la lecture serait fausse sans le dire

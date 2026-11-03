@@ -20,7 +20,11 @@ export function textesRv(ts) {
   const prendre = (b, cle) => {
     const m = b.match(new RegExp(String.raw`\b${cle}:\s*(?:"([^"]*)"|'((?:[^'\\]|\\.)*)')`))
     if (!m) throw new Error(`textes.ts : ${cle} introuvable`)
-    return (m[1] ?? m[2]).replace(/\\'/g, "'")
+    const v = (m[1] ?? m[2]).replace(/\\'/g, "'")
+    // Guillemet échappé, \u…, concaténation : la lecture serait fausse sans le dire
+    // (revue du 03/11, REV-09). Refus lisible plutôt qu'un titre tronqué publié.
+    if (v.includes('\\') || v !== v.trim() || !v) throw new Error(`textes.ts : ${cle} illisible (« ${v} »)`)
+    return v
   }
   const meta = bloc(/\bmeta:\s*\{([\s\S]*?)\}/, 'meta')
   const accueil = bloc(/\baccueil:\s*\{([\s\S]*?)\bcorps:/, 'accueil')

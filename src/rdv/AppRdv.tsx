@@ -6,7 +6,7 @@ import {
   useCallback, useEffect, useMemo, useRef, useState,
   type Dispatch, type FormEvent, type ReactNode, type RefObject, type SetStateAction,
 } from 'react'
-import { emailDesJetons, jalon, lireCreneaux, reserver, signalerDemande } from './api'
+import { dejaDemande, emailDesJetons, jalon, lireCreneaux, reserver, signalerDemande } from './api'
 import {
   CHOIX_ANCIENNETE, CHOIX_PROVENANCE, PAGE_YCBM, PARIS, REPONSES_VIDES, chercherFuseaux,
   creneauEnClair, erreurChamp, fuseauAppareil, grouperParJour, libelleFuseau, listeFuseaux,
@@ -105,6 +105,7 @@ export default function AppRdv() {
   const [message, setMessage] = useState('')
   const [repli, setRepli] = useState(false)
   const pageServeur = useRef('')
+  const verification = useRef(false)
   const titre = useRef<HTMLHeadingElement>(null)
   useClavier()
 
@@ -184,7 +185,7 @@ export default function AppRdv() {
   }, [])
 
   const poser = (champ: keyof Reponses, v: string | boolean) => {
-    setErreurs((x) => ({ ...x, [champ]: '' }))
+    setErreurs((x) => ({ ...x, [champ]: '', doublon: '' }))
     setEtat((e) => ({ ...e, r: { ...e.r, [champ]: v } }))
   }
 
@@ -198,7 +199,16 @@ export default function AppRdv() {
     setErreurs(trouvees)
     if (Object.keys(trouvees).length) return
     const i = ordre.indexOf(etat.ecran)
-    aller(ordre[Math.min(i + 1, ordre.length - 1)])
+    const apres = ordre[Math.min(i + 1, ordre.length - 1)]
+    if (etat.ecran !== 'coordonnees') return aller(apres)
+    // Une demande déjà en cours se dit ici, pas au choix du créneau (04/11/2026).
+    if (verification.current) return
+    verification.current = true
+    void dejaDemande(etat.r.email, etat.r.telephone).then((oui) => {
+      verification.current = false
+      if (oui) setErreurs({ doublon: T.creneau.dejaDemande })
+      else aller(apres)
+    })
   }
 
   if (repli) return <Cadre><p className="py-16 text-center text-base" role="status">{T.repli}</p></Cadre>
@@ -225,7 +235,7 @@ export default function AppRdv() {
       {props.facultatif && <p className="mt-1 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{T.objectif.facultatif}</p>}
       {props.aide && <p id="rdv-aide" className="mt-2 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{props.aide}</p>}
       <div className="mt-6 space-y-4">{props.children}</div>
-      <Erreurs erreurs={props.champs.map((c) => erreurs[c]).filter(Boolean) as string[]} />
+      <Erreurs erreurs={[...props.champs.map((c) => erreurs[c]), etat.ecran === 'coordonnees' ? erreurs.doublon : ''].filter(Boolean) as string[]} />
       <Barre>
         {!premier && <BoutonRetour />}
         <button type="submit" className="tsa-cta-terracotta min-h-12 flex-1 rounded-xl px-6 text-base font-medium text-white">

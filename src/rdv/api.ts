@@ -135,6 +135,21 @@ export async function reserver(d: DemandeRdv): Promise<IssueReservation> {
   return { etat: 'panne' }
 }
 
+/**
+ * Une demande à venir existe-t-elle déjà pour cette adresse ou ce numéro ? Posée à l'écran des
+ * coordonnées (demande Cyrille du 04/11/2026). Dans le doute, non : `/reserver` revérifie.
+ */
+export async function dejaDemande(email: string, telephone: string): Promise<boolean> {
+  try {
+    const res = await poster('/api/rdv/verifier', { email, telephone }, 5000)
+    if (!res.ok) return false
+    const d = (await res.json()) as { deja_demande?: unknown }
+    return d.deja_demande === true
+  } catch {
+    return false
+  }
+}
+
 /** L'adresse connue d'un jeton (cycle du Test ou du bilan, jeton `?c=`), sinon null. */
 export async function emailDesJetons(cycle?: string, contact?: string): Promise<string | null> {
   if (!cycle && !contact) return null

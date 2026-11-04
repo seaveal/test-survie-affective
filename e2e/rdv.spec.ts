@@ -13,11 +13,12 @@ interface Options {
   creneaux?: number[] | 'panne' | Reponse
   reserver?: Reponse[]
   email?: string | null
+  doublon?: boolean
 }
-interface Journal { reserver: Record<string, unknown>[]; creneaux: number; email: Record<string, unknown>[]; ycbm: string[] }
+interface Journal { reserver: Record<string, unknown>[]; creneaux: number; email: Record<string, unknown>[]; ycbm: string[]; verifier: Record<string, unknown>[] }
 
 async function simuler(page: Page, o: Options = {}): Promise<Journal> {
-  const j: Journal = { reserver: [], creneaux: 0, email: [], ycbm: [] }
+  const j: Journal = { reserver: [], creneaux: 0, email: [], ycbm: [], verifier: [] }
   const reponses = [...(o.reserver ?? [{ status: 200 }])]
   await page.route(/^https?:\/\/(?!localhost)/, async (route, req: Request) => {
     const u = new URL(req.url())
@@ -40,6 +41,10 @@ async function simuler(page: Page, o: Options = {}): Promise<Journal> {
       if (r.delai) await new Promise((fin) => setTimeout(fin, r.delai))
       const body = r.status === 200 ? { ok: true, creneau: corps.creneau, fuseau: corps.fuseau, event_id: 'evt-1', ...(r.body as object) } : r.body
       return route.fulfill({ status: r.status, json: body })
+    }
+    if (u.pathname === '/api/rdv/verifier') {
+      j.verifier.push(req.postDataJSON() as Record<string, unknown>)
+      return route.fulfill({ status: 200, json: { deja_demande: o.doublon ?? false } })
     }
     if (u.pathname === '/api/rdv/email') {
       j.email.push(req.postDataJSON() as Record<string, unknown>)
@@ -271,4 +276,17 @@ test.describe('appareil en UTC', () => {
     await expect(page.getByText('Votre demande est bien envoyée.', { exact: false })).toBeVisible()
     expect(j.reserver[0]).toMatchObject({ fuseau: 'America/Vancouver' })
   })
+})
+
+test('demande déjà en cours : dite à l\'écran des coordonnées, jamais au créneau (04/11/2026)', async ({ page }) => {
+  const j = await simuler(page, { doublon: true })
+  await ouvrir(page)
+  await jusquAuCreneau(page, { provenance: false, attendre: false })
+  await expect(page.getByText('Une demande est déjà enregistrée pour cette adresse e-mail ou ce numéro.', { exact: false })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Vos coordonnées' })).toBeVisible()
+  expect(j.verifier).toEqual([{ email: 'jane@example.com', telephone: '06 12 34 56 78' }])
+  expect(j.reserver).toHaveLength(0)
+  // Une autre adresse : le message s'efface, la vérification repart.
+  await page.getByLabel('Votre adresse e-mail').fill('autre@example.com')
+  await expect(page.getByText('Une demande est déjà enregistrée', { exact: false })).toHaveCount(0)
 })

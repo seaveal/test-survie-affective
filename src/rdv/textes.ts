@@ -14,7 +14,7 @@ export const T = {
   // « Vous me racontez ce qui se rejoue dans vos relations, et je nomme le mécanisme avec des
   // mots simples », formule rejetée par Cyrille le 03/11 au matin.
   pitch: [
-    'Cet appel de trente minutes, en visio ou au téléphone, est offert à toute personne qui retrouve la même histoire d’une relation à l’autre.',
+    'Cet appel de trente minutes, en visio, est offert à toute personne qui retrouve la même histoire d’une relation à l’autre.',
     'Si l’un de mes accompagnements vous convient, je vous le présente.',
     'Vous repartez avec une lecture claire de votre situation. Prévoyez un endroit où vous pouvez parler librement.',
   ],

@@ -93,7 +93,7 @@ export const TEXTES_RV = {
       'Votre bilan est conservé sur cet appareil. Revenez sur cette page avec une connexion pour le transmettre. Il vous sera ensuite envoyé par email.',
     demande: 'Choisissez le créneau qui vous convient pour mettre des mots sur ce qui se rejoue.',
     bouton: 'Réserver mon appel de 30 minutes',
-    sousBouton: 'Offert, 30 minutes, en visio ou par téléphone : vous racontez, Cyrille nomme le mécanisme.',
+    sousBouton: 'Offert, 30 minutes, en visio.',
     pied: "Comprendre l'autre, vous savez déjà le faire. Se détendre dans son corps s'apprend par l'expérience, pas par l'explication.",
     recommencer: 'Recommencer le bilan',
   },

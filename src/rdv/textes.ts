@@ -10,7 +10,8 @@ export const T = {
   entete: 'Rendez-vous offert',
   enteteDetail: '30 minutes · en visio sur Zoom',
   // Pitch de la page YouCanBookMe `cyrillenovou-30mn`, mot pour mot (page publique relue le
-  // 03/11/2026 à 23h30), demande de Cyrille du même soir. Une phrase en est retirée :
+  // 03/11/2026 à 23h30), demande de Cyrille du même soir. « ou au téléphone » retiré le 04/11
+  // (l'appel est en visio, décision de Cyrille). Une phrase en est retirée :
   // « Vous me racontez ce qui se rejoue dans vos relations, et je nomme le mécanisme avec des
   // mots simples », formule rejetée par Cyrille le 03/11 au matin.
   pitch: [

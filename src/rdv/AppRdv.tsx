@@ -185,7 +185,7 @@ export default function AppRdv() {
   }, [])
 
   const poser = (champ: keyof Reponses, v: string | boolean) => {
-    setErreurs((x) => ({ ...x, [champ]: '', doublon: '' }))
+    setErreurs((x) => ({ ...x, [champ]: '' }))
     setEtat((e) => ({ ...e, r: { ...e.r, [champ]: v } }))
   }
 
@@ -197,7 +197,7 @@ export default function AppRdv() {
       if (err) trouvees[c] = err
     }
     setErreurs(trouvees)
-    if (Object.keys(trouvees).length) return
+    if (Object.keys(trouvees).length) return montrerErreur(Object.keys(trouvees)[0])
     const i = ordre.indexOf(etat.ecran)
     const apres = ordre[Math.min(i + 1, ordre.length - 1)]
     if (etat.ecran !== 'coordonnees') return aller(apres)
@@ -206,8 +206,9 @@ export default function AppRdv() {
     verification.current = true
     void dejaDemande(etat.r.email).then((oui) => {
       verification.current = false
-      if (oui) setErreurs({ doublon: T.creneau.dejaDemande })
-      else aller(apres)
+      if (!oui) return aller(apres)
+      setErreurs({ email: T.creneau.dejaDemande })
+      montrerErreur('email')
     })
   }
 
@@ -235,7 +236,7 @@ export default function AppRdv() {
       {props.facultatif && <p className="mt-1 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{T.objectif.facultatif}</p>}
       {props.aide && <p id="rdv-aide" className="mt-2 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{props.aide}</p>}
       <div className="mt-6 space-y-4">{props.children}</div>
-      <Erreurs erreurs={[...props.champs.map((c) => erreurs[c]), etat.ecran === 'coordonnees' ? erreurs.doublon : ''].filter(Boolean) as string[]} />
+      <Erreurs erreurs={props.champs.filter((c) => !SOUS_LA_CASE.has(c)).map((c) => erreurs[c]).filter(Boolean) as string[]} />
       <Barre>
         {!premier && <BoutonRetour />}
         <button type="submit" className="tsa-cta-terracotta min-h-12 flex-1 rounded-xl px-6 text-base font-medium text-white">
@@ -333,6 +334,7 @@ export default function AppRdv() {
           erreurChampServeur={(champ, msg) => {
             setErreurs({ [champ]: msg })
             aller(ECRAN_DU_CHAMP[champ] ?? 'coordonnees')
+            montrerErreur(champ)
           }}
           partirVersYcbm={partirVersYcbm}
           pageServeur={pageServeur}
@@ -460,7 +462,7 @@ function EcranCreneau({
       <p className="mt-3 text-base">
         {T.creneau.pour} <strong>{`${etat.r.prenom.trim()} ${etat.r.nom.trim()}`}</strong> · {etat.r.email.trim()}
       </p>
-      <button type="button" className="mt-1 min-h-11 text-sm underline" style={{ color: 'var(--h3c-accent-terracotta)' }} onClick={() => aller('prenom')}>
+      <button type="button" className="mt-1 min-h-11 text-sm underline" style={{ color: 'var(--h3c-accent-terracotta)' }} onClick={() => aller('coordonnees')}>
         {T.creneau.modifier}
       </button>
       <p className="mt-4 text-sm">
@@ -479,19 +481,23 @@ function EcranCreneau({
         <p className="mt-6 text-base">{T.creneau.aucun}</p>
       ) : (
         <>
-          <div className="-mx-4 mt-4 flex snap-x gap-2 overflow-x-auto px-4 pb-2" role="tablist" aria-label="Jours">
+          <div className="mt-4 grid grid-cols-2 gap-2" role="tablist" aria-label="Jours">
             {jours.map((j) => (
               <button key={j.cle} type="button" role="tab" aria-selected={j.cle === jour?.cle}
-                className="min-h-14 shrink-0 snap-start rounded-xl border px-4 text-sm first-letter:uppercase"
+                className="min-h-14 rounded-xl border px-2 text-sm first-letter:uppercase"
                 style={j.cle === jour?.cle
                   ? { background: 'var(--h3c-accent-terracotta)', color: '#fff', borderColor: 'var(--h3c-accent-terracotta)' }
                   : { background: 'var(--h3c-fond-card)', borderColor: 'var(--h3c-bordure)' }}
-                onClick={() => setJourChoisi(j.cle)}>
+                onClick={() => {
+                  setJourChoisi(j.cle)
+                  // Jours en grille : les heures peuvent être sous la barre du bas, on les amène à l'écran.
+                  requestAnimationFrame(() => document.getElementById('rdv-heures')?.scrollIntoView({ block: 'center', behavior: 'smooth' }))
+                }}>
                 {j.libelle}
               </button>
             ))}
           </div>
-          <div className="mt-3 grid grid-cols-3 gap-2" role="radiogroup" aria-label={jour?.libelle}>
+          <div id="rdv-heures" className="mt-3 grid grid-cols-3 gap-2" role="radiogroup" aria-label={jour?.libelle}>
             {jour?.creneaux.map((c) => (
               <button key={c.ms} type="button" role="radio" aria-checked={choix === c.ms} data-ms={c.ms}
                 className="min-h-12 rounded-xl border text-base"
@@ -511,6 +517,7 @@ function EcranCreneau({
         <input id="site_web" name="site_web" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
       </div>
       <Barre>
+        <BoutonRetour />
         <div className="flex flex-1 flex-col gap-2">
           <button type="button" disabled={choix === null || envoi} onClick={() => void demander()}
             className="tsa-cta-terracotta min-h-12 w-full rounded-xl px-6 text-base font-medium text-white disabled:opacity-50">
@@ -657,6 +664,24 @@ function BoutonRetour() {
   )
 }
 
+/** Message d'une case, écrit sous elle (audit d'ergonomie du 04/11/2026, point 1). */
+function ErreurCase({ id, erreur }: { id: string; erreur?: string }) {
+  if (!erreur) return null
+  return <p id={`${id}-erreur`} role="alert" className="mt-1 text-sm" style={{ color: 'var(--h3c-erreur)' }}>{erreur}</p>
+}
+
+/** Amène la case en erreur au milieu de l'écran, hors de portée de la barre fixée en bas. */
+function montrerErreur(champ: string) {
+  requestAnimationFrame(() => {
+    const el = document.getElementById(champ)
+    el?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    el?.focus({ preventScroll: true })
+  })
+}
+
+// Champs dont le message s'écrit sous la case ; les autres (choix) gardent le message sous la liste.
+const SOUS_LA_CASE = new Set<string>(['prenom', 'situation', 'objectif', 'nom', 'email', 'telephone'])
+
 function Erreurs({ erreurs }: { erreurs: string[] }) {
   return (
     <div aria-live="assertive" role="alert" className="mt-3 text-base" style={{ color: 'var(--h3c-erreur)' }}>
@@ -683,10 +708,11 @@ function Champ(p: {
       <label htmlFor={p.id} className={p.cache ? 'sr-only' : 'block text-base'}>{p.label}</label>
       {p.aide && <p id={`${p.id}-aide`} className="text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{p.aide}</p>}
       <input id={p.id} name={p.id} type={p.type ?? 'text'} inputMode={p.inputMode} autoComplete={p.autoComplete} value={p.value}
-        onChange={(e) => p.onChange(e.target.value)} aria-invalid={!!p.erreur} aria-describedby={p.aide ? `${p.id}-aide` : undefined}
+        onChange={(e) => p.onChange(e.target.value)} aria-invalid={!!p.erreur} aria-describedby={[p.aide && `${p.id}-aide`, p.erreur && `${p.id}-erreur`].filter(Boolean).join(' ') || undefined}
         placeholder={p.exemple} maxLength={p.id === 'email' ? 254 : 80}
         className="mt-2 min-h-12 w-full rounded-xl border px-4 text-base"
         style={{ borderColor: p.erreur ? 'var(--h3c-erreur)' : 'var(--h3c-bordure)', background: 'var(--h3c-fond-card)', fontSize: '16px' }} />
+      <ErreurCase id={p.id} erreur={p.erreur} />
     </div>
   )
 }
@@ -695,10 +721,11 @@ function Zone(p: { id: string; label: string; value: string; onChange: (v: strin
   return (
     <div>
       <label htmlFor={p.id} className="sr-only">{p.label}</label>
-      <textarea id={p.id} name={p.id} rows={5} value={p.value} placeholder={p.exemple} maxLength={2000} aria-describedby="rdv-aide" aria-invalid={!!p.erreur}
+      <textarea id={p.id} name={p.id} rows={5} value={p.value} placeholder={p.exemple} maxLength={2000} aria-describedby={p.erreur ? `rdv-aide ${p.id}-erreur` : 'rdv-aide'} aria-invalid={!!p.erreur}
         onChange={(e) => p.onChange(e.target.value)}
         className="w-full rounded-xl border px-4 py-3 text-base"
         style={{ borderColor: p.erreur ? 'var(--h3c-erreur)' : 'var(--h3c-bordure)', background: 'var(--h3c-fond-card)', fontSize: '16px' }} />
+      <ErreurCase id={p.id} erreur={p.erreur} />
     </div>
   )
 }

@@ -86,7 +86,7 @@ export function RdvBloc() {
         Vous venez de mettre un nom sur votre profil. Ce qui se rejoue dans votre relation, lui, continue au prochain silence.
       </p>
       <p className={p}>
-        Un appel de trente minutes, offert, en visio ou au téléphone. Vous me racontez ce qui se rejoue, je nomme le mécanisme, et si l’un de mes accompagnements vous convient, je vous le propose. Sinon, vous repartez avec une lecture claire de votre situation.
+        Un appel de trente minutes, offert, en visio. Si l’un de mes accompagnements vous convient, je vous le propose. Sinon, vous repartez avec une lecture claire de votre situation.
       </p>
       <a
         href="https://h3c.fr/rdv-test"

@@ -599,9 +599,16 @@ function Cadre({ children }: { children: ReactNode }) {
     <>
       <main className="mx-auto max-w-lg px-4 pt-6" style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}>
         {/* mt-6 : le titre commence sous le bouton « Cookies », fixé en haut à droite. */}
-        <header className="mb-6 mt-6" style={{ color: 'var(--h3c-accent-terracotta)', fontFamily: 'var(--font-eyebrow)' }}>
-          <p className="text-2xl font-semibold uppercase leading-tight tracking-[0.04em] sm:text-3xl">{T.entete}</p>
-          <p className="mt-1 text-sm uppercase tracking-[0.14em]">{T.enteteDetail}</p>
+        <header className="mb-6 mt-6 flex items-center gap-4" style={{ color: 'var(--h3c-accent-terracotta)', fontFamily: 'var(--font-eyebrow)' }}>
+          {/* Vignette façon Instagram, cercle dégradé autour (demande Cyrille du 04/11/2026). */}
+          <span className="shrink-0 rounded-full p-[3px]" style={{ background: 'linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5)' }}>
+            <img src="/portrait-cyrille.webp" alt="Cyrille Novou" width={64} height={64}
+              className="block h-16 w-16 rounded-full border-[3px] object-cover" style={{ borderColor: 'var(--h3c-fond-principal)' }} />
+          </span>
+          <div>
+            <p className="text-2xl font-semibold uppercase leading-tight tracking-[0.04em] sm:text-3xl">{T.entete}</p>
+            <p className="mt-1 text-sm uppercase tracking-[0.14em]">{T.enteteDetail}</p>
+          </div>
         </header>
         {children}
       </main>

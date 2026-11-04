@@ -136,12 +136,12 @@ export async function reserver(d: DemandeRdv): Promise<IssueReservation> {
 }
 
 /**
- * Une demande à venir existe-t-elle déjà pour cette adresse ou ce numéro ? Posée à l'écran des
- * coordonnées (demande Cyrille du 04/11/2026). Dans le doute, non : `/reserver` revérifie.
+ * Une demande à venir existe-t-elle déjà pour cette adresse ? L'adresse seule, jamais le numéro.
+ * Posée à l'écran des coordonnées (décisions Cyrille du 04/11/2026). Dans le doute, non : `/reserver` revérifie.
  */
-export async function dejaDemande(email: string, telephone: string): Promise<boolean> {
+export async function dejaDemande(email: string): Promise<boolean> {
   try {
-    const res = await poster('/api/rdv/verifier', { email, telephone }, 5000)
+    const res = await poster('/api/rdv/verifier', { email }, 5000)
     if (!res.ok) return false
     const d = (await res.json()) as { deja_demande?: unknown }
     return d.deja_demande === true

@@ -50,7 +50,7 @@ export const T = {
     sous: 'Votre demande n’est confirmée qu’après la réponse de Cyrille, sous 24 heures.',
     pris: 'Ce créneau vient d’être pris. Choisissez-en un autre : vos réponses sont gardées.',
     dejaDemande:
-      'Une demande est déjà enregistrée pour cette adresse e-mail ou ce numéro. L’e-mail reçu après cette demande contient les liens pour la reprogrammer ou l’annuler. Vous ne le trouvez pas ? Écrivez à cyrille@h3c.life.',
+      'Une demande est déjà enregistrée pour cette adresse e-mail. L’e-mail reçu après cette demande contient les liens pour la reprogrammer ou l’annuler. Vous ne le trouvez pas ? Écrivez à cyrille@h3c.life.',
   },
   fuseau: {
     question: 'Dans quel fuseau horaire êtes-vous ?',

@@ -282,9 +282,9 @@ test('demande déjà en cours : dite à l\'écran des coordonnées, jamais au cr
   const j = await simuler(page, { doublon: true })
   await ouvrir(page)
   await jusquAuCreneau(page, { provenance: false, attendre: false })
-  await expect(page.getByText('Une demande est déjà enregistrée pour cette adresse e-mail ou ce numéro.', { exact: false })).toBeVisible()
+  await expect(page.getByText('Une demande est déjà enregistrée pour cette adresse e-mail.', { exact: false })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Vos coordonnées' })).toBeVisible()
-  expect(j.verifier).toEqual([{ email: 'jane@example.com', telephone: '06 12 34 56 78' }])
+  expect(j.verifier).toEqual([{ email: 'jane@example.com' }])
   expect(j.reserver).toHaveLength(0)
   // Une autre adresse : le message s'efface, la vérification repart.
   await page.getByLabel('Votre adresse e-mail').fill('autre@example.com')

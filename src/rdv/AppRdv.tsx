@@ -204,7 +204,7 @@ export default function AppRdv() {
     // Une demande déjà en cours se dit ici, pas au choix du créneau (04/11/2026).
     if (verification.current) return
     verification.current = true
-    void dejaDemande(etat.r.email, etat.r.telephone).then((oui) => {
+    void dejaDemande(etat.r.email).then((oui) => {
       verification.current = false
       if (oui) setErreurs({ doublon: T.creneau.dejaDemande })
       else aller(apres)

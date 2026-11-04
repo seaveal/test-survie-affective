@@ -549,6 +549,8 @@
     <!-- Le bouton « Cookies » du bloc de suivi passe en haut à droite : en bas, la barre du bouton
          « Continuer » le recouvrirait (spécificité plus forte que le style injecté par le bloc). -->
     <style>html #h3c-reopen{top:calc(6px + env(safe-area-inset-top));right:6px;bottom:auto;left:auto;}</style>
+    <!-- Le texte grisé des cases s'efface dès qu'on clique dedans (demande de Cyrille du 04/11/2026). -->
+    <style>input:focus::placeholder,textarea:focus::placeholder{color:transparent}</style>
     <meta name="description" content="Rendez-vous offert de 30 minutes en visio avec Cyrille Novou, coach en schémas relationnels. Quelques questions, puis le créneau de votre choix." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://rdv.souverainauquotidien.com/" />

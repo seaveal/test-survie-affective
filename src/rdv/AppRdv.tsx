@@ -226,7 +226,7 @@ export default function AppRdv() {
   }) => (
     <form onSubmit={suivant(props.champs)} noValidate>
       {premier && (
-        <div className="mb-8 space-y-3 text-base leading-relaxed">
+        <div className="mb-8 space-y-3 text-base font-medium leading-relaxed min-[380px]:text-lg">
           {T.pitch.map((p) => <p key={p}>{p}</p>)}
         </div>
       )}
@@ -252,7 +252,7 @@ export default function AppRdv() {
         question: T.prenom.question,
         champs: ['prenom'],
         children: (
-          <Champ id="prenom" label={T.prenom.question} cache value={r.prenom} onChange={(v) => poser('prenom', v)}
+          <Champ id="prenom" label={T.prenom.question} exemple={T.prenom.exemple} cache value={r.prenom} onChange={(v) => poser('prenom', v)}
             autoComplete="given-name" erreur={erreurs.prenom} />
         ),
       })
@@ -262,7 +262,7 @@ export default function AppRdv() {
         question: T.situation.question,
         aide: T.situation.aide,
         champs: ['situation'],
-        children: <Zone id="situation" label={T.situation.question} value={r.situation} onChange={(v) => poser('situation', v)} erreur={erreurs.situation} />,
+        children: <Zone id="situation" label={T.situation.question} exemple={T.situation.exemple} value={r.situation} onChange={(v) => poser('situation', v)} erreur={erreurs.situation} />,
       })
       break
     case 'anciennete':
@@ -283,7 +283,7 @@ export default function AppRdv() {
         aide: T.objectif.aide,
         facultatif: true,
         champs: [],
-        children: <Zone id="objectif" label={T.objectif.question} value={r.objectif} onChange={(v) => poser('objectif', v)} />,
+        children: <Zone id="objectif" label={T.objectif.question} exemple={T.objectif.exemple} value={r.objectif} onChange={(v) => poser('objectif', v)} />,
       })
       break
     case 'coordonnees':
@@ -292,10 +292,10 @@ export default function AppRdv() {
         champs: ['nom', 'email', 'telephone'],
         children: (
           <>
-            <Champ id="nom" label={T.coordonnees.nom} value={r.nom} onChange={(v) => poser('nom', v)} autoComplete="family-name" erreur={erreurs.nom} />
-            <Champ id="email" label={T.coordonnees.email} aide={T.coordonnees.emailAide} value={r.email} onChange={(v) => poser('email', v)}
+            <Champ id="nom" label={T.coordonnees.nom} exemple={T.coordonnees.nomExemple} value={r.nom} onChange={(v) => poser('nom', v)} autoComplete="family-name" erreur={erreurs.nom} />
+            <Champ id="email" label={T.coordonnees.email} aide={T.coordonnees.emailAide} exemple={T.coordonnees.emailExemple} value={r.email} onChange={(v) => poser('email', v)}
               autoComplete="email" type="email" inputMode="email" erreur={erreurs.email} />
-            <Champ id="telephone" label={T.coordonnees.telephone} aide={T.coordonnees.telephoneAide} value={r.telephone}
+            <Champ id="telephone" label={T.coordonnees.telephone} aide={T.coordonnees.telephoneAide} exemple={T.coordonnees.telephoneExemple} value={r.telephone}
               onChange={(v) => poser('telephone', v)} autoComplete="tel" type="tel" inputMode="tel" erreur={erreurs.telephone} />
             <label className="flex min-h-11 cursor-pointer items-start gap-3 text-base">
               <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-[#A8432B]" checked={r.sms} onChange={(ev) => poser('sms', ev.target.checked)} aria-describedby="sms-aide" />
@@ -537,7 +537,7 @@ function ChoixFuseau({ titre, actuel, onChoix }: { titre: RefObject<HTMLHeadingE
       </button>
       <label htmlFor="fuseau-recherche" className="mt-6 block text-base">{T.fuseau.chercher}</label>
       <p className="text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{T.fuseau.chercherAide}</p>
-      <input id="fuseau-recherche" type="search" autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)}
+      <input id="fuseau-recherche" type="search" autoComplete="off" placeholder={T.fuseau.chercherExemple} value={q} onChange={(e) => setQ(e.target.value)}
         className="mt-2 min-h-12 w-full rounded-xl border px-4 text-base" style={{ borderColor: 'var(--h3c-bordure)', background: 'var(--h3c-fond-card)' }} />
       <ul className="mt-3 space-y-1" aria-live="polite">
         {trouves.length === 0 && <li className="text-base">{T.fuseau.aucun}</li>}
@@ -676,6 +676,7 @@ function Champ(p: {
   type?: string
   inputMode?: 'email' | 'tel' | 'text'
   cache?: boolean
+  exemple?: string
 }) {
   return (
     <div>
@@ -683,18 +684,18 @@ function Champ(p: {
       {p.aide && <p id={`${p.id}-aide`} className="text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{p.aide}</p>}
       <input id={p.id} name={p.id} type={p.type ?? 'text'} inputMode={p.inputMode} autoComplete={p.autoComplete} value={p.value}
         onChange={(e) => p.onChange(e.target.value)} aria-invalid={!!p.erreur} aria-describedby={p.aide ? `${p.id}-aide` : undefined}
-        maxLength={p.id === 'email' ? 254 : 80}
+        placeholder={p.exemple} maxLength={p.id === 'email' ? 254 : 80}
         className="mt-2 min-h-12 w-full rounded-xl border px-4 text-base"
         style={{ borderColor: p.erreur ? 'var(--h3c-erreur)' : 'var(--h3c-bordure)', background: 'var(--h3c-fond-card)', fontSize: '16px' }} />
     </div>
   )
 }
 
-function Zone(p: { id: string; label: string; value: string; onChange: (v: string) => void; erreur?: string }) {
+function Zone(p: { id: string; label: string; value: string; onChange: (v: string) => void; erreur?: string; exemple?: string }) {
   return (
     <div>
       <label htmlFor={p.id} className="sr-only">{p.label}</label>
-      <textarea id={p.id} name={p.id} rows={5} value={p.value} maxLength={2000} aria-describedby="rdv-aide" aria-invalid={!!p.erreur}
+      <textarea id={p.id} name={p.id} rows={5} value={p.value} placeholder={p.exemple} maxLength={2000} aria-describedby="rdv-aide" aria-invalid={!!p.erreur}
         onChange={(e) => p.onChange(e.target.value)}
         className="w-full rounded-xl border px-4 py-3 text-base"
         style={{ borderColor: p.erreur ? 'var(--h3c-erreur)' : 'var(--h3c-bordure)', background: 'var(--h3c-fond-card)', fontSize: '16px' }} />

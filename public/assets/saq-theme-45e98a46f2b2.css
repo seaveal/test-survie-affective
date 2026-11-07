@@ -1,0 +1,96 @@
+html[data-saq-theme]{--paper:#faf8f5;--ink:#242923;--muted:#5c625c;--accent:#a8432b;--accent-hover:#833422;--line:#dfded4;--sage:#e8ede5;--cream:#f0e9dd;--radius:18px;--font-body:Inter,Arial,sans-serif;--font-title:Lora,Georgia,serif;--space-section:clamp(56px,7vw,104px)}
+/* Tokens are prefixed at build time from the current www design source. */
+html[data-saq-theme] {
+ --h3c-fond-principal:var(--paper);--h3c-fond-card:#fffdf8;
+ --h3c-texte-principal:var(--ink);--h3c-texte-secondaire:var(--muted);
+ --h3c-accent-terracotta:var(--accent);--h3c-accent-terracotta-hover:var(--accent-hover);
+ --h3c-accent-terracotta-active:#833422;--h3c-bordure:var(--line);
+ --font-titre:var(--font-title);--font-ui:var(--font-body);--font-eyebrow:var(--font-body);
+ --bg:var(--paper);--card:#fffdf8;--quote:var(--sage);--accent-dk:var(--accent-hover);
+ scroll-padding-top:24px;color-scheme:light;
+}
+@font-face{font-family:Inter;src:url('/fonts/inter-400-normal-latin.woff2') format('woff2');font-display:swap}
+@font-face{font-family:Lora;src:url('/fonts/lora-400-normal-latin.woff2') format('woff2');font-display:swap}
+html[data-saq-theme] body{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.75;margin:0;padding:0;display:block;overflow-wrap:break-word}
+html[data-saq-theme] h1,html[data-saq-theme] h2,html[data-saq-theme] h3{font-family:var(--font-title);font-weight:400;letter-spacing:-.035em;line-height:1.22;text-wrap:balance}
+html[data-saq-theme] h1{font-size:clamp(2rem,4.5vw,3.5rem)}
+html[data-saq-theme] h2{font-size:clamp(1.6rem,3vw,2.35rem)}
+html[data-saq-theme] h3{font-size:clamp(1.15rem,2vw,1.45rem)}
+html[data-saq-theme] a{text-underline-offset:4px}
+html[data-saq-theme] :where(button,input,select,textarea){font-family:var(--font-body);touch-action:manipulation}
+html[data-saq-theme] :where(button,[role=button],summary){min-height:44px}
+html[data-saq-theme] :where(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea){font-size:16px;min-height:48px;max-width:100%;border-radius:8px}
+html[data-saq-theme] :where(input[type=checkbox],input[type=radio]){accent-color:var(--accent)}
+html[data-saq-theme] :where(a,button,input,select,textarea,summary):focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+html[data-saq-theme] [hidden]{display:none!important}
+html[data-saq-theme] .saq-table-scroll{max-width:100%;overflow-x:auto;margin-block:24px;border-radius:8px}
+html[data-saq-theme] .saq-table-scroll table{margin:0}
+html[data-saq-theme] .saq-table-scroll :where(th,td){overflow-wrap:anywhere}
+body[data-saq-site]>.card{width:min(720px,calc(100% - 40px));max-width:720px;margin:48px auto 100px;padding:clamp(24px,5vw,48px);border-radius:18px;border-color:var(--line);background:#fffdf8}
+body[data-saq-site]>.card small{color:var(--muted)}
+body[data-saq-site] .btn{background:var(--accent);color:white;border-radius:8px;min-height:48px;display:inline-flex;align-items:center;justify-content:center}
+body[data-saq-site] .btn:hover{background:var(--accent-hover)}
+body[data-saq-site] #kit-vsl{margin-inline:0}
+body[data-saq-site] .wrap>.brand{display:none}
+html[data-saq-theme] :where(.cta,.tsa-cta-terracotta){border-radius:8px;min-height:52px;line-height:1.45;padding:14px 24px;transition:background-color 160ms ease,transform 160ms cubic-bezier(.23,1,.32,1)}
+html[data-saq-theme] :where(.cta,.tsa-cta-terracotta):active:not(:disabled){transform:scale(.98)}
+html[data-saq-theme] :where(.cta,.tsa-cta-terracotta):disabled{cursor:not-allowed}
+html[data-saq-theme] .eyebrow{font-family:var(--font-body);font-size:.73rem;letter-spacing:.13em;font-weight:600;color:var(--accent)}
+html[data-saq-theme] :where(.panel,.carte,.raison,.engagement){border:1px solid var(--line);border-radius:18px;background:#fffdf8;padding:clamp(22px,3vw,34px);box-shadow:none}
+html[data-saq-theme] :where(.sec--pose,.recap-box){background:var(--sage);border-radius:18px}
+html[data-saq-theme] :where(.bande img,.temoignage-video video,.vsl-slot){border-radius:14px}
+html[data-saq-theme] :where(.medaillon,.author-avatar){padding:4px;border:4px solid var(--paper);background:linear-gradient(35deg,#f2c66d,#c4674b,#a8432b,#7b525d);box-shadow:0 8px 30px #493c2c12;width:128px;height:128px;object-fit:cover;border-radius:50%}
+/* Independent namespace: existing sales-page header/summary rules cannot leak in. */
+.saq-shell{position:relative;z-index:30;border-bottom:1px solid var(--line);background:var(--paper);padding:0;color:var(--ink)}
+.saq-shell .saq-shell-inner{width:min(1380px,calc(100% - 48px));margin:auto;min-height:100px;display:flex;align-items:center;justify-content:space-between;gap:28px}
+.saq-shell .saq-brand{display:block;color:var(--ink);font:1.25rem/1.25 var(--font-title);text-decoration:none;max-width:300px}
+.saq-shell .saq-brand small{display:block;font:10px/1.5 var(--font-body);color:var(--muted);margin-top:7px;letter-spacing:.02em}
+.saq-shell .saq-context{font:600 .75rem/1.5 var(--font-body);color:var(--accent);margin:0;max-width:160px;text-align:right}
+.saq-shell .saq-desktop{display:flex;gap:24px;align-items:center}
+.saq-shell nav a{display:inline-flex;align-items:center;min-height:44px;font:.82rem/1.4 var(--font-body);text-decoration:none;color:var(--ink)}
+.saq-shell nav a:hover{color:var(--accent)}
+.saq-shell .saq-menu{display:none;border:0;padding:0;margin:0}
+.saq-shell .saq-menu summary{display:flex;align-items:center;gap:10px;list-style:none;font:500 .9rem/1.4 var(--font-body);padding:12px;cursor:pointer;color:var(--ink)}
+.saq-shell .saq-menu summary::-webkit-details-marker{display:none}
+.saq-shell .saq-menu summary:after{content:none}
+.saq-shell .saq-menu nav{position:absolute;top:100%;left:0;right:0;padding:16px 24px 24px;background:var(--paper);border-bottom:1px solid var(--line);box-shadow:0 15px 25px #24292312}
+.saq-shell .saq-menu nav a{display:flex;padding:12px 0;border-bottom:1px solid var(--line)}
+.saq-skip{position:absolute;top:-120px;left:16px;padding:12px;background:var(--paper);color:var(--ink);z-index:10000}
+.saq-skip:focus{top:12px}
+/* Long-form pages retain a comfortable reading measure; the book gets a wider hero. */
+body[data-saq-site]:not([data-saq-site=test]):not([data-saq-site=rdv]) .wrap{max-width:820px;padding-inline:28px}
+body[data-saq-site] :where(main>section.sec,main.wrap>section){padding-block:clamp(38px,6vw,70px);border-color:var(--line)}
+body[data-saq-site] .hero{padding-top:clamp(36px,5vw,72px);background:linear-gradient(135deg,#f5f1e9,var(--paper) 65%)}
+body[data-saq-site] .hero .h1-promesse{font-size:clamp(2rem,4.1vw,3.5rem);letter-spacing:-.035em;max-width:26ch;margin-bottom:28px}
+body[data-saq-site] .hero .ouverture{max-width:68ch;line-height:1.8}
+body[data-saq-site] footer:not(.saq-shell){border-color:var(--line);color:var(--muted);padding-bottom:130px}
+body[data-saq-site=livre] main.wrap{max-width:1100px}
+body[data-saq-site=livre] main.wrap>section:not(.hero){max-width:780px;margin-inline:auto}
+body[data-saq-site=livre] .hero-grid{gap:clamp(32px,6vw,80px);align-items:center}
+body[data-saq-site=livre] .book{width:240px}
+body[data-saq-site=livre] .hero-copy .subtitle{font-family:var(--font-body);font-size:1.05rem;line-height:1.75}
+body[data-saq-site=livre] .hero-copy .author-avatar{width:80px;height:80px}
+body[data-saq-site=livre] #commander{background:#fffdf8;border-radius:18px;box-shadow:0 12px 36px #24292309}
+/* Applications keep their utility classes and interaction geometry. */
+body[data-saq-site=test] #root>main,body[data-saq-site=rdv] #root>main{padding-top:32px}
+body[data-saq-site=test] #root h1{font-size:clamp(1.9rem,4.2vw,3rem)}
+body[data-saq-site=rdv] #root h1{font-size:clamp(1.65rem,3.5vw,2.2rem)}
+body[data-saq-site=rdv] #root main>header p:first-child{font-family:var(--font-title);font-weight:400;letter-spacing:-.025em;text-transform:none}
+body[data-saq-site=rdv] #root main>header p:nth-child(2){font-size:.75rem;letter-spacing:.08em}
+body[data-saq-site=rdv] #root main>header>span{background:linear-gradient(35deg,#f2c66d,#c4674b,#a8432b,#7b525d)!important}
+html body[data-saq-site=rdv] #h3c-reopen{position:static;display:block;margin:20px 20px 110px;min-height:44px}
+@media(hover:hover) and (pointer:fine){html[data-saq-theme] :where(.cta,.tsa-cta-terracotta):hover:not(:disabled){transform:none}}
+@media(hover:none){html[data-saq-theme] :where(.cta,.tsa-cta-terracotta):hover{transform:none}}
+@media(max-width:980px){.saq-shell .saq-desktop,.saq-shell .saq-context{display:none}.saq-shell .saq-menu{display:block}.saq-shell .saq-shell-inner{min-height:86px;width:calc(100% - 40px);gap:12px}.saq-shell .saq-brand{font-size:1.08rem;max-width:240px}.saq-shell .saq-brand small{font-size:9px}}
+@media(max-width:640px){
+ html[data-saq-theme] body{font-size:16px}
+ body[data-saq-site]:not([data-saq-site=test]):not([data-saq-site=rdv]) .wrap{padding-inline:20px}
+ body[data-saq-site] .hero{padding-top:32px}
+ body[data-saq-site] :where(.medaillon,.author-avatar){width:96px;height:96px}
+ body[data-saq-site=livre] .book{width:180px}
+ body[data-saq-site=livre] .hero-grid{gap:24px}
+ body[data-saq-site=livre] .hero-copy .author-avatar{width:64px;height:64px}
+ body[data-saq-site] :where(.cta,.tsa-cta-terracotta){max-width:100%;white-space:normal}
+ html[data-saq-theme] #h3c-cmp button{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){html[data-saq-theme]{scroll-behavior:auto}html[data-saq-theme] *,html[data-saq-theme] *:before,html[data-saq-theme] *:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}html[data-saq-theme] :where(.cta,.tsa-cta-terracotta){transform:none!important}}

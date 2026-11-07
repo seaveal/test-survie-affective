@@ -2,6 +2,527 @@
 <html data-saq-theme="www" lang="fr">
 <head>
 <meta charset="UTF-8">
+<!-- H3C-TRACKING:BEGIN cfg=9f9401c84dbe site=test/public/cgv/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
+<script>
+(function () {
+  'use strict';
+  var GTM_ID = 'GTM-KTVF95FP';
+  var CONSENT_KEY = 'h3c_consent';
+  var POLICY_VERSION = '2026-09-18';
+  var DURATION_MS = 6 * 30.5 * 24 * 3600 * 1000;
+  var PRIVACY_URL = 'https://test.souverainauquotidien.com/privacy/';
+  var PH_PROJET = 'phc_zFtb4XY2PpNQTrJDX4zLj9AUyhkCsmCUjHgmbPScX4Cm';
+  var PH_HOST = 'https://eu.i.posthog.com';
+  var PH_OPTS = {"autocapture": false, "session_recording": false};
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { window.dataLayer.push(arguments); }
+  window.gtag = window.gtag || gtag;
+
+  // CONTACT:DEBUT — « pitch vu » (décision Cyrille du 24/09/2026). Un lien de courriel
+  // vers la page Régénération porte `?c=h1.<…>` : jeton chiffré et authentifié par tsa-api, qui
+  // désigne le contact sans révéler son adresse et ne donne aucun droit. Il est retiré
+  // de la barre d'adresse ICI, avant tout pixel (GTM, Pixel et PostHog lisent l'URL),
+  // comme `?sortie`. Gardé pour la SESSION sans condition : c'est la suite du clic dans
+  // le courriel, que l'outil d'emailing attribue déjà au contact. Gardé 90 jours
+  // SEULEMENT avec l'accord « mesure d'audience » (`garderContact`, dans applyChoice).
+  var CONTACT_KEY = 'h3c_contact', CONTACT_TTL_MS = 90 * 24 * 3600 * 1000;
+  var RE_JETON_CONTACT = /^h1\.[A-Za-z0-9_-]{30,480}$/, contactMemoire = null;
+  (function capterContact() {
+    try {
+      var u = new URL(window.location.href), j = u.searchParams.get('c');
+      if (!j || !RE_JETON_CONTACT.test(j)) return;
+      contactMemoire = j;
+      u.searchParams.delete('c');
+      history.replaceState(history.state, '', u.pathname + u.search + u.hash);
+      try { sessionStorage.setItem(CONTACT_KEY, j); } catch (e) {}
+    } catch (e) {}
+  })();
+  window.h3cContact = function () {
+    if (contactMemoire) return contactMemoire;
+    try { var s = sessionStorage.getItem(CONTACT_KEY); if (s && RE_JETON_CONTACT.test(s)) return s; } catch (e) {}
+    try {
+      var l = JSON.parse(localStorage.getItem(CONTACT_KEY) || 'null');
+      if (l && RE_JETON_CONTACT.test(l.j) && Date.now() - l.ts < CONTACT_TTL_MS) return l.j;
+    } catch (e) {}
+    return undefined;
+  };
+  function garderContact(accord) {
+    try {
+      if (!accord) { localStorage.removeItem(CONTACT_KEY); return; }
+      var j = window.h3cContact();
+      if (j) localStorage.setItem(CONTACT_KEY, JSON.stringify({ j: j, ts: Date.now() }));
+    } catch (e) {}
+  }
+  // CONTACT:FIN
+
+  // Consent Mode v2 : tout refusé par défaut, déclaré AVANT tout chargement de tag.
+  gtag('consent', 'default', {
+    ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+    analytics_storage: 'denied', functionality_storage: 'granted', security_storage: 'granted'
+  });
+
+  // ATTRIBUTION:DEBUT — bornes lues par verifier-repli-attribution.mjs.
+  // --- Attribution first-touch (localStorage first-party, TTL 90 j — survit à la fermeture
+  // d'onglet et voyage jusqu'au Purchase serveur) ---
+  var ATTR_KEY = 'h3c_attribution';
+  var ATTR_TTL_MS = 90 * 24 * 3600 * 1000;
+  function readAttribution() {
+    try {
+      var a = JSON.parse(localStorage.getItem(ATTR_KEY) || 'null');
+      if (!a || !a.ts || Date.now() - a.ts > ATTR_TTL_MS) return null;
+      return a;
+    } catch (e) { return null; }
+  }
+  // Ce que dit la visite EN COURS, calculé à la demande et sans jamais lire le
+  // stockage. Sert deux fois : à constituer le premier contact, et à répondre
+  // quand le stockage est muet.
+  function contexteVivant() {
+    var q = new URLSearchParams(window.location.search), at = {};
+    // `h3c` est le code du lien court, et il se persiste ici au même titre que
+    // les UTM. Sans lui dans cette liste, `window.h3cAttribution()` rend un
+    // objet sans code : le front voit une attribution non vide, s'en contente,
+    // et n'atteint jamais son repli sur la querystring. C'est ainsi que
+    // `contacts.origine_code` est resté vide sur la totalité de la base.
+    // `fbclid` a sa propre borne, et ce n'est pas un détail de confort. Coupé à
+    // 200 comme les autres, il redevenait inappariable par le repli de
+    // `lireClic()` : quand l'écriture localStorage échoue (Safari « bloquer tous
+    // les cookies », bloqueur en mode strict, quota plein), `lireClic()` retombe
+    // sur CE premier contact, et `valeurFbc()` en fabriquait un `_fbc` tronqué —
+    // que le faisceau serveur relayait tel quel à Meta. Le visiteur concerné est
+    // exactement celui pour qui ce faisceau a été construit : celui dont le Pixel
+    // se tait. 380 : même borne que `capterClic()`, `fb.1.` + 13 chiffres + `.`
+    // occupent 19, et le tout doit tenir dans les 400 admis par tsa-api.
+    var BORNES = { fbclid: 380 };
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'h3c', 'fbclid', 'gclid'].forEach(function (k) {
+      var v = q.get(k); if (v) at[k] = v.slice(0, BORNES[k] || 200);
+    });
+    at.landing = window.location.pathname;
+    if (document.referrer) at.referrer = document.referrer.slice(0, 200);
+    return at;
+  }
+  try {
+    if (!readAttribution()) {
+      var premier = contexteVivant();
+      premier.ts = Date.now();
+      localStorage.setItem(ATTR_KEY, JSON.stringify(premier));
+    }
+  } catch (e) {}
+
+  window.h3cAttribution = function () {
+    // Repli sur le contexte vivant quand le stockage est indisponible : fenêtre
+    // privée, cookies refusés, stockage purgé entre l'arrivée et le paiement.
+    // Le premier contact reste prioritaire — ce repli ne le remplace jamais, il
+    // parle seulement quand le stockage se tait.
+    //
+    // Sans lui, un objet VIDE partait au paiement et la vente ressortait
+    // « directe » alors que `document.referrer` la nommait, en mémoire, au même
+    // instant. Signature de ce cas : `ab_livre` seul dans les metadata Stripe,
+    // sans `fbp` ni `landing` — le stockage était mort, pas la visite.
+    return readAttribution() || contexteVivant();
+  };
+
+  // ATTRIBUTION:FIN
+
+  // --- ID du clic Meta (`fbc`) : capté, gardé, et REPOSÉ en cookie `_fbc` ---
+  //
+  // Le Pixel ne fabrique `_fbc` que s'il voit `fbclid` dans l'URL à l'instant où il
+  // s'initialise. Trois situations courantes le lui interdisent, et chacune coûte
+  // l'attribution de la visite entière :
+  //   - le visiteur refuse d'abord les cookies puis accepte plus tard : au moment où
+  //     le Pixel charge enfin, l'URL n'a plus le `fbclid` ;
+  //   - il arrive par la pub puis navigue (CGV, page audio, merci.html) : le Pixel
+  //     se réinitialise sur chaque page, sans `fbclid` nulle part ;
+  //   - il était déjà venu en organique : le premier contact est figé et ne retient
+  //     jamais le clic publicitaire qui vient après.
+  // On garde donc le clic dans un magasin à part — DERNIER clic gagnant, comme le
+  // fait Meta, alors que `h3c_attribution` est du premier contact et ne doit pas le
+  // devenir — et on repose le cookie soi-même dès que la publicité est consentie,
+  // AVANT le chargement de GTM. Le Pixel le relit ensuite sur chaque page, donc
+  // PageView le porte. C'est la recommandation Meta du 2026-08-26 (« envoyer l'ID du
+  // clic (fbc) pour PageView »).
+  var FBC_KEY = 'h3c_fbc';
+  var FBC_TTL_MS = 90 * 24 * 3600 * 1000;   // fenêtre d'attribution Meta
+
+  // Domaine porteur du cookie ET index de sous-domaine du format
+  // `fb.<index>.<horodatage>.<id>` : les deux sortent du même calcul, sinon ils
+  // divergent. `livre.souverainauquotidien.com` → cookie sur
+  // `.souverainauquotidien.com` (2 étiquettes) → index 1, exactement ce que pose
+  // fbevents.js. Un index faux, ou deux cookies `_fbc` sur deux domaines, et
+  // l'appariement retombe à zéro au lieu de progresser.
+  function fbcPortee() {
+    var h = window.location.hostname.split('.');
+    if (h.length < 2) return { domaine: '', index: 0 };   // localhost, IP
+    return { domaine: '.' + h.slice(-2).join('.'), index: 1 };
+  }
+
+  function lireCookie(nom) {
+    try {
+      var m = document.cookie.match(new RegExp('(?:^|; )' + nom + '=([^;]*)'));
+      return m ? m[1] : '';
+    } catch (e) { return ''; }
+  }
+
+  // Le magasin est DOUBLE depuis le 2026-09-01 (recommandation Meta « envoyer l'ID
+  // du clic (fbc) pour Prospect ») : `localStorage` ne vaut que pour UN sous-domaine,
+  // or la pub atterrit sur `livre.` et le Lead se produit sur `test.` ou
+  // `regeneration.` — sans accord publicitaire, `_fbc` n'est jamais reposé et le
+  // clic se perdait entre deux sous-domaines. Un cookie de premier niveau `h3c_fbc`
+  // sur le domaine racine (même portée que `_fbc`) suit le visiteur partout. Les
+  // deux sources sont lues, le clic le plus récent gagne.
+  function lireClicCookie() {
+    try {
+      var v = lireCookie('h3c_fbc');
+      var m = v && v.match(/^(\d{13})\.([A-Za-z0-9_-]{1,380})$/);
+      if (m) return { id: m[2], ts: Number(m[1]) };
+    } catch (e) {}
+    return null;
+  }
+
+  function ecrireClicCookie(c) {
+    try {
+      var p = fbcPortee();
+      document.cookie = 'h3c_fbc=' + c.ts + '.' + c.id + ';path=/' + (p.domaine ? ';domain=' + p.domaine : '') +
+        ';max-age=' + Math.floor(FBC_TTL_MS / 1000) + ';SameSite=Lax';
+    } catch (e) {}
+  }
+
+  function lireClic() {
+    var c = null;
+    try {
+      c = JSON.parse(localStorage.getItem(FBC_KEY) || 'null');
+      if (!(c && c.id && c.ts && Date.now() - c.ts <= FBC_TTL_MS)) c = null;
+    } catch (e) { c = null; }
+    var k = lireClicCookie();
+    if (k && Date.now() - k.ts <= FBC_TTL_MS && (!c || k.ts > c.ts)) c = k;
+    if (c) return c;
+    // Repli sur le premier contact, pour les visiteurs déjà dans la fenêtre
+    // d'attribution le jour où ce magasin est apparu. Il s'éteint tout seul.
+    try {
+      var a = window.h3cAttribution();
+      if (a && a.fbclid) return { id: a.fbclid, ts: a.ts || Date.now() };
+    } catch (e) {}
+    return null;
+  }
+
+  // Un clic en mémoire survit aussi au refus de localStorage. Les écritures
+  // cookie et stockage sont indépendantes ; un échec ne supprime pas l'autre.
+  var clicMemoire = null;
+  (function capterClic() {
+    try {
+      var id = new URLSearchParams(window.location.search).get('fbclid');
+      if (id && /^[A-Za-z0-9_-]{1,380}$/.test(id)) {
+        var precedent = lireClic();
+        clicMemoire = precedent && precedent.id === id ? precedent : { id: id, ts: Date.now() };
+        try { localStorage.setItem(FBC_KEY, JSON.stringify(clicMemoire)); } catch (e) {}
+        ecrireClicCookie(clicMemoire);
+      }
+    } catch (e) {}
+  })();
+
+  // Valeur `_fbc` telle que Meta l'attend, horodatée à l'INSTANT DU CLIC.
+  // `Date.now()` à la lecture datait le clic du moment du paiement : sur un achat
+  // à trois jours, l'horodatage partait faux de trois jours et dégradait
+  // l'appariement au lieu de l'améliorer.
+  function valeurFbc() {
+    var c = clicMemoire || lireClic();
+    return c ? 'fb.' + fbcPortee().index + '.' + c.ts + '.' + c.id : '';
+  }
+
+  function fbcCourant() {
+    var pixel = lireCookie('_fbc'), capture = valeurFbc();
+    var p = pixel.match(/^fb\.\d+\.(\d{13})\.[A-Za-z0-9_-]{1,380}$/);
+    var c = capture.match(/^fb\.\d+\.(\d{13})\.[A-Za-z0-9_-]{1,380}$/);
+    // Le dernier clic connu gagne, y compris si le Pixel a gardé un ancien clic.
+    return c && (!p || Number(c[1]) > Number(p[1])) ? capture : (p ? pixel : '');
+  }
+
+  // Cookie publicitaire posé seulement après accord, avant le chargement de GTM.
+  window.h3cPoserFbc = function () {
+    try {
+      var v = fbcCourant();
+      if (!v || v === lireCookie('_fbc')) return;
+      var p = fbcPortee();
+      document.cookie = '_fbc=' + v + ';path=/' + (p.domaine ? ';domain=' + p.domaine : '') +
+        ';max-age=' + Math.floor(FBC_TTL_MS / 1000) + ';SameSite=Lax;Secure';
+    } catch (e) {}
+  };
+
+  window.h3cFb = function () {
+    var out = {};
+    try {
+      var p = lireCookie('_fbp'); if (p) out.fbp = p;
+      var c = fbcCourant(); if (c) out.fbc = c;
+    } catch (e) {}
+    return out;
+  };
+
+  window.h3cEventId = function () {
+    try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+    return 'h3c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+  };
+
+  // Push dataLayer enrichi de l'attribution (les événements pré-consentement restent
+  // en file dans dataLayer et sont traités par GTM à son chargement).
+  window.h3cTrack = function (event, params) {
+    var d = {}; params = params || {};
+    for (var k in params) { if (Object.prototype.hasOwnProperty.call(params, k)) d[k] = params[k]; }
+    d.event = event;
+    var at = window.h3cAttribution();
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (k) {
+      if (at[k] && d[k] === undefined) d[k] = at[k];
+    });
+    window.dataLayer.push(d);
+    // Même événement vers PostHog, sous le même accord que GA4 (mesure d'audience).
+    if (phActif && window.posthog && window.posthog.capture) {
+      var ph = {};
+      for (var j in d) { if (j !== 'event' && Object.prototype.hasOwnProperty.call(d, j)) ph[j] = d[j]; }
+      window.posthog.capture(event, ph);
+    }
+  };
+
+  // --- PostHog (Cloud EU, offre gratuite — décision Cyrille 2026-09-18) ---
+  // Chargé SEULEMENT après l'accord « mesure d'audience », coupé s'il est retiré.
+  // Les URL partent réduites à leurs paramètres de campagne : aucun identifiant de
+  // paiement, rien de saisi. Sur le Test, ni autocapture ni enregistrement de
+  // session (PH_OPTS) : les réponses et le profil ne quittent jamais la page.
+  var phLoaded = false, phActif = false;
+  var PH_PARAMS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'h3c', 'produit', 'offre'];
+  function urlPropre(u) {
+    try {
+      var x = new URL(u), q = new URLSearchParams();
+      PH_PARAMS.forEach(function (k) { var v = x.searchParams.get(k); if (v) q.set(k, v); });
+      var s = q.toString();
+      return x.origin + x.pathname + (s ? '?' + s : '');
+    } catch (e) { return ''; }
+  }
+  function posthogActiver(oui) {
+    phActif = !!(oui && PH_PROJET);
+    if (!PH_PROJET) return;
+    if (!phActif) {
+      if (phLoaded && window.posthog.opt_out_capturing) window.posthog.opt_out_capturing();
+      return;
+    }
+    if (phLoaded) { window.posthog.opt_in_capturing(); identifier(); return; }
+    phLoaded = true;
+    // File d'attente (même principe que l'extrait officiel) : les appels faits avant
+    // le chargement d'array.js sont rejoués par lui.
+    var p = window.posthog = window.posthog || [];
+    p._i = p._i || [];
+    ['capture', 'identify', 'opt_in_capturing', 'opt_out_capturing', 'register', 'reset'].forEach(function (m) {
+      p[m] = function () { p.push([m].concat(Array.prototype.slice.call(arguments))); };
+    });
+    p.init = function (k, o, n) { p._i.push([k, o, n]); };
+    p.__SV = 1;
+    var s = document.createElement('script'); s.async = true; s.crossOrigin = 'anonymous';
+    s.src = PH_HOST.replace('.i.posthog.com', '-assets.i.posthog.com') + '/static/array.js';
+    document.head.appendChild(s);
+    p.init(PH_PROJET, {
+      api_host: PH_HOST,
+      defaults: '2026-05-30',   // instantané de réglages recommandé par posthog.com/docs/libraries/js
+      person_profiles: 'identified_only',
+      capture_pageview: 'history_change',
+      autocapture: !!PH_OPTS.autocapture,
+      disable_session_recording: !PH_OPTS.session_recording,
+      session_recording: { maskAllInputs: true },
+      // Un refus antérieur est mémorisé par PostHog : un accord redonné le lève.
+      loaded: function (ph) { if (ph.has_opted_out_capturing()) ph.opt_in_capturing(); },
+      // TOUTE propriété qui porte une URL est nettoyée, pas une liste de noms :
+      // PostHog en ajoute d'une version à l'autre ($session_entry_url a laissé
+      // passer un session_id et un email au premier essai, 2026-09-18).
+      before_send: function (ev) {
+        (function nettoyer(o, prof) {
+          if (!o || typeof o !== 'object' || prof > 3) return;
+          for (var k in o) {
+            if (!Object.prototype.hasOwnProperty.call(o, k)) continue;
+            if (typeof o[k] === 'string' && /^https?:\/\//.test(o[k])) o[k] = urlPropre(o[k]);
+            else nettoyer(o[k], prof + 1);
+          }
+        })(ev, 0);
+        return ev;
+      }
+    });
+    identifier();
+  }
+
+  // --- Visiteur identifié (jeton `?c=` d'un lien de courriel, cf. CONTACT:DEBUT) ---
+  // Page vue enregistrée par tsa-api (mesure first-party, sans condition), qui rend un
+  // identifiant OPAQUE du contact. PostHog ne le reçoit (`identify`) que sous l'accord
+  // « mesure d'audience » ; Meta ne reçoit l'adresse hachée (par le serveur, avec le
+  // ViewContent) que sous l'accord « publicité » (`h3cAccordPub`).
+  var TSA_API = 'https://api.souverainauquotidien.com', idOpaque = null;
+  window.h3cAccordPub = function () { var c = readChoice(); return !!(c && c.ads); };
+
+  // Identifiant partagé avec le PageView navigateur, avant tout chargement GTM.
+  if (!window.h3cPageViewId) window.h3cPageViewId = window.h3cEventId();
+  // PAGE_VIEW_CAPI:BEGIN — bloc retiré du rendu Circle.
+  (function pageViewCapi() {
+    if (!TSA_API || window.__h3cPageViewSent) return;
+    window.__h3cPageViewSent = true;
+    // Jumeau serveur inconditionnel ; pub ne gouverne que l'enrichissement contact.
+    try {
+      var fb = window.h3cFb();
+      var at = window.h3cAttribution();
+      var contact = window.h3cContact();
+      fetch(TSA_API + '/api/capi/page-view', { method: 'POST', keepalive: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_id: window.h3cPageViewId, url: location.href.slice(0, 500),
+          fbp: fb.fbp ? fb.fbp.slice(0, 100) : undefined,
+          fbc: fb.fbc ? fb.fbc.slice(0, 400) : undefined,
+          attribution: at, contact: contact ? contact.slice(0, 500) : undefined,
+          pub: !!window.h3cAccordPub()
+        }) }).catch(function () {});
+    } catch (e) {}
+  })();
+  // PAGE_VIEW_CAPI:END
+
+  function identifier() {
+    if (idOpaque && phActif && window.posthog && window.posthog.identify) window.posthog.identify(idOpaque);
+  }
+  (function pageVue() {
+    var j = window.h3cContact();
+    if (!j || !TSA_API) return;
+    try {
+      fetch(TSA_API + '/api/capi/page-vue', { method: 'POST', keepalive: true,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contact: j, url: location.origin + location.pathname }) })
+        .then(function (r) { return r.ok ? r.json() : {}; })
+        .then(function (r) {
+          if (r && /^h3c_[0-9a-f]{20}$/.test(r.id || '')) { idOpaque = r.id; identifier(); }
+        }).catch(function () {});
+    } catch (e) {}
+  })();
+
+  // --- Événements de PAGE : mis en file jusqu'à ce que le consentement soit tranché ---
+  // Un événement poussé au parse (view_content sur la page de vente, purchase sur la
+  // page de remerciement) arrivait AVANT gtag('consent','update'). GTM rejoue la file
+  // dans l'ordre : il évaluait ces événements sur l'état « refusé », bloquait les
+  // balises HTML personnalisées (Pixel Meta), puis ne les réévaluait jamais — leur
+  // déclencheur étant passé pour de bon. Les balises Google natives, elles, savent
+  // patienter, d'où GA4 qui fonctionnait et le Pixel qui se taisait.
+  // Diagnostic Cowork + DG, vérifié en production le 2026-07-28.
+  var pageEvents = [], consentSettled = false;
+  window.h3cTrackPage = function (event, params) {
+    if (consentSettled) { window.h3cTrack(event, params); return; }
+    pageEvents.push([event, params]);
+  };
+  function flushPageEvents() {
+    if (consentSettled) return;
+    consentSettled = true;
+    var q = pageEvents; pageEvents = [];
+    for (var i = 0; i < q.length; i++) { window.h3cTrack(q[i][0], q[i][1]); }
+  }
+
+  // Conteneur GTM pas encore créé : helpers seuls, ni bannière ni tags. On vide
+  // quand même la file (la dataLayer n'est alors lue par personne) pour que le
+  // comportement reste identique à celui d'avant la mise en file.
+  if (!GTM_ID) { flushPageEvents(); return; }
+
+  // --- Choix stocké (6 mois max, invalidé si la version de politique change) ---
+  function readChoice() {
+    try {
+      var c = JSON.parse(localStorage.getItem(CONSENT_KEY) || 'null');
+      if (!c || c.v !== POLICY_VERSION) return null;
+      if (Date.now() - c.ts > DURATION_MS) return null;
+      return c;
+    } catch (e) { return null; }
+  }
+  function saveChoice(analytics, ads) {
+    try { localStorage.setItem(CONSENT_KEY, JSON.stringify({ v: POLICY_VERSION, ts: Date.now(), analytics: !!analytics, ads: !!ads })); } catch (e) {}
+  }
+
+  var gtmLoaded = false;
+  function applyChoice(c) {
+    gtag('consent', 'update', {
+      analytics_storage: c.analytics ? 'granted' : 'denied',
+      ad_storage: c.ads ? 'granted' : 'denied',
+      ad_user_data: c.ads ? 'granted' : 'denied',
+      ad_personalization: c.ads ? 'granted' : 'denied'
+    });
+    // `_fbc` reposé ICI, entre l'accord et le chargement de GTM : le Pixel le lit
+    // à son initialisation et l'attache à PageView, puis à tous les événements de
+    // la page. Sous l'accord publicitaire seulement — c'est un cookie de publicité,
+    // et le Pixel navigateur reste bloqué sans consentement (l'envoi serveur, lui,
+    // part inconditionnellement : asymétrie assumée, décision du 2026-08-21).
+    if (c.ads) window.h3cPoserFbc();
+    garderContact(c.analytics);
+    // PostHog avant la file d'événements de page : ils lui parviennent aussi.
+    posthogActiver(c.analytics);
+    // Les événements de page partent APRÈS la mise à jour du consentement et AVANT
+    // le chargement de GTM : la file rejouée est alors consent:default →
+    // consent:update → view_content/purchase → gtm.js. Les balises sont évaluées
+    // sur l'état réel.
+    flushPageEvents();
+    if ((c.analytics || c.ads) && !gtmLoaded) {
+      gtmLoaded = true;
+      window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+      var s = document.createElement('script'); s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtm.js?id=' + GTM_ID;
+      document.head.appendChild(s);
+    }
+  }
+
+  // --- Bannière CNIL : refuser aussi simple qu'accepter, choix révocable (bouton Cookies) ---
+  var STYLE = '#h3c-cmp{position:fixed;left:0;right:0;bottom:0;z-index:2147483000;background:#fff;border-top:1px solid #e4ddd4;box-shadow:0 -4px 24px rgba(0,0,0,.12);padding:16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}#h3c-cmp .h3c-cmp-in{max-width:760px;margin:0 auto;}#h3c-cmp p{margin:0 0 10px;font-size:.86rem;line-height:1.5;color:#4a4a4a;}#h3c-cmp a{color:#A8432B;text-decoration:underline;}#h3c-cmp .h3c-cmp-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}#h3c-cmp button{font:inherit;font-size:.85rem;font-weight:600;border-radius:9px;padding:10px 16px;cursor:pointer;border:1px solid #cbb6a6;background:#fff;color:#333;}#h3c-cmp #h3c-accept{margin-left:auto;}#h3c-cmp .h3c-ok{background:#A8432B;border-color:#A8432B;color:#fff;}#h3c-cmp label{font-size:.82rem;color:#4a4a4a;margin-right:10px;display:inline-flex;align-items:center;gap:5px;}#h3c-cmp .h3c-cats{display:none;margin:6px 0 4px;}#h3c-cmp .h3c-cats.on{display:block;}#h3c-reopen{position:fixed;left:10px;bottom:10px;z-index:2147482999;font-size:.72rem;background:rgba(255,255,255,.92);border:1px solid #e4ddd4;border-radius:8px;padding:4px 9px;cursor:pointer;color:#6a6a6a;font-family:system-ui,sans-serif;}';
+
+  function addReopen() {
+    if (document.getElementById('h3c-reopen')) return;
+    var r = document.createElement('button');
+    r.id = 'h3c-reopen'; r.type = 'button'; r.textContent = 'Cookies';
+    r.setAttribute('aria-label', 'Gérer mes cookies');
+    r.addEventListener('click', showBanner);
+    document.body.appendChild(r);
+  }
+  function removeBanner() { var b = document.getElementById('h3c-cmp'); if (b) b.remove(); addReopen(); }
+  function showBanner() {
+    if (document.getElementById('h3c-cmp')) return;
+    if (!document.getElementById('h3c-cmp-style')) {
+      var st = document.createElement('style'); st.id = 'h3c-cmp-style'; st.textContent = STYLE;
+      document.head.appendChild(st);
+    }
+    var w = document.createElement('div');
+    w.id = 'h3c-cmp'; w.setAttribute('role', 'dialog'); w.setAttribute('aria-label', 'Consentement cookies');
+    // Cases jamais cochées d'office (CNIL, art. 82 ; CJUE Planet49) : rouvert par « Cookies »,
+    // le bandeau montre le choix déjà enregistré, sinon tout est décoché.
+    var cur = readChoice();
+    w.innerHTML =
+      '<div class="h3c-cmp-in">' +
+      '<p>Avec votre accord, ce site utilise des cookies de mesure d\'audience (Google Analytics, PostHog) et de publicité (Meta, Google Ads) pour comprendre ce qui vous aide vraiment. Sans action de votre part, aucun de ces cookies n\'est déposé. <a href="' + PRIVACY_URL + '">En savoir plus</a>.</p>' +
+      '<div class="h3c-cats" id="h3c-cats">' +
+      '<label><input type="checkbox" id="h3c-cat-analytics"' + (cur && cur.analytics ? ' checked' : '') + '> Mesure d\'audience</label>' +
+      '<label><input type="checkbox" id="h3c-cat-ads"' + (cur && cur.ads ? ' checked' : '') + '> Publicité et réseaux sociaux</label>' +
+      '</div>' +
+      '<div class="h3c-cmp-row">' +
+      '<button type="button" id="h3c-refuse">Continuer sans accepter</button>' +
+      '<button type="button" id="h3c-custom">Personnaliser</button>' +
+      '<button type="button" class="h3c-ok" id="h3c-accept">Tout accepter</button>' +
+      '</div></div>';
+    document.body.appendChild(w);
+    document.getElementById('h3c-accept').addEventListener('click', function () {
+      var custom = document.getElementById('h3c-cats').classList.contains('on');
+      var an = custom ? document.getElementById('h3c-cat-analytics').checked : true;
+      var ad = custom ? document.getElementById('h3c-cat-ads').checked : true;
+      saveChoice(an, ad); applyChoice({ analytics: an, ads: ad }); removeBanner();
+    });
+    document.getElementById('h3c-refuse').addEventListener('click', function () {
+      saveChoice(false, false); applyChoice({ analytics: false, ads: false }); removeBanner();
+    });
+    document.getElementById('h3c-custom').addEventListener('click', function () {
+      document.getElementById('h3c-cats').classList.add('on');
+      document.getElementById('h3c-accept').textContent = 'Valider mes choix';
+    });
+  }
+  window.h3cConsent = { open: showBanner, status: readChoice };
+
+  function boot() {
+    var c = readChoice();
+    if (c) { applyChoice(c); addReopen(); } else { showBanner(); }
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
+})();
+</script>
+<!-- H3C-TRACKING:END -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Conditions générales de vente — Souverain au Quotidien (Cyrille NOVOU)</title>
 <meta name="description" content="Les conditions générales de vente de SAZILÉ Développement (Souverain au Quotidien) : celles du programme Régénération et celles du livre.">
@@ -14,7 +535,7 @@
   .legal-nav { margin: 2.5rem 0 1rem; padding-top: 1rem; border-top: 1px solid #ddd; font-size: 0.95rem; }
   footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #ddd; font-size: 0.85rem; color: #666; text-align: center; }
 </style>
-<!-- SAQ-THEME:BEGIN --><link rel="stylesheet" href="/assets/saq-theme-45e98a46f2b2.css"><script defer src="/assets/saq-theme-0cf207feaad1.js"></script><!-- SAQ-THEME:END --></head>
+<!-- SAQ-THEME:BEGIN --><link rel="stylesheet" href="/assets/saq-theme-ef21232c2a1f.css"><script defer src="/assets/saq-theme-0cf207feaad1.js"></script><!-- SAQ-THEME:END --></head>
 <body data-saq-site="test"><!-- SAQ-SHELL:BEGIN --><a class="saq-skip" href="#saq-content">Aller au contenu</a><header class="saq-shell"><div class="saq-shell-inner"><a class="saq-brand" href="https://www.souverainauquotidien.com/">Souverain au Quotidien<small>De la dépendance affective à la souveraineté relationnelle</small></a><nav class="saq-desktop" aria-label="Navigation principale"><a href="https://www.souverainauquotidien.com/comprendre/">Comprendre</a><a href="https://test.souverainauquotidien.com/">Test et bilan</a><a href="https://livre.souverainauquotidien.com/">Le livre</a><a href="https://www.souverainauquotidien.com/accompagnements/">Être accompagné</a></nav><span class="saq-context">Test et bilan</span><details class="saq-menu"><summary>Menu <span aria-hidden="true">☰</span></summary><nav aria-label="Navigation mobile"><a href="https://www.souverainauquotidien.com/comprendre/">Comprendre</a><a href="https://test.souverainauquotidien.com/">Test et bilan</a><a href="https://livre.souverainauquotidien.com/">Le livre</a><a href="https://www.souverainauquotidien.com/accompagnements/">Être accompagné</a><a href="https://test.souverainauquotidien.com/retrouvez-vous">Bilan Retrouvez-vous</a><a href="https://rdv.souverainauquotidien.com/">Prendre rendez-vous</a></nav></details></div></header><!-- SAQ-SHELL:END -->
 <main id="saq-content" tabindex="-1" data-saq-content="added">
   <h1>Conditions générales de vente</h1>

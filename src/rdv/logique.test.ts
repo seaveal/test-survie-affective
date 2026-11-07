@@ -84,11 +84,11 @@ describe('regroupement par jour, dans le fuseau choisi', () => {
 
 describe('repli vers YouCanBookMe', () => {
   it('pré-remplit tout ce qui est connu et rien de vide', () => {
-    const u = new URL(urlRepli('https://cyrillenovou-30mn.youcanbook.me/', {
+    const u = new URL(urlRepli('https://cyrillenovou-45mn.youcanbook.me/', {
       prenom: 'Jane', nom: 'Doe', email: 'jane@example.com', telephone: '+33 6 12 34 56 78',
       situation: 'Ma situation', anciennete: CHOIX_ANCIENNETE[3], objectif: '', provenance: '',
     }, 'zRH7M'))
-    expect(u.origin).toBe('https://cyrillenovou-30mn.youcanbook.me')
+    expect(u.origin).toBe('https://cyrillenovou-45mn.youcanbook.me')
     expect(u.searchParams.get('FNAME')).toBe('Jane')
     expect(u.searchParams.get('Q6')).toBe('Depuis très longtemps / “toujours”')
     expect(u.searchParams.get('PHONE')).toBe('+33 6 12 34 56 78')
@@ -98,7 +98,7 @@ describe('repli vers YouCanBookMe', () => {
   })
 
   it('page vide : agenda de vente par défaut', () => {
-    expect(urlRepli('', {}, '')).toBe('https://cyrillenovou-30mn.youcanbook.me/')
+    expect(urlRepli('', {}, '')).toBe('https://cyrillenovou-45mn.youcanbook.me/')
   })
 })
 

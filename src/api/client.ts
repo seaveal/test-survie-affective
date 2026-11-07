@@ -511,7 +511,7 @@ const ATTENTES_REPRISE_MS = [800, 2000]
 const DELAI_LECTURE_MS = 4000
 
 /** Jeton de cycle (`tsa.reprise`) ou jeton de contact du lien (`c`). */
-export type SourceReprise = { jeton: string } | { c: string }
+export type SourceReprise = ({ jeton: string } | { c: string }) & { jeu?: 'tsa' | 'rv' }
 
 export async function lireProgression(source: SourceReprise): Promise<EtatProgression> {
   let r = await lireProgressionUneFois(source)
@@ -526,7 +526,7 @@ export async function lireProgression(source: SourceReprise): Promise<EtatProgre
 async function lireProgressionUneFois(source: SourceReprise): Promise<EtatProgression> {
   const [cle, valeur] = 'jeton' in source ? ['jeton', source.jeton] : ['c', source.c]
   try {
-    const res = await appel('GET', `/api/test-progression?${cle}=${encodeURIComponent(valeur)}`, undefined, DELAI_LECTURE_MS)
+    const res = await appel('GET', `/api/test-progression?${cle}=${encodeURIComponent(valeur)}${source.jeu ? `&jeu=${source.jeu}` : ''}`, undefined, DELAI_LECTURE_MS)
     if (res.status === 404 || res.status === 410) return { etat: 'oublier' }
     if (!res.ok) return { etat: 'erreur' }
     const data = (await res.json()) as { termine?: boolean; reponses?: Record<string, unknown>; jeton?: unknown }
@@ -669,4 +669,21 @@ export async function rejouerFinsRv(): Promise<void> {
   }
   // Une fin ratée pendant le rejeu s'est ajoutée au bout de la file : elle reste.
   ecrireFileRv([...reste, ...lireFileRv().slice(q.length)])
+}
+
+
+/** Suite du bilan, uniquement avec le jeton délivré par email, jamais l'email saisi. */
+export async function lireOrientationRv(contact: string): Promise<'rdv' | 'programme' | null> {
+  try {
+    const res = await appel('GET', `/api/rv-orientation?c=${encodeURIComponent(contact)}`)
+    if (!res.ok) return null
+    const data = await res.json() as { suite?: string }
+    return data.suite === 'rdv' || data.suite === 'programme' ? data.suite : null
+  } catch {
+    return null
+  }
+}
+
+export function lienSuiteRv(contact: string): string {
+  return `${getApiUrl()}/api/rv-suite?c=${encodeURIComponent(contact)}`
 }

@@ -32,7 +32,7 @@ async function simuler(page: Page, o: Options = {}): Promise<Journal> {
       const c = o.creneaux ?? CRENEAUX
       if (c === 'panne') return route.abort('connectionrefused')
       if (!Array.isArray(c)) return route.fulfill({ status: c.status, json: c.body })
-      return route.fulfill({ status: 200, json: { creneaux: c, duree_min: 30, page: 'https://cyrillenovou-30mn.youcanbook.me/' } })
+      return route.fulfill({ status: 200, json: { creneaux: c, duree_min: 45, page: 'https://cyrillenovou-45mn.youcanbook.me/' } })
     }
     if (u.pathname === '/api/rdv/reserver') {
       const corps = req.postDataJSON() as Record<string, unknown>
@@ -157,7 +157,7 @@ test('serveur injoignable : repli vers YouCanBookMe pré-rempli de tout', async 
   await jusquAuCreneau(page, { provenance: false })
   await expect(page.getByText('Agenda YouCanBookMe')).toBeVisible({ timeout: 20_000 })
   const u = new URL(j.ycbm.at(-1)!)
-  expect(u.origin + u.pathname).toBe('https://cyrillenovou-30mn.youcanbook.me/')
+  expect(u.origin + u.pathname).toBe('https://cyrillenovou-45mn.youcanbook.me/')
   expect(Object.fromEntries(u.searchParams)).toEqual({
     FNAME: 'Jane', LNAME: 'Doe', EMAIL: 'jane@example.com', PHONE: '06 12 34 56 78',
     SITUATION: 'Je rejoue le même scénario.', Q6: 'Plus de 2 ans', ORIGINE: 'zRH7M',

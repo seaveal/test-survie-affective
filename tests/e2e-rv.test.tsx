@@ -205,10 +205,8 @@ describe('e2e RETROUVEZ-VOUS', () => {
     expect(screen.getByTestId('score-securite')).toHaveTextContent('20/20 · Difficultés très présentes')
     expect(screen.getByTestId('score-autonomie')).toHaveTextContent('0/20 · Ressources disponibles')
     expect(screen.getByTestId('score-identite')).toHaveTextContent('Résultat incomplet')
-    const rdv = screen.getByTestId('rdv-bouton')
-    expect(rdv).toHaveAttribute('href', 'https://h3c.fr/rdv-retrouvez')
-    expect(rdv).toHaveTextContent('Réserver mon appel de 30 minutes')
-    expect(screen.getAllByRole('link').filter((a) => a.getAttribute('href')?.startsWith('https://h3c.fr/'))).toHaveLength(1)
+    expect(screen.getByTestId('suite-bilan-email')).toBeInTheDocument()
+    expect(screen.queryByTestId('rdv-bouton')).toBeNull()
     expect(screen.queryByTestId('urgence')).toBeNull()
 
     await waitFor(() => expect(vers('/api/rv-complete')).toHaveLength(1))
@@ -263,11 +261,11 @@ describe('e2e RETROUVEZ-VOUS', () => {
     attendreS1Absente()
   })
 
-  it('sécurité « Je préfère ne pas répondre » : l’appel reste proposé', async () => {
+  it('sécurité « Je préfère ne pas répondre » : la suite personnalisée reste accessible par email', async () => {
     const user = userEvent.setup()
     render(<AppRV />)
     await parcours(user, 'Je préfère ne pas répondre')
-    expect(await screen.findByTestId('rdv-bouton')).toBeInTheDocument()
+    expect(await screen.findByTestId('suite-bilan-email')).toBeInTheDocument()
     expect(screen.queryByTestId('urgence')).toBeNull()
     attendreS1Absente()
   })
@@ -288,10 +286,10 @@ describe('e2e RETROUVEZ-VOUS', () => {
     expect(screen.getByTestId('priorite-texte')).toHaveTextContent(RESTITUTIONS_RV.phrasesNiveaux.ressources)
     expect(screen.queryByText(RESTITUTIONS_RV.priorites.realite.ecran)).toBeNull()
     expect(screen.queryByTestId('priorite-2')).toBeNull()
-    expect(screen.getByTestId('rdv-bouton')).toBeInTheDocument()
+    expect(screen.getByTestId('suite-bilan-email')).toBeInTheDocument()
   })
 
-  it('aucune réponse comptée : priorité « incomplet », cinq « Résultat incomplet », appel proposé', async () => {
+  it('aucune réponse comptée : priorité « incomplet », cinq « Résultat incomplet », suite par email', async () => {
     const user = userEvent.setup()
     render(<AppRV />)
     await user.click(screen.getByTestId('cta-haut'))
@@ -305,7 +303,7 @@ describe('e2e RETROUVEZ-VOUS', () => {
     expect(await screen.findByTestId('priorite-titre')).toHaveTextContent(RESTITUTIONS_RV.priorites.incomplet.titre)
     expect(screen.getAllByText('Résultat incomplet')).toHaveLength(5)
     expect(screen.queryByTestId('priorite-2')).toBeNull()
-    expect(screen.getByTestId('rdv-bouton')).toBeInTheDocument()
+    expect(screen.getByTestId('suite-bilan-email')).toBeInTheDocument()
     await waitFor(() => expect(vers('/api/rv-complete')).toHaveLength(1))
     const fin = vers('/api/rv-complete')[0].corps!
     expect(Object.values(fin.reponses as object)).toEqual(Array(25).fill(null))
@@ -415,7 +413,7 @@ describe('e2e RETROUVEZ-VOUS', () => {
     expect(refusee.corps).toMatchObject({ jeton: JETON })
     expect(acceptee.corps).not.toHaveProperty('jeton')
     expect(acceptee.corps).toMatchObject({ email: EMAIL, situation: 'separe_ancien', pret_a_agir: 'maintenant', reponses: REPONSES_PLAN })
-    expect(await screen.findByTestId('rdv-bouton')).toBeInTheDocument()
+    expect(await screen.findByTestId('suite-bilan-email')).toBeInTheDocument()
     expect(vers('/api/test-debut')).toHaveLength(0)
   })
 

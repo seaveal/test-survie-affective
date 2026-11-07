@@ -196,7 +196,7 @@ export function useRvState() {
       if (!(stocke || contact)) return undefined
       let r = stocke ? await lireProgression({ jeton: stocke }) : null
       if (r?.etat === 'oublier') garderJeton(null)
-      if ((!r || r.etat === 'oublier') && contact) r = await lireProgression({ c: contact })
+      if ((!r || r.etat === 'oublier') && contact) r = await lireProgression({ c: contact, jeu: 'rv' })
       return r
     })().then((r) => {
       if (r === undefined) return

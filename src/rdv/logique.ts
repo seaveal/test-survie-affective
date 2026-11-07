@@ -4,7 +4,7 @@
 // affichage créneau par créneau par Intl avec `timeZone` ; jamais getDate() ni toISOString().
 
 /** Page YouCanBookMe de repli quand le serveur ne répond pas (agenda de vente). */
-export const PAGE_YCBM = 'https://cyrillenovou-30mn.youcanbook.me/'
+export const PAGE_YCBM = 'https://cyrillenovou-45mn.youcanbook.me/'
 
 export const PARIS = 'Europe/Paris'
 

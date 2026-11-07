@@ -68,14 +68,14 @@ describe('<ResultPreview> — seconde proposition de la suite par email', () => 
   })
 })
 
-// Décision Cyrille du 18/10/2026 : l'appel de trente minutes est la SEULE proposition de la
+// Décision Cyrille du 18/10/2026 : l'appel de quarante-cinq minutes est la SEULE proposition de la
 // page de résultat ; le kit (vidéo et bloc) en est retiré.
 describe('<ResultPreview> — bloc rendez-vous, seule proposition', () => {
-  it('propose l’appel de trente minutes vers le lien court suivi rdv-test', () => {
+  it('propose l’appel de quarante-cinq minutes vers le lien court suivi rdv-test', () => {
     const { container } = render(<ResultPreview resultat={RESULTAT} envoiReussi />)
     const bouton = screen.getByTestId('rdv-bouton')
     expect(bouton.getAttribute('href')).toBe('https://h3c.fr/rdv-test')
-    expect(bouton.textContent).toBe('Réserver mon appel de 30 minutes')
+    expect(bouton.textContent).toBe('Réserver mon appel de 45 minutes')
     expect(container.textContent).not.toMatch(/youcanbook/i)
   })
 

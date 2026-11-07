@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { lireJetonContact, lireOrientationRv, lienSuiteRv } from '../api/client'
 import { DisclaimerFooter } from '../components/DisclaimerFooter'
 import { niveau } from '../domain/rv/scoring'
 import { DIMENSIONS_RV, type ResultatRv } from '../domain/rv/types'
@@ -6,8 +7,6 @@ import type { ReponseSecurite } from './questions'
 import { RESTITUTIONS_RV } from './restitutions'
 import { TEXTES_RV } from './textes'
 
-/** Seul appel à l'action de la page : lien court suivi, jamais l'URL de l'agenda en dur. */
-const URL_RDV = 'https://h3c.fr/rdv-retrouvez'
 
 const T = TEXTES_RV.resultat
 const secondaire = { color: 'var(--h3c-texte-secondaire)' }
@@ -178,21 +177,8 @@ export function ResultatRV({ resultat, securite, envoiReussi, envoiEnCours, envo
         {envoiReussi && accepterSuite && <SuiteParEmail accepter={accepterSuite} />}
       </section>
 
-      {!urgence && (
-        <section className="mx-6 mt-6" data-testid="appel">
-          <p className="text-base leading-relaxed">{T.demande}</p>
-          <a
-            href={URL_RDV}
-            className="tsa-cta-terracotta mt-4 block rounded-lg px-6 py-4 text-center text-base font-medium text-white shadow-md"
-            data-testid="rdv-bouton"
-          >
-            {T.bouton}
-          </a>
-          <p className="mt-3 text-sm" style={secondaire}>
-            {T.sousBouton}
-          </p>
-        </section>
-      )}
+      {!urgence && <SuiteDuBilan />}
+
 
       <p className="mx-6 mt-8 text-base leading-relaxed" style={secondaire}>
         {T.pied}
@@ -204,5 +190,39 @@ export function ResultatRV({ resultat, securite, envoiReussi, envoiEnCours, envo
       </div>
       <DisclaimerFooter nomTest={TEXTES_RV.nomTest} />
     </main>
+  )
+}
+
+
+/** L'adresse saisie et le jeton de cycle ne prouvent pas l'identité d'un membre. */
+export function SuiteDuBilan() {
+  const [contact] = useState(lireJetonContact)
+  const [suite, setSuite] = useState<'chargement' | 'email' | 'rdv' | 'programme'>(contact ? 'chargement' : 'email')
+  useEffect(() => {
+    if (!contact) return
+    let actif = true
+    void lireOrientationRv(contact).then((resultat) => {
+      if (actif) setSuite(resultat ?? 'email')
+    })
+    return () => { actif = false }
+  }, [contact])
+  if (suite === 'chargement') return <p className="mx-6 mt-6" role="status">{T.suiteChargement}</p>
+  if (suite === 'email' || !contact) return (
+    <section className="mx-6 mt-6" data-testid="suite-bilan-email">
+      <h2 className="text-xl">{T.suiteTitre}</h2>
+      <p className="mt-3 text-base leading-relaxed">{T.suiteEmail}</p>
+    </section>
+  )
+  const membre = suite === 'programme'
+  return (
+    <section className="mx-6 mt-6" data-testid={membre ? 'suite-programme' : 'appel'}>
+      <p className="text-base leading-relaxed">{membre ? T.suiteProgramme : T.demande}</p>
+      <a href={lienSuiteRv(contact)} referrerPolicy="no-referrer"
+         className="tsa-cta-terracotta mt-4 block rounded-lg px-6 py-4 text-center text-base font-medium text-white shadow-md"
+         data-testid={membre ? 'programme-bouton' : 'rdv-bouton'}>
+        {membre ? T.boutonProgramme : T.bouton}
+      </a>
+      {!membre && <p className="mt-3 text-sm" style={secondaire}>{T.sousBouton}</p>}
+    </section>
   )
 }

@@ -74,19 +74,19 @@ function SuiteParEmail({ accepter }: { accepter: () => Promise<boolean> }) {
 // l'appel avec moi », puis « l'update de la page de résultat est une priorité car on va
 // booster les 2 réels », puis « il faut supprimer le kit sur la page de résultat, ça n'a pas
 // de sens d'empiler les propositions »). SEUL appel à l'action de la page : un appel offert
-// de trente minutes. Lien court suivi `h3c.fr/rdv-test` (utm page-resultat, créé le 18/10),
+// de quarante-cinq minutes. Lien court suivi `h3c.fr/rdv-test` (utm page-resultat, créé le 18/10),
 // jamais l'URL YouCanBookMe en dur. Texte court écrit directement (exception du 12/10),
 // sans date ni compte de créneaux : la page est evergreen.
 export function RdvBloc() {
   const p = 'mt-4 text-base leading-relaxed'
   return (
     <section className="mx-6 mb-6" data-testid="rdv-bloc">
-      <h2 className="text-xl">Votre prochain pas : trente minutes avec moi</h2>
+      <h2 className="text-xl">Votre prochain pas : quarante-cinq minutes avec moi</h2>
       <p className={p}>
         Vous venez de mettre un nom sur votre profil. Ce qui se rejoue dans votre relation, lui, continue au prochain silence.
       </p>
       <p className={p}>
-        Un appel de trente minutes, offert, en visio. Si l’un de mes accompagnements vous convient, je vous le propose. Sinon, vous repartez avec une lecture claire de votre situation.
+        Un appel de quarante-cinq minutes, offert, en visio. Si l’un de mes accompagnements vous convient, je vous le propose. Sinon, vous repartez avec une lecture claire de votre situation.
       </p>
       <a
         href="https://h3c.fr/rdv-test"
@@ -94,7 +94,7 @@ export function RdvBloc() {
         style={{ background: 'var(--h3c-accent-primaire)' }}
         data-testid="rdv-bouton"
       >
-        Réserver mon appel de 30 minutes
+        Réserver mon appel de 45 minutes
       </a>
     </section>
   )
@@ -176,7 +176,7 @@ export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCo
         {envoiReussi && !apercu && accepterSuite && <SuiteParEmail accepter={accepterSuite} />}
       </section>
 
-      {/* Une seule proposition sur la page de résultat : l'appel de trente minutes
+      {/* Une seule proposition sur la page de résultat : l'appel de quarante-cinq minutes
           (décision Cyrille du 18/10/2026). Le kit (vidéo + bloc) a été retiré ce jour ;
           la vente du kit vit sur sa propre page. */}
       <RdvBloc />

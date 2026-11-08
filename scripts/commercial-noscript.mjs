@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 const textes = JSON.parse(readFileSync(new URL('../src/commercial/textes.json', import.meta.url), 'utf8'))
+if (process.env.VITE_RESULTATS_WHATSAPP === 'true') Object.assign(textes, JSON.parse(readFileSync(new URL('../src/commercial/textes-whatsapp.json', import.meta.url), 'utf8')))
 for (const [file, id] of [['index.html','tsa-accueil'],['retrouvez-vous.html','bilan-accueil'],['retrouvez-vous/index.html','bilan-accueil'],['rdv/index.html','rdv-accueil']]) {
   const path = new URL('../dist/'+file, import.meta.url)
   let s = readFileSync(path,'utf8')

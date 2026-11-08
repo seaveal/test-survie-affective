@@ -1,3 +1,4 @@
+import { livraisonWhatsApp } from '../api/setting'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { CaptureValues } from '../api/client'
 
@@ -31,6 +32,14 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 type ChampFautif = 'email'
 
 export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = null, textes = TEXTES_CAPTURE }: Props) {
+  if (livraisonWhatsApp) textes = {
+    ...textes,
+    surtitre: 'Votre résultat offert sur WhatsApp',
+    titre: 'Sauvegardez votre test',
+    phrase: 'Votre email sert à sauvegarder votre progression. À la fin, vous enverrez un message sur WhatsApp pour recevoir votre résultat. WhatsApp est nécessaire pour cette livraison.',
+    sousBouton: 'Résultat gratuit. Sans carte bancaire.',
+    noteCase: 'Cette case est facultative et concerne seulement les emails. Votre résultat sera accessible sur WhatsApp dans tous les cas.',
+  }
   const [email, setEmail] = useState('')
   const [prenom, setPrenom] = useState('')
   // Consentement marketing : case DÉCOCHÉE par défaut (RGPD considérant 32, CJUE

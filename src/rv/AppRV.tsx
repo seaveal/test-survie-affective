@@ -1,3 +1,5 @@
+import { livraisonWhatsApp } from '../api/setting'
+import { ResultDelivery } from '../components/ResultDelivery'
 import { useEffect } from 'react'
 import { flushPendingCaptures } from '../api/client'
 import { CaptureScreen } from '../components/CaptureScreen'
@@ -53,6 +55,8 @@ function AppRV() {
       />
     )
   }
+
+  if (s.etape === 'resultat' && livraisonWhatsApp) return <ResultDelivery game="rv" busy={s.envoiEnCours} refused={s.envoiRefuse} />
 
   if (s.etape === 'resultat') {
     if (!s.resultat) return null

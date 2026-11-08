@@ -1,3 +1,4 @@
+import { livraisonWhatsApp, nouvelleSoumission, garderLivraison, effacerLivraison, type Delivery } from './setting'
 // src/api/client.ts
 // Client de l'API d'ingestion CRM H3C (https://api.souverainauquotidien.com).
 //
@@ -31,6 +32,7 @@ export interface CaptureValues {
 }
 
 export interface TestCompletePayload {
+  submission?: string
   // Livraison 2 : absents quand le jeton de reprise suffit (contact déjà en base
   // depuis /api/test-debut, l'email du jeton gagne côté API).
   email?: string
@@ -67,7 +69,7 @@ export interface TestCompletePayload {
   }
 }
 
-export interface TestCompleteResponse {
+export type TestCompleteResponse = Delivery | {
   contact_id: string
   test_id: string
   cadeau_coupon_expire_le: string
@@ -101,6 +103,7 @@ function writeQueue(items: TestCompletePayload[]): void {
 /** « Recommencer » : une fin encore en file appartient au Test abandonné ; rejouée
  *  plus tard avec l'email, elle écraserait le profil du nouveau Test (relecture L2, N1). */
 export function viderFinsEnAttente(): void {
+  effacerLivraison('tsa')
   writeQueue([])
 }
 
@@ -146,12 +149,14 @@ async function appel(method: string, chemin: string, corps?: unknown, delaiMs = 
 }
 
 async function postOnce(payload: TestCompletePayload): Promise<TestCompleteResponse> {
-  const res = await appel('POST', '/api/test-complete', payload)
+  const res = await appel('POST', payload.submission ? '/api/setting/test-complete' : '/api/test-complete', payload)
   if (!res.ok) {
     const text = await res.text()
     throw new ErreurHttp(res.status, `API ${res.status} : ${text.slice(0, 200)}`)
   }
-  return (await res.json()) as TestCompleteResponse
+  const data = await res.json() as TestCompleteResponse
+  garderLivraison('tsa', data)
+  return data
 }
 
 /**
@@ -187,6 +192,7 @@ export function nouvelEventId(): string {
 export async function submitTestComplete(
   payload: TestCompletePayload,
 ): Promise<TestCompleteResponse | { refus: number } | null> {
+  if (livraisonWhatsApp && !payload.submission) payload.submission = nouvelleSoumission()
   // Chantier 8 : Lead dédupliqué Pixel↔CAPI. On génère l'event_id UNE fois,
   // on pousse l'événement browser (dataLayer → GTM → Pixel, si consenti) et le
   // même id part au serveur (CAPI). Les retries de queue gardent l'event_id
@@ -572,6 +578,7 @@ export function envoyerJalon(jalon: Jalon): void {
 // ---------------------------------------------------------------------------
 
 export interface RvCompletePayload {
+  submission?: string
   email?: string
   prenom?: string
   consentement_marketing?: boolean
@@ -586,7 +593,7 @@ export interface RvCompletePayload {
   pret_a_agir: string | null
 }
 
-export interface RvCompleteResponse {
+export type RvCompleteResponse = Delivery | {
   contact_id: string
   bilan_id: string
   priorite: string
@@ -615,6 +622,7 @@ function ecrireFileRv(items: RvCompletePayload[]): void {
 
 /** « Recommencer le bilan » : la fin du bilan abandonné ne repart pas plus tard. */
 export function viderFinsRvEnAttente(): void {
+  effacerLivraison('rv')
   ecrireFileRv([])
 }
 
@@ -628,12 +636,14 @@ export function buildRvPayload(
 }
 
 async function posterRv(payload: RvCompletePayload): Promise<RvCompleteResponse> {
-  const res = await appel('POST', '/api/rv-complete', payload)
+  const res = await appel('POST', payload.submission ? '/api/setting/rv-complete' : '/api/rv-complete', payload)
   if (!res.ok) {
     const text = await res.text()
     throw new ErreurHttp(res.status, `API ${res.status} : ${text.slice(0, 200)}`)
   }
-  return (await res.json()) as RvCompleteResponse
+  const data = await res.json() as RvCompleteResponse
+  garderLivraison('rv', data)
+  return data
 }
 
 /**
@@ -643,6 +653,7 @@ async function posterRv(payload: RvCompletePayload): Promise<RvCompleteResponse>
 export async function submitRvComplete(
   payload: RvCompletePayload,
 ): Promise<RvCompleteResponse | { refus: number } | null> {
+  if (livraisonWhatsApp && !payload.submission) payload.submission = nouvelleSoumission()
   try {
     return await posterRv(payload)
   } catch (err) {

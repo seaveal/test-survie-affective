@@ -1,3 +1,5 @@
+import { livraisonWhatsApp } from './api/setting'
+import { ResultDelivery } from './components/ResultDelivery'
 import { useEffect } from 'react'
 import { flushPendingCaptures } from './api/client'
 import { CaptureScreen } from './components/CaptureScreen'
@@ -96,6 +98,8 @@ function App() {
       />
     )
   }
+
+  if (s.etape === 'resultat' && livraisonWhatsApp) return <ResultDelivery game="tsa" busy={s.envoiEnCours} refused={s.envoiRefuse} />
 
   // etape === 'resultat' : affichage allege (niveau 1 seul + bloc email)
   if (!s.resultat) return null

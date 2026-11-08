@@ -24,7 +24,7 @@ interface Etat {
   fuseau: string | null
   debut: number
   cle: string
-  fini: { creneau: number; fuseau: string } | null
+  fini: { creneau: number; fuseau: string; confirmed?: boolean } | null
 }
 
 const CLE_ETAT = 'rdv.etat'
@@ -426,7 +426,7 @@ function EcranCreneau({
     setEnvoi(false)
     switch (issue.etat) {
       case 'ok':
-        setEtat((e) => ({ ...e, cle: '', fini: { creneau: issue.creneau, fuseau: issue.fuseau }, ecran: 'confirmation' }))
+        setEtat((e) => ({ ...e, cle: '', fini: { creneau: issue.creneau, fuseau: issue.fuseau, confirmed: issue.confirmed }, ecran: 'confirmation' }))
         history.replaceState({ rdv: 'confirmation' }, '')
         signalerDemande(issue.eventId)
         window.scrollTo(0, 0)
@@ -568,7 +568,7 @@ function Confirmation({ etat, titre }: { etat: Etat; titre: RefObject<HTMLHeadin
     <div>
       <p role="status" className="rounded-xl px-4 py-3 text-base"
         style={{ background: '#eef4ef', borderLeft: '4px solid var(--h3c-succes)', color: 'var(--h3c-texte-principal)' }}>
-        {T.confirmation.bandeau}
+        {etat.fini?.confirmed ? 'Votre rendez-vous est confirmé.' : T.confirmation.bandeau}
       </p>
       {etat.fini && (
         <p className="mt-3 text-base">
@@ -576,9 +576,9 @@ function Confirmation({ etat, titre }: { etat: Etat; titre: RefObject<HTMLHeadin
         </p>
       )}
       <div className="mt-8">
-        <h1 ref={titre} tabIndex={-1} className="text-2xl leading-snug outline-none">{T.confirmation.titre}</h1>
+        <h1 ref={titre} tabIndex={-1} className="text-2xl leading-snug outline-none">{etat.fini?.confirmed ? 'Votre appel de 45 minutes avec Cyrille' : T.confirmation.titre}</h1>
       </div>
-      {VIDEO && (
+      {VIDEO && !etat.fini?.confirmed && (
         <div className="mt-4">
           <video ref={video} src={VIDEO} poster={AFFICHE} playsInline muted autoPlay preload="metadata" controls className="w-full rounded-xl bg-black" />
           <button type="button" className="mt-2 min-h-11 text-base underline" style={{ color: 'var(--h3c-accent-terracotta)' }}
@@ -594,7 +594,7 @@ function Confirmation({ etat, titre }: { etat: Etat; titre: RefObject<HTMLHeadin
         </div>
       )}
       <ol className="mt-6 space-y-4">
-        {T.confirmation.etapes.map(([quand, quoi], i) => (
+        {(etat.fini?.confirmed ? [['Rendez-vous', 'Votre créneau est réservé. Retrouvez le lien Zoom dans la confirmation de votre rendez-vous.'], ['Préparation', 'Prévoyez un endroit où vous pouvez parler librement.']] : T.confirmation.etapes).map(([quand, quoi], i) => (
           <li key={quand} className="flex gap-3">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm text-white" style={{ background: 'var(--h3c-accent-terracotta)' }}>{i + 1}</span>
             <span className="text-base"><strong>{quand}</strong> : {quoi}</span>

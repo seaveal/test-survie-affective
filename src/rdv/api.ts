@@ -91,7 +91,7 @@ export interface DemandeRdv {
 }
 
 export type IssueReservation =
-  | { etat: 'ok'; creneau: number; fuseau: string; eventId: string }
+  | { etat: 'ok'; creneau: number; fuseau: string; eventId: string; confirmed?: boolean }
   | { etat: 'creneau_pris' }
   | { etat: 'champ'; champ: string; message: string }
   | { etat: 'deja_demande' }
@@ -104,7 +104,8 @@ export type IssueReservation =
  */
 export async function reserver(d: DemandeRdv): Promise<IssueReservation> {
   const fb = window.h3cFb?.() ?? {}
-  const corps = { ...d, fbp: fb.fbp, fbc: fb.fbc, page_url: location.href.slice(0, 500) }
+  const setting = new URLSearchParams(location.search).get('setting')
+  const corps = { ...d, ...(setting && /^[a-f0-9]{64}$/.test(setting) ? { setting_ref: setting } : {}), fbp: fb.fbp, fbc: fb.fbc, page_url: location.href.slice(0, 500) }
   for (let essai = 0; essai < 2; essai++) {
     let res: Response
     try {
@@ -117,8 +118,8 @@ export async function reserver(d: DemandeRdv): Promise<IssueReservation> {
       return { etat: 'panne' }
     }
     if (res.ok) {
-      const r = (await res.json().catch(() => ({}))) as { creneau?: number; fuseau?: string; event_id?: string }
-      return { etat: 'ok', creneau: r.creneau || d.creneau, fuseau: r.fuseau || d.fuseau, eventId: r.event_id || '' }
+      const r = (await res.json().catch(() => ({}))) as { creneau?: number; fuseau?: string; event_id?: string; confirmed?: boolean }
+      return { etat: 'ok', creneau: r.creneau || d.creneau, fuseau: r.fuseau || d.fuseau, eventId: r.event_id || '', confirmed: r.confirmed === true }
     }
     const c = await code(res)
     if (res.status === 410 || c.code === 'creneau_pris') return { etat: 'creneau_pris' }

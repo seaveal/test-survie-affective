@@ -1,3 +1,4 @@
+import { PageCommerciale } from '../commercial/PageCommerciale'
 // Page /rdv/ : demande de rendez-vous offert, une question par écran, le créneau à la
 // fin, la vidéo après (décisions de Cyrille du 03/11/2026, PLAN du chantier RDV page maison).
 // Autonome (décision 8) : rien du Test ne s'exécute ici ; le pré-remplissage est un bonus.
@@ -103,6 +104,7 @@ export default function AppRdv() {
   const [etat, setEtat] = useState<Etat>(etatInitial)
   const [erreurs, setErreurs] = useState<Partial<Record<string, string>>>({})
   const [message, setMessage] = useState('')
+  const [presentation, setPresentation] = useState(() => etat.ecran === 'prenom' && !etat.r.prenom.trim())
   const [repli, setRepli] = useState(false)
   const pageServeur = useRef('')
   const verification = useRef(false)
@@ -173,10 +175,10 @@ export default function AppRdv() {
 
   // Compteur d'écran (un par visite) et focus sur la question.
   useEffect(() => {
-    titre.current?.focus()
+    titre.current?.focus({ preventScroll: etat.ecran === 'prenom' })
     const nom = JALON_ECRAN[etat.ecran]
     if (nom) compterEcran(nom)
-  }, [etat.ecran])
+  }, [etat.ecran, presentation])
 
   const aller = useCallback((ecran: Ecran) => {
     history.pushState({ rdv: ecran }, '')
@@ -215,6 +217,8 @@ export default function AppRdv() {
   if (repli) return <Cadre><p className="py-16 text-center text-base" role="status">{T.repli}</p></Cadre>
 
   const { r } = etat
+  if (presentation && etat.ecran === 'prenom') return <Cadre large><PageCommerciale page="rdv-accueil" bouton="Demander un créneau" onAction={() => { setPresentation(false); window.scrollTo(0, 0) }} /></Cadre>
+
   const salut = r.prenom.trim() && etat.ecran !== 'prenom' ? T.merci(r.prenom.trim()) : ''
   const premier = etat.ecran === 'prenom'
 
@@ -225,12 +229,8 @@ export default function AppRdv() {
     children: ReactNode
     facultatif?: boolean
   }) => (
-    <form onSubmit={suivant(props.champs)} noValidate>
-      {premier && (
-        <div className="mb-8 space-y-3 text-base font-medium leading-relaxed min-[380px]:text-lg">
-          {T.pitch.map((p) => <p key={p}>{p}</p>)}
-        </div>
-      )}
+    <form id="rdv-formulaire" className="mx-auto max-w-lg" onSubmit={suivant(props.champs)} noValidate>
+
       {salut &&<p className="mb-2 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{salut}</p>}
       <h1 ref={titre} tabIndex={-1} id="rdv-question" className="text-2xl leading-snug outline-none">{props.question}</h1>
       {props.facultatif && <p className="mt-1 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{T.objectif.facultatif}</p>}
@@ -611,10 +611,10 @@ function Confirmation({ etat, titre }: { etat: Etat; titre: RefObject<HTMLHeadin
   )
 }
 
-function Cadre({ children }: { children: ReactNode }) {
+function Cadre({ children, large = false }: { children: ReactNode; large?: boolean }) {
   return (
     <>
-      <main className="mx-auto max-w-lg px-4 pt-6" style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}>
+      <main className={`mx-auto ${large ? 'max-w-3xl' : 'max-w-lg'} px-4 pt-6`} style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))' }}>
         {/* mt-6 : le titre commence sous le bouton « Cookies », fixé en haut à droite. */}
         <header className="mb-6 mt-6 flex items-center gap-4" style={{ color: 'var(--h3c-accent-terracotta)', fontFamily: 'var(--font-eyebrow)' }}>
           {/* Vignette façon Instagram, cercle dégradé autour (demande Cyrille du 04/11/2026). */}

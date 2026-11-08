@@ -58,6 +58,7 @@ async function simuler(page: Page, o: Options = {}): Promise<Journal> {
 async function ouvrir(page: Page, chemin = '/rdv/') {
   await page.goto(chemin)
   await page.locator('#h3c-refuse').click({ timeout: 3000 }).catch(() => {})
+  if (await page.getByTestId('cta-haut').count()) await page.getByTestId('cta-haut').click()
 }
 
 const continuer = (page: Page) => page.getByRole('button', { name: 'Continuer' }).click()

@@ -13,11 +13,7 @@ const DIMENSIONS: Record<DimensionRv, string> = {
 }
 
 export const TEXTES_RV = {
-  meta: {
-    titre: "Le bilan de RECONSTRUCTION AFFECTIVE, après une relation d'emprise · Cyrille Novou",
-    description:
-      "Le bilan personnel de reconstruction après une relation d'emprise. Cinq dimensions, 5 à 7 minutes, gratuit. Votre priorité à l'écran, votre bilan complet par email.",
-  },
+  meta: {"titre": "Retrouvez-vous, pendant ou après une relation qui vous a fait douter de vous · Cyrille Novou", "description": "Vous voulez vous fier de nouveau à ce que vous percevez, retrouver votre place et pouvoir dire non sans vous justifier. Ce bilan vous montre où votre attention est la plus sollicitée en ce moment, en cinq repères."},
   /** Nom porté par l'avertissement du pied de page. */
   nomTest: 'Le bilan de RECONSTRUCTION AFFECTIVE',
   chargement: 'Chargement de votre bilan…',
@@ -25,7 +21,7 @@ export const TEXTES_RV = {
   accueil: {
     surtitre: 'Bilan personnel offert',
     /** Le carton de fin des vidéos, mot pour mot. */
-    titre: 'Et vous ? Comment réussissez-vous si bien à tomber dans le panneau ?',
+    titre: 'Retrouvez-vous, pendant ou après une relation qui vous a fait douter de vous',
     sousTitre: "Vous avez compris ce qui s'est passé. Et pourtant, c'est encore aussi difficile.",
     demande: 'Prenez cinq à sept minutes pour regarder ce qui se passe en vous.',
     bouton: 'Commencer mon bilan',
@@ -57,16 +53,14 @@ export const TEXTES_RV = {
     retour: '← Question précédente',
   },
   capture: {
-    surtitre: 'Votre bilan complet',
-    titre: 'Où voulez-vous recevoir votre bilan ?',
-    phrase:
-      "Votre email sert à vous envoyer le bilan complet et à sauvegarder vos réponses, pour que vous puissiez reprendre plus tard. Votre priorité s'affichera à l'écran à la fin du bilan.",
-    bouton: 'Sauvegarder et continuer',
-    sousBouton: 'Bilan complet et séance de descente dans le corps offerts, sans carte bancaire.',
-    caseSuite:
-      "Je souhaite recevoir la suite par email (les textes de Cyrille Novou, ses séances guidées, ses propositions d'accompagnement), avec une désinscription en un clic en bas de chaque email.",
-    noteCase: 'Le bilan complet et la séance offerte partent dans tous les cas : cette case est facultative.',
-  },
+  "surtitre": "Votre bilan complet",
+  "titre": "Où voulez-vous recevoir votre bilan ?",
+  "phrase": "Votre email sert à vous envoyer le bilan complet et à sauvegarder vos réponses, pour que vous puissiez reprendre plus tard. Une fois votre email enregistré, vous poursuivez le bilan, et votre priorité s'affiche à l'écran à la fin.",
+  "bouton": "Sauvegarder et continuer",
+  "sousBouton": "Bilan complet et séance de descente dans le corps de dix-sept minutes offerts, sans carte bancaire.",
+  "caseSuite": "Je souhaite recevoir la suite par email (les textes de Cyrille Novou, ses séances guidées, ses propositions d'accompagnement), avec une désinscription en un clic en bas de chaque email.",
+  "noteCase": "Le bilan complet et la séance offerte partent dans tous les cas : cette case est facultative."
+},
   /** Refus définitifs de /api/test-debut : l'email est redemandé. */
   refus: {
     422: "Votre adresse n'a pas pu être enregistrée. Vérifiez-la, puis validez à nouveau.",

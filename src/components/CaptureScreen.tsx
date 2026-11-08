@@ -4,17 +4,13 @@ import type { CaptureValues } from '../api/client'
 // Textes de l'écran de l'email, posé après la 3e réponse (livraison 2), validés
 // par Cyrille le 2026-10-06 (TEXTES-entonnoir, pièce A2), mot pour mot.
 const TEXTES_CAPTURE = {
-  surtitre: 'Votre profil offert par email',
-  titre: 'Où voulez-vous recevoir votre profil ?',
-  phrase:
-    'Votre email permet de vous envoyer votre profil complet et de sauvegarder vos réponses pour reprendre plus tard. Votre masque s’affichera à l’écran à la fin du Test de Survie Affective.',
-  bouton: 'Sauvegarder et continuer',
-  sousBouton: 'Profil complet et séance de descente dans le corps offerts. Sans carte bancaire.',
-  // Case facultative (décision Cyrille du 2026-10-09).
-  caseSuite:
-    'Oui, je veux recevoir la suite par email : les textes de Cyrille Novou sur mon profil, ses séances guidées et ses propositions d’accompagnement. Je peux me désinscrire en un clic, en bas de chaque email.',
-  noteCase:
-    'Votre profil complet et votre séance offerte vous sont envoyés dans tous les cas : cette case est facultative.',
+  "surtitre": "Votre profil offert par email",
+  "titre": "Où voulez-vous recevoir votre profil ?",
+  "phrase": "Vous venez de répondre aux premières questions. Votre email sert à vous envoyer votre profil complet et à sauvegarder vos réponses, pour reprendre plus tard si vous le souhaitez. Une fois votre email enregistré, vous poursuivez le test, et votre masque s'affiche à l'écran à la fin du Test de Survie Affective.",
+  "bouton": "Sauvegarder et continuer",
+  "sousBouton": "Profil complet et séance de descente dans le corps offerts. Sans carte bancaire.",
+  "caseSuite": "Oui, je veux recevoir la suite par email : les textes de Cyrille Novou sur mon profil, ses séances guidées et ses propositions d'accompagnement. Je peux me désinscrire en un clic, en bas de chaque email.",
+  "noteCase": "Votre profil complet et votre séance offerte vous sont envoyés dans tous les cas : cette case est facultative."
 } as const
 
 /** Textes de l'écran, remplaçables par un autre test (RETROUVEZ-VOUS). */
@@ -173,7 +169,7 @@ export function CaptureScreen({ onSubmit, envoiEnCours = false, erreurServeur = 
           className="order-last text-xs leading-snug md:order-none md:leading-relaxed"
           style={{ color: 'var(--h3c-texte-secondaire)' }}
         >
-          Vos données sont stockées sur un serveur en France. Vous pouvez
+          Vos données sont stockées sur un serveur en Europe. Vous pouvez
           demander leur suppression à tout moment en répondant à un email.
         </p>
 

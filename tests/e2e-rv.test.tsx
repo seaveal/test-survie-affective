@@ -147,9 +147,9 @@ describe('e2e RETROUVEZ-VOUS', () => {
   it('accueil : titre et sous-titre fixes, deux boutons « Commencer mon bilan »', () => {
     render(<AppRV />)
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Et vous ? Comment réussissez-vous si bien à tomber dans le panneau ?',
+      'Retrouvez-vous, pendant ou après une relation qui vous a fait douter de vous',
     )
-    expect(screen.getByText("Vous avez compris ce qui s'est passé. Et pourtant, c'est encore aussi difficile.")).toBeInTheDocument()
+    expect(screen.getByText(/Ce bilan vous montre où votre attention/)).toBeInTheDocument()
     expect(screen.getByTestId('cta-haut')).toHaveTextContent('Commencer mon bilan')
     expect(screen.getByTestId('cta-bas')).toHaveTextContent('Commencer mon bilan')
     expect(screen.getByText(/Le bilan de RECONSTRUCTION AFFECTIVE et le programme/)).toBeInTheDocument()
@@ -471,7 +471,7 @@ describe('e2e RETROUVEZ-VOUS', () => {
     try {
       await import('../src/main')
       expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(TEXTES_RV.accueil.titre)
-      expect(document.title).toBe("Le bilan de RECONSTRUCTION AFFECTIVE, après une relation d'emprise · Cyrille Novou")
+      expect(document.title).toBe("Retrouvez-vous, pendant ou après une relation qui vous a fait douter de vous · Cyrille Novou")
       expect(document.querySelector('meta[name="description"]')).toHaveAttribute('content', TEXTES_RV.meta.description)
     } finally {
       racine.remove()

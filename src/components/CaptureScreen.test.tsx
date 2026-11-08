@@ -93,7 +93,7 @@ describe('CaptureScreen — sprint 2', () => {
     )
     expect(screen.getByTestId('capture-envoyer').nextElementSibling).toBe(sous)
     // Téléphone : la mention de stockage (`order-last`) passe après cette ligne.
-    expect(screen.getByText(/stockées sur un serveur en France/).className).toMatch(/\border-last\b/)
+    expect(screen.getByText(/stockées sur un serveur en Europe/).className).toMatch(/\border-last\b/)
     expect(sous.className).not.toMatch(/order-/)
   })
 

@@ -117,4 +117,13 @@ describe('validation', () => {
     expect(erreurChamp('anciennete', 'Plus de 2 ans')).toBe('')
     expect(erreurChamp('anciennete', 'plus de 2 ans')).not.toBe('')
   })
+
+  it('LinkedIn (lot C4) : vide ou adresse de profil, rien d’autre', () => {
+    expect(erreurChamp('linkedin', '')).toBe('')
+    expect(erreurChamp('linkedin', 'https://www.linkedin.com/in/jean-dupont-1a2b3c/')).toBe('')
+    expect(erreurChamp('linkedin', 'linkedin.com/in/éloïse-m?utm_source=share')).toBe('')
+    expect(erreurChamp('linkedin', 'https://www.linkedin.com/company/h3c')).not.toBe('')
+    expect(erreurChamp('linkedin', 'https://evil.example/linkedin.com/in/x')).not.toBe('')
+    expect(erreurChamp('linkedin', 'Jean Dupont')).not.toBe('')
+  })
 })

@@ -2,7 +2,7 @@
 // (section « Contrat de l'API entre le lot 2 et le lot 3 »). Aucune fonction ne lève :
 // chaque issue est une valeur que la page sait traiter.
 
-import { extractUtmParams } from '../api/client'
+import { extractUtmParams, retenirContact } from '../api/client'
 
 declare global {
   interface Window {
@@ -39,7 +39,7 @@ async function code(res: Response): Promise<{ code?: string; champ?: string; mes
 }
 
 export type IssueCreneaux =
-  | { etat: 'ok'; creneaux: number[]; page: string }
+  | { etat: 'ok'; creneaux: number[]; page: string; linkedin: boolean }
   | { etat: 'inactive'; page?: string }
   | { etat: 'panne' }
 
@@ -51,12 +51,13 @@ export async function lireCreneaux(): Promise<IssueCreneaux> {
     try {
       const res = await poster('/api/rdv/creneaux', {}, 8000)
       if (res.ok) {
-        const d = (await res.json()) as { creneaux?: unknown; page?: unknown }
+        const d = (await res.json()) as { creneaux?: unknown; page?: unknown; linkedin?: unknown }
         if (Array.isArray(d.creneaux)) {
           return {
             etat: 'ok',
             creneaux: d.creneaux.filter((x): x is number => typeof x === 'number'),
             page: typeof d.page === 'string' ? d.page : '',
+            linkedin: d.linkedin === true,
           }
         }
       } else {
@@ -83,6 +84,7 @@ export interface DemandeRdv {
   objectif: string
   provenance: string
   origine: string
+  linkedin: string
   creneau: number
   fuseau: string
   sms_rappels: boolean
@@ -118,7 +120,8 @@ export async function reserver(d: DemandeRdv): Promise<IssueReservation> {
       return { etat: 'panne' }
     }
     if (res.ok) {
-      const r = (await res.json().catch(() => ({}))) as { creneau?: number; fuseau?: string; event_id?: string; confirmed?: boolean }
+      const r = (await res.json().catch(() => ({}))) as { creneau?: number; fuseau?: string; event_id?: string; confirmed?: boolean; contact?: unknown }
+      retenirContact(r.contact)
       return { etat: 'ok', creneau: r.creneau || d.creneau, fuseau: r.fuseau || d.fuseau, eventId: r.event_id || '', confirmed: r.confirmed === true }
     }
     const c = await code(res)

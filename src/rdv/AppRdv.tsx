@@ -106,6 +106,7 @@ export default function AppRdv() {
   const [message, setMessage] = useState('')
   const [presentation, setPresentation] = useState(() => etat.ecran === 'prenom' && !etat.r.prenom.trim())
   const [repli, setRepli] = useState(false)
+  const [champLinkedin, setChampLinkedin] = useState(false) // lot C4 : le serveur l'annonce
   const pageServeur = useRef('')
   const verification = useRef(false)
   const titre = useRef<HTMLHeadingElement>(null)
@@ -166,7 +167,10 @@ export default function AppRdv() {
       if (email) setEtat((e) => (e.r.email ? e : { ...e, r: { ...e.r, email } }))
     })
     void lireCreneaux().then((issue) => {
-      if (issue.etat === 'ok') pageServeur.current = issue.page
+      if (issue.etat === 'ok') {
+        pageServeur.current = issue.page
+        setChampLinkedin(issue.linkedin)
+      }
       if (issue.etat === 'inactive') partirVersYcbm(issue.page)
     })
     return () => window.removeEventListener('popstate', onPop)
@@ -290,7 +294,7 @@ export default function AppRdv() {
     case 'coordonnees':
       contenu = ecranQuestion({
         question: T.coordonnees.question,
-        champs: ['nom', 'email', 'telephone'],
+        champs: ['nom', 'email', 'telephone', ...(champLinkedin ? ['linkedin' as const] : [])],
         children: (
           <>
             <Champ id="nom" label={T.coordonnees.nom} exemple={T.coordonnees.nomExemple} value={r.nom} onChange={(v) => poser('nom', v)} autoComplete="family-name" erreur={erreurs.nom} />
@@ -305,6 +309,10 @@ export default function AppRdv() {
                 <span id="sms-aide" className="mt-1 block text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{T.coordonnees.smsAide}</span>
               </span>
             </label>
+            {champLinkedin && (
+              <Champ id="linkedin" label={T.coordonnees.linkedin} exemple={T.coordonnees.linkedinExemple} value={r.linkedin}
+                onChange={(v) => poser('linkedin', v)} autoComplete="url" type="url" erreur={erreurs.linkedin} />
+            )}
           </>
         ),
       })
@@ -418,7 +426,7 @@ function EcranCreneau({
     const issue = await reserver({
       cle, prenom: r.prenom.trim(), nom: r.nom.trim(), email: r.email.trim(), telephone: r.telephone.trim(),
       situation: r.situation.trim(), anciennete: r.anciennete, objectif: r.objectif.trim(), provenance: r.provenance,
-      origine: etat.origine, creneau: choix, fuseau, sms_rappels: r.sms,
+      origine: etat.origine, linkedin: r.linkedin.trim(), creneau: choix, fuseau, sms_rappels: r.sms,
       site_web: (document.getElementById('site_web') as HTMLInputElement | null)?.value ?? '',
       duree_ms: Date.now() - etat.debut,
     })
@@ -709,7 +717,7 @@ function Champ(p: {
       {p.aide && <p id={`${p.id}-aide`} className="text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{p.aide}</p>}
       <input id={p.id} name={p.id} type={p.type ?? 'text'} inputMode={p.inputMode} autoComplete={p.autoComplete} value={p.value}
         onChange={(e) => p.onChange(e.target.value)} aria-invalid={!!p.erreur} aria-describedby={[p.aide && `${p.id}-aide`, p.erreur && `${p.id}-erreur`].filter(Boolean).join(' ') || undefined}
-        placeholder={p.exemple} maxLength={p.id === 'email' ? 254 : 80}
+        placeholder={p.exemple} maxLength={p.id === 'email' ? 254 : p.id === 'linkedin' ? 200 : 80}
         className="mt-2 min-h-12 w-full rounded-xl border px-4 text-base"
         style={{ borderColor: p.erreur ? 'var(--h3c-erreur)' : 'var(--h3c-bordure)', background: 'var(--h3c-fond-card)', fontSize: '16px' }} />
       <ErreurCase id={p.id} erreur={p.erreur} />

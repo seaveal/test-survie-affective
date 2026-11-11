@@ -146,11 +146,12 @@ export interface Reponses {
   telephone: string
   sms: boolean
   provenance: string
+  linkedin: string
 }
 
 export const REPONSES_VIDES: Reponses = {
   prenom: '', situation: '', anciennete: '', objectif: '', nom: '', email: '', telephone: '',
-  sms: false, provenance: '',
+  sms: false, provenance: '', linkedin: '',
 }
 
 /** Repli (décision D8) : la page YouCanBookMe pré-remplie de tout ce qui est connu, rien de vide. */
@@ -166,6 +167,8 @@ export function urlRepli(page: string, r: Partial<Reponses>, origine: string): s
 }
 
 export const RE_EMAIL = /^[^@\s]{1,64}@[^@\s]{1,190}\.[^@\s.]{2,}$/
+// Lot C4 : une adresse de profil LinkedIn, rien d'autre (même forme que `_LINKEDIN_RE` de tsa-api).
+export const RE_LINKEDIN = /^(https?:\/\/)?([a-z]{2,3}\.)?linkedin\.com\/in\/[\p{L}\p{N}_%.~-]{2,100}\/?(\?[\p{L}\p{N}_%.~=&+-]*)?$/iu
 
 /** Erreur du champ, ou '' s'il est valable. Le serveur reste juge (422 par champ). */
 export function erreurChamp(champ: keyof Reponses, v: string): string {
@@ -187,6 +190,8 @@ export function erreurChamp(champ: keyof Reponses, v: string): string {
         ? ''
         : 'Ce numéro semble incomplet. Indiquez-le avec l’indicatif s’il n’est pas français (+32, +41, +1…).'
     }
+    case 'linkedin':
+      return !t || (t.length <= 200 && RE_LINKEDIN.test(t)) ? '' : 'Indiquez l’adresse de votre profil (linkedin.com/in/…), ou laissez ce champ vide.'
     default:
       return ''
   }

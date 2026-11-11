@@ -3,6 +3,7 @@ import {
   buildPayload,
   extractUtmParams,
   flushPendingCaptures,
+  retenirContact,
   submitTestComplete,
   type CaptureValues,
 } from './client'
@@ -345,5 +346,37 @@ describe('api/client', () => {
       await flushPendingCaptures()
       expect(fetchSpy).not.toHaveBeenCalled()
     })
+  })
+})
+
+describe('retenirContact (lot C4)', () => {
+  const JETON = 'h1.' + 'A'.repeat(40)
+  beforeEach(() => {
+    localStorage.clear()
+    sessionStorage.clear()
+  })
+  afterEach(() => {
+    delete window.h3cConsent
+  })
+
+  it('range le jeton pour la session seulement sans accord de mesure', () => {
+    window.h3cConsent = { status: () => ({ analytics: false }) }
+    retenirContact(JETON)
+    expect(sessionStorage.getItem('h3c_contact')).toBe(JETON)
+    expect(localStorage.getItem('h3c_contact')).toBeNull()
+  })
+
+  it('le garde 90 jours avec l’accord de mesure, comme le bloc de suivi', () => {
+    window.h3cConsent = { status: () => ({ analytics: true }) }
+    retenirContact(JETON)
+    expect(JSON.parse(localStorage.getItem('h3c_contact') || '{}').j).toBe(JETON)
+  })
+
+  it('ne range rien sans jeton ou avec un jeton mal formé (réglage serveur éteint)', () => {
+    window.h3cConsent = { status: () => ({ analytics: true }) }
+    retenirContact(undefined)
+    retenirContact('pas-un-jeton')
+    expect(sessionStorage.getItem('h3c_contact')).toBeNull()
+    expect(localStorage.getItem('h3c_contact')).toBeNull()
   })
 })

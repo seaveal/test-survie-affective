@@ -22,6 +22,8 @@ declare global {
     h3cTrackPage?: (event: string, params?: Record<string, unknown>) => void
     // Jeton de contact `h1.…` capté depuis `?c=` par le bloc H3C-TRACKING.
     h3cContact?: () => string | undefined
+    // Choix de la bannière (bloc H3C-TRACKING), null tant qu'il n'est pas fait.
+    h3cConsent?: { status: () => { analytics?: boolean } | null }
   }
 }
 
@@ -156,6 +158,7 @@ async function postOnce(payload: TestCompletePayload): Promise<TestCompleteRespo
   }
   const data = await res.json() as TestCompleteResponse
   garderLivraison('tsa', data)
+  retenirContact((data as { contact?: unknown }).contact)
   return data
 }
 
@@ -420,6 +423,28 @@ export function lireJetonContact(): string | undefined {
     return window.h3cContact?.() || undefined
   } catch {
     return undefined
+  }
+}
+
+const CONTACT_KEY = 'h3c_contact'
+const RE_JETON_CONTACT = /^h1\.[A-Za-z0-9_-]{30,480}$/
+
+/**
+ * Jeton de contact rendu par un formulaire (lot C4, `TSA_JETON_FORMULAIRES` côté serveur), rangé
+ * comme le bloc H3C-TRACKING range celui du lien d'un courriel (CONTACT:DEBUT) : pour la session
+ * toujours, 90 jours seulement avec l'accord « mesure d'audience ». Rien sans jeton.
+ */
+export function retenirContact(jeton: unknown): void {
+  if (typeof jeton !== 'string' || !RE_JETON_CONTACT.test(jeton)) return
+  try {
+    sessionStorage.setItem(CONTACT_KEY, jeton)
+  } catch {
+    // stockage indisponible : rien n'est gardé
+  }
+  try {
+    if (window.h3cConsent?.status()?.analytics) localStorage.setItem(CONTACT_KEY, JSON.stringify({ j: jeton, ts: Date.now() }))
+  } catch {
+    // idem
   }
 }
 

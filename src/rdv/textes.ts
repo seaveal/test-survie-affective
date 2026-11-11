@@ -40,6 +40,8 @@ export const T = {
     telephoneAide: 'Pour vous joindre si la visio se coupe.',
     sms: 'Recevoir aussi les rappels du rendez-vous par SMS',
     smsAide: 'Cette case ne concerne que les rappels. Si votre demande est acceptée, un SMS vous le confirme sur ce numéro.',
+    linkedin: 'Votre profil LinkedIn (facultatif)',
+    linkedinExemple: 'linkedin.com/in/…',
   },
   provenance: { question: 'Comment avez-vous découvert cet appel ?' },
   creneau: {

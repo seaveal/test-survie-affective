@@ -7,6 +7,7 @@ import {
   useCallback, useEffect, useMemo, useRef, useState,
   type Dispatch, type FormEvent, type ReactNode, type RefObject, type SetStateAction,
 } from 'react'
+import { lireJetonContact } from '../api/client'
 import { dejaDemande, emailDesJetons, jalon, lireCreneaux, reserver, signalerDemande } from './api'
 import {
   CHOIX_ANCIENNETE, CHOIX_PROVENANCE, PAGE_YCBM, PARIS, REPONSES_VIDES, chercherFuseaux,
@@ -156,12 +157,8 @@ export default function AppRdv() {
       history.replaceState(history.state, '', location.pathname + (s ? `?${s}` : '') + location.hash)
     }
     const cycle = lireStockage('tsa.reprise') || lireStockage('rv.reprise')
-    let contact: string | undefined
-    try {
-      contact = window.h3cContact?.() || undefined
-    } catch {
-      contact = undefined
-    }
+    // Jeton du lien d'un courriel seulement, jamais celui d'un formulaire (lot C4).
+    const contact = lireJetonContact()
     void emailDesJetons(cycle, contact).then((connu) => {
       const email = connu || lien
       if (email) setEtat((e) => (e.r.email ? e : { ...e, r: { ...e.r, email } }))

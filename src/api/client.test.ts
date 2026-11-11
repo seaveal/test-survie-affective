@@ -3,6 +3,7 @@ import {
   buildPayload,
   extractUtmParams,
   flushPendingCaptures,
+  lireJetonContact,
   retenirContact,
   submitTestComplete,
   type CaptureValues,
@@ -357,6 +358,7 @@ describe('retenirContact (lot C4)', () => {
   })
   afterEach(() => {
     delete window.h3cConsent
+    delete window.h3cContact
   })
 
   it('range le jeton pour la session seulement sans accord de mesure', () => {
@@ -378,5 +380,27 @@ describe('retenirContact (lot C4)', () => {
     retenirContact('pas-un-jeton')
     expect(sessionStorage.getItem('h3c_contact')).toBeNull()
     expect(localStorage.getItem('h3c_contact')).toBeNull()
+  })
+
+  it('n’écrase jamais le jeton du lien d’un courriel', () => {
+    const COURRIEL = 'h1.' + 'C'.repeat(40)
+    sessionStorage.setItem('h3c_contact', COURRIEL)
+    window.h3cContact = () => sessionStorage.getItem('h3c_contact') || undefined
+    retenirContact(JETON)
+    expect(sessionStorage.getItem('h3c_contact')).toBe(COURRIEL)
+    expect(lireJetonContact()).toBe(COURRIEL)
+  })
+
+  it('le jeton d’un formulaire va au bloc de suivi, jamais à la page (reprise, bilan, adresse, ?c=)', () => {
+    window.h3cConsent = { status: () => ({ analytics: true }) }
+    window.h3cContact = () => sessionStorage.getItem('h3c_contact') || undefined
+    retenirContact(JETON)
+    expect(window.h3cContact()).toBe(JETON) // le bloc H3C-TRACKING le relit pour les vues
+    expect(lireJetonContact()).toBeUndefined()
+    // Session suivante : seul le rangement de 90 jours reste.
+    sessionStorage.clear()
+    window.h3cContact = () => JSON.parse(localStorage.getItem('h3c_contact') || 'null')?.j
+    expect(window.h3cContact()).toBe(JETON)
+    expect(lireJetonContact()).toBeUndefined()
   })
 })

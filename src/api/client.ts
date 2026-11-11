@@ -417,32 +417,60 @@ export function lireJetonReprise(): string | undefined {
   }
 }
 
-/** Jeton de contact du lien du courriel (`?c=`), exposé par le bloc de suivi. */
+const CONTACT_KEY = 'h3c_contact'
+// Lot C4 : le jeton d'un formulaire est aussi rangé ici, pour que la page le reconnaisse.
+const FORMULAIRE_KEY = 'h3c_contact_formulaire'
+const RE_JETON_CONTACT = /^h1\.[A-Za-z0-9_-]{30,480}$/
+
+function deFormulaire(jeton: string): boolean {
+  for (const stockage of [() => sessionStorage, () => localStorage]) {
+    try {
+      if (stockage().getItem(FORMULAIRE_KEY) === jeton) return true
+    } catch {
+      // stockage indisponible : rien n'y a été rangé
+    }
+  }
+  return false
+}
+
+/**
+ * Jeton de contact du lien du courriel (`?c=`), exposé par le bloc de suivi. Jamais celui d'un
+ * formulaire (lot C4) : il ne sert qu'au suivi des vues, le serveur le refuse partout ailleurs.
+ */
 export function lireJetonContact(): string | undefined {
   try {
-    return window.h3cContact?.() || undefined
+    const jeton = window.h3cContact?.() || undefined
+    return jeton && !deFormulaire(jeton) ? jeton : undefined
   } catch {
     return undefined
   }
 }
 
-const CONTACT_KEY = 'h3c_contact'
-const RE_JETON_CONTACT = /^h1\.[A-Za-z0-9_-]{30,480}$/
-
 /**
- * Jeton de contact rendu par un formulaire (lot C4, `TSA_JETON_FORMULAIRES` côté serveur), rangé
+ * Jeton de suivi rendu par un formulaire (lot C4, `TSA_JETON_FORMULAIRES` côté serveur), rangé
  * comme le bloc H3C-TRACKING range celui du lien d'un courriel (CONTACT:DEBUT) : pour la session
- * toujours, 90 jours seulement avec l'accord « mesure d'audience ». Rien sans jeton.
+ * toujours, 90 jours seulement avec l'accord « mesure d'audience ». Le bloc l'envoie au suivi des
+ * vues ; `lireJetonContact` l'ignore. Rien sans jeton, et jamais par-dessus un jeton déjà là
+ * (celui d'un courriel garde sa place).
  */
 export function retenirContact(jeton: unknown): void {
   if (typeof jeton !== 'string' || !RE_JETON_CONTACT.test(jeton)) return
   try {
-    sessionStorage.setItem(CONTACT_KEY, jeton)
+    if (window.h3cContact?.()) return
   } catch {
-    // stockage indisponible : rien n'est gardé
+    return
   }
+  const ranger = (stockage: () => Storage, valeur: string) => {
+    try {
+      stockage().setItem(FORMULAIRE_KEY, jeton) // la marque d'abord : sans elle, rien n'est rangé
+      stockage().setItem(CONTACT_KEY, valeur)
+    } catch {
+      // stockage indisponible : rien n'est gardé
+    }
+  }
+  ranger(() => sessionStorage, jeton)
   try {
-    if (window.h3cConsent?.status()?.analytics) localStorage.setItem(CONTACT_KEY, JSON.stringify({ j: jeton, ts: Date.now() }))
+    if (window.h3cConsent?.status()?.analytics) ranger(() => localStorage, JSON.stringify({ j: jeton, ts: Date.now() }))
   } catch {
     // idem
   }

@@ -2,7 +2,7 @@
 <html data-saq-theme="www" lang="fr">
 <head>
 <meta charset="UTF-8">
-<!-- H3C-TRACKING:BEGIN cfg=9f9401c84dbe site=test/public/mentions-legales/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
+<!-- H3C-TRACKING:BEGIN cfg=df6024034af0 site=test/public/mentions-legales/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
 <script>
 (function () {
   'use strict';
@@ -26,8 +26,12 @@
   // comme `?sortie`. Gardé pour la SESSION sans condition : c'est la suite du clic dans
   // le courriel, que l'outil d'emailing attribue déjà au contact. Gardé 90 jours
   // SEULEMENT avec l'accord « mesure d'audience » (`garderContact`, dans applyChoice).
-  var CONTACT_KEY = 'h3c_contact', CONTACT_TTL_MS = 90 * 24 * 3600 * 1000;
+  // Le stockage local ne parle que sous cet accord VALIDE à l'instant (6 mois, version de
+  // la politique) ; sans lui, jeton local et marque du formulaire (front du Test, lot C4)
+  // s'effacent dès le chargement, avant toute vue (GO de Cyrille du 13/11/2026).
+  var CONTACT_KEY = 'h3c_contact', MARQUE_KEY = 'h3c_contact_formulaire', CONTACT_TTL_MS = 90 * 24 * 3600 * 1000;
   var RE_JETON_CONTACT = /^h1\.[A-Za-z0-9_-]{30,480}$/, contactMemoire = null;
+  function accordMesure() { var c = readChoice(); return !!(c && c.analytics); }
   (function capterContact() {
     try {
       var u = new URL(window.location.href), j = u.searchParams.get('c');
@@ -41,6 +45,7 @@
   window.h3cContact = function () {
     if (contactMemoire) return contactMemoire;
     try { var s = sessionStorage.getItem(CONTACT_KEY); if (s && RE_JETON_CONTACT.test(s)) return s; } catch (e) {}
+    if (!accordMesure()) return undefined;
     try {
       var l = JSON.parse(localStorage.getItem(CONTACT_KEY) || 'null');
       if (l && RE_JETON_CONTACT.test(l.j) && Date.now() - l.ts < CONTACT_TTL_MS) return l.j;
@@ -49,11 +54,12 @@
   };
   function garderContact(accord) {
     try {
-      if (!accord) { localStorage.removeItem(CONTACT_KEY); return; }
+      if (!accord) { localStorage.removeItem(CONTACT_KEY); localStorage.removeItem(MARQUE_KEY); return; }
       var j = window.h3cContact();
       if (j) localStorage.setItem(CONTACT_KEY, JSON.stringify({ j: j, ts: Date.now() }));
     } catch (e) {}
   }
+  if (!accordMesure()) garderContact(false);
   // CONTACT:FIN
 
   // Consent Mode v2 : tout refusé par défaut, déclaré AVANT tout chargement de tag.

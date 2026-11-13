@@ -4,7 +4,9 @@ import {
   extractUtmParams,
   flushPendingCaptures,
   lireJetonContact,
+  oublierContactSansAccord,
   retenirContact,
+  veillerAccordContact,
   submitTestComplete,
   type CaptureValues,
 } from './client'
@@ -361,17 +363,55 @@ describe('retenirContact (lot C4)', () => {
     delete window.h3cContact
   })
 
-  it('range le jeton pour la session seulement sans accord de mesure', () => {
-    window.h3cConsent = { status: () => ({ analytics: false }) }
+  const RIEN = () => [localStorage.length, sessionStorage.length, document.cookie]
+
+  it('sans accord de mesure (refusé ou pas encore choisi), ne range rien nulle part', () => {
+    for (const choix of [{ analytics: false }, null]) {
+      window.h3cConsent = { status: () => choix }
+      retenirContact(JETON)
+      expect(RIEN()).toEqual([0, 0, ''])
+    }
+    delete window.h3cConsent // bloc absent : pas d'accord lisible, rien non plus
     retenirContact(JETON)
-    expect(sessionStorage.getItem('h3c_contact')).toBe(JETON)
-    expect(localStorage.getItem('h3c_contact')).toBeNull()
+    expect(RIEN()).toEqual([0, 0, ''])
   })
 
-  it('le garde 90 jours avec l’accord de mesure, comme le bloc de suivi', () => {
+  it('avec l’accord de mesure, le garde 90 jours en local seulement, comme le bloc de suivi', () => {
     window.h3cConsent = { status: () => ({ analytics: true }) }
     retenirContact(JETON)
     expect(JSON.parse(localStorage.getItem('h3c_contact') || '{}').j).toBe(JETON)
+    expect(localStorage.getItem('h3c_contact_formulaire')).toBe(JETON)
+    expect(sessionStorage.length).toBe(0)
+  })
+
+  it('au retrait de l’accord dans le bandeau, efface tout de suite le jeton et sa marque', () => {
+    let accord = true
+    window.h3cConsent = { status: () => ({ analytics: accord }) }
+    veillerAccordContact()
+    retenirContact(JETON)
+    sessionStorage.setItem('h3c_contact', JETON) // reste d'une version d'avant
+    sessionStorage.setItem('h3c_contact_formulaire', JETON)
+    // Le gestionnaire du bloc enregistre le choix, puis le clic remonte jusqu'au document.
+    const bouton = document.body.appendChild(Object.assign(document.createElement('button'), { id: 'h3c-refuse' }))
+    bouton.addEventListener('click', () => { accord = false })
+    bouton.click()
+    bouton.remove()
+    expect(RIEN()).toEqual([0, 0, ''])
+  })
+
+  it('au chargement sans accord, purge la marque et son jeton, garde celui d’un courriel', () => {
+    const COURRIEL = 'h1.' + 'C'.repeat(40)
+    window.h3cConsent = { status: () => null } // accord expiré
+    localStorage.setItem('h3c_contact', JSON.stringify({ j: JETON, ts: Date.now() }))
+    localStorage.setItem('h3c_contact_formulaire', JETON)
+    sessionStorage.setItem('h3c_contact', COURRIEL)
+    oublierContactSansAccord()
+    expect(localStorage.length).toBe(0)
+    expect(sessionStorage.getItem('h3c_contact')).toBe(COURRIEL)
+    window.h3cConsent = { status: () => ({ analytics: true }) } // avec l'accord, rien n'est touché
+    localStorage.setItem('h3c_contact_formulaire', JETON)
+    oublierContactSansAccord()
+    expect(localStorage.getItem('h3c_contact_formulaire')).toBe(JETON)
   })
 
   it('ne range rien sans jeton ou avec un jeton mal formé (réglage serveur éteint)', () => {
@@ -393,14 +433,9 @@ describe('retenirContact (lot C4)', () => {
 
   it('le jeton d’un formulaire va au bloc de suivi, jamais à la page (reprise, bilan, adresse, ?c=)', () => {
     window.h3cConsent = { status: () => ({ analytics: true }) }
-    window.h3cContact = () => sessionStorage.getItem('h3c_contact') || undefined
     retenirContact(JETON)
-    expect(window.h3cContact()).toBe(JETON) // le bloc H3C-TRACKING le relit pour les vues
-    expect(lireJetonContact()).toBeUndefined()
-    // Session suivante : seul le rangement de 90 jours reste.
-    sessionStorage.clear()
     window.h3cContact = () => JSON.parse(localStorage.getItem('h3c_contact') || 'null')?.j
-    expect(window.h3cContact()).toBe(JETON)
+    expect(window.h3cContact()).toBe(JETON) // le bloc H3C-TRACKING le relit pour les vues
     expect(lireJetonContact()).toBeUndefined()
   })
 })

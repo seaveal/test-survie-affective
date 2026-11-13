@@ -5,6 +5,9 @@ import App from './App.tsx'
 import ApercuResultat from './preview-result.tsx'
 import AppRV from './rv/AppRV.tsx'
 import { TEXTES_RV } from './rv/textes.ts'
+import { veillerAccordContact } from './api/client.ts'
+
+veillerAccordContact()
 
 const apercu = new URLSearchParams(window.location.search).get('apercu') === 'resultat'
 if (apercu) {

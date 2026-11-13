@@ -446,34 +446,73 @@ export function lireJetonContact(): string | undefined {
   }
 }
 
+function accordMesure(): boolean {
+  try {
+    return !!window.h3cConsent?.status()?.analytics
+  } catch {
+    return false
+  }
+}
+
 /**
- * Jeton de suivi rendu par un formulaire (lot C4, `TSA_JETON_FORMULAIRES` côté serveur), rangé
- * comme le bloc H3C-TRACKING range celui du lien d'un courriel (CONTACT:DEBUT) : pour la session
- * toujours, 90 jours seulement avec l'accord « mesure d'audience ». Le bloc l'envoie au suivi des
- * vues ; `lireJetonContact` l'ignore. Rien sans jeton, et jamais par-dessus un jeton déjà là
- * (celui d'un courriel garde sa place).
+ * Jeton de suivi rendu par un formulaire (lot C4, `TSA_JETON_FORMULAIRES` côté serveur). Art. 82
+ * LIL (relecture juridique du 13/11) : rangé SEULEMENT avec l'accord « mesure d'audience », et
+ * seulement en stockage local, 90 jours, sous la forme du bloc H3C-TRACKING, qui l'efface lui-même
+ * au retrait de l'accord sur toute page (`garderContact`). Sans accord, rien nulle part : le bloc
+ * n'a aucun jeton à joindre aux vues. Le bloc l'envoie au suivi des vues ; `lireJetonContact`
+ * l'ignore. Jamais par-dessus un jeton déjà là (celui d'un courriel garde sa place).
  */
 export function retenirContact(jeton: unknown): void {
-  if (typeof jeton !== 'string' || !RE_JETON_CONTACT.test(jeton)) return
+  if (typeof jeton !== 'string' || !RE_JETON_CONTACT.test(jeton) || !accordMesure()) return
   try {
     if (window.h3cContact?.()) return
+    localStorage.setItem(FORMULAIRE_KEY, jeton) // la marque d'abord : sans elle, rien n'est rangé
+    localStorage.setItem(CONTACT_KEY, JSON.stringify({ j: jeton, ts: Date.now() }))
   } catch {
-    return
+    // stockage indisponible : rien n'est gardé
   }
-  const ranger = (stockage: () => Storage, valeur: string) => {
+}
+
+/**
+ * Sans accord « mesure d'audience » (jamais donné, retiré, expiré), efface partout la marque et
+ * le jeton du formulaire qu'elle désigne. Le jeton d'un courriel, non marqué, reste.
+ */
+export function oublierContactSansAccord(): void {
+  if (accordMesure()) return
+  const stockages = [() => sessionStorage, () => localStorage]
+  const marques = new Set<string>()
+  for (const stockage of stockages) {
     try {
-      stockage().setItem(FORMULAIRE_KEY, jeton) // la marque d'abord : sans elle, rien n'est rangé
-      stockage().setItem(CONTACT_KEY, valeur)
+      const marque = stockage().getItem(FORMULAIRE_KEY)
+      if (marque) marques.add(marque)
     } catch {
-      // stockage indisponible : rien n'est gardé
+      // stockage indisponible
     }
   }
-  ranger(() => sessionStorage, jeton)
-  try {
-    if (window.h3cConsent?.status()?.analytics) ranger(() => localStorage, JSON.stringify({ j: jeton, ts: Date.now() }))
-  } catch {
-    // idem
+  for (const stockage of stockages) {
+    try {
+      const v = stockage().getItem(CONTACT_KEY)
+      const j = v?.startsWith('{') ? JSON.parse(v).j : v // local : {j, ts} ; session : brut
+      if (j && marques.has(j)) stockage().removeItem(CONTACT_KEY)
+      stockage().removeItem(FORMULAIRE_KEY)
+    } catch {
+      // stockage indisponible ou valeur illisible
+    }
   }
+}
+
+/**
+ * À l'ouverture de chaque page du bundle : purge sans accord, puis à chaque choix fait dans le
+ * bandeau. ponytail: le bloc H3C-TRACKING (généré) n'émet aucun évènement au changement d'accord,
+ * on écoute donc ses deux boutons en remontée, après son propre gestionnaire ; passer sur un
+ * évènement le jour où le bloc en émet un.
+ */
+export function veillerAccordContact(): void {
+  oublierContactSansAccord()
+  document.addEventListener('click', (e) => {
+    const id = (e.target as Element | null)?.id
+    if (id === 'h3c-accept' || id === 'h3c-refuse') oublierContactSansAccord()
+  })
 }
 
 export function garderJetonReprise(jeton: string | null): void {

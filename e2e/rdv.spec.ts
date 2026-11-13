@@ -15,10 +15,10 @@ interface Options {
   email?: string | null
   doublon?: boolean
 }
-interface Journal { reserver: Record<string, unknown>[]; creneaux: number; email: Record<string, unknown>[]; ycbm: string[]; verifier: Record<string, unknown>[] }
+interface Journal { reserver: Record<string, unknown>[]; creneaux: number; email: Record<string, unknown>[]; ycbm: string[]; verifier: Record<string, unknown>[]; vues: string[] }
 
 async function simuler(page: Page, o: Options = {}): Promise<Journal> {
-  const j: Journal = { reserver: [], creneaux: 0, email: [], ycbm: [], verifier: [] }
+  const j: Journal = { reserver: [], creneaux: 0, email: [], ycbm: [], verifier: [], vues: [] }
   const reponses = [...(o.reserver ?? [{ status: 200 }])]
   await page.route(/^https?:\/\/(?!localhost)/, async (route, req: Request) => {
     const u = new URL(req.url())
@@ -50,6 +50,7 @@ async function simuler(page: Page, o: Options = {}): Promise<Journal> {
       j.email.push(req.postDataJSON() as Record<string, unknown>)
       return route.fulfill({ status: 200, json: { email: o.email ?? null } })
     }
+    if (u.pathname.startsWith('/api/capi/')) j.vues.push(req.postData() ?? '') // page-view, page-vue du bloc de suivi
     return route.fulfill({ status: 204, body: '' }) // jalons, page-view
   })
   return j
@@ -99,6 +100,42 @@ test('parcours complet à Paris : une demande, la confirmation, rien de redemand
   })
   expect(typeof c.cle).toBe('string')
   expect(c.duree_ms as number).toBeGreaterThan(0)
+})
+
+test('jeton du formulaire (art. 82) : sans accord ni rangé ni joint aux vues, rangé avec, effacé au retrait', async ({ page }) => {
+  const JETON = 'h1.' + 'F'.repeat(40)
+  const j = await simuler(page, { reserver: [{ status: 200, body: { contact: JETON } }] })
+  const stocke = () => page.evaluate(() => JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }) + document.cookie)
+  const vuesAvecJeton = () => j.vues.filter((v) => v.includes(JETON)).length
+  const demander = async () => {
+    await jusquAuCreneau(page)
+    await page.getByRole('radio', { name: '18:30' }).click()
+    await page.getByRole('button', { name: 'Demander ce créneau' }).click()
+    await expect(page.getByText('Votre demande est bien envoyée.', { exact: false })).toBeVisible()
+  }
+  // 1. Bandeau refusé (`ouvrir`) : rien nulle part, aucune vue avec le jeton.
+  await ouvrir(page)
+  await demander()
+  expect(await stocke()).not.toContain(JETON)
+  await page.reload({ waitUntil: 'networkidle' })
+  expect(j.vues.length).toBeGreaterThan(0)
+  expect(vuesAvecJeton()).toBe(0)
+  // 2. Accord « mesure d'audience » : rangé, et le bloc le joint aux vues suivantes.
+  await page.evaluate(() => { localStorage.clear(); sessionStorage.clear() })
+  await page.goto('/rdv/')
+  await page.locator('#h3c-accept').click()
+  if (await page.getByTestId('cta-haut').count()) await page.getByTestId('cta-haut').click()
+  await demander()
+  expect(await stocke()).toContain(JETON)
+  await page.reload({ waitUntil: 'networkidle' })
+  expect(vuesAvecJeton()).toBeGreaterThan(0)
+  // 3. Retrait dans le bandeau : effacé tout de suite, plus aucune vue avec le jeton.
+  await page.locator('#h3c-reopen').click()
+  await page.locator('#h3c-refuse').click()
+  expect(await stocke()).not.toContain(JETON)
+  const avant = vuesAvecJeton()
+  await page.reload({ waitUntil: 'networkidle' })
+  expect(vuesAvecJeton()).toBe(avant)
 })
 
 test('lien avec un code h3c : pas de question de provenance, ORIGINE transmise', async ({ page }) => {

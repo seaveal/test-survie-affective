@@ -49,7 +49,7 @@ const URL_MENTIONS = '/mentions-legales/'
 const URL_CGV = '/cgv/'
 const URL_PRIVACY = '/privacy/'
 
-export function DisclaimerFooter({ nomTest = 'Le Test de Survie Affective' }: { nomTest?: string }) {
+export function DisclaimerFooter({ nomTest = 'Le Test de dépendance affective' }: { nomTest?: string }) {
   return (
     <footer
       className="mx-auto mt-8 max-w-2xl px-6 pb-10 pt-6"

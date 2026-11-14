@@ -6,17 +6,18 @@ for (const [file, id] of [['index.html','tsa-accueil'],['retrouvez-vous.html','b
   let s = readFileSync(path,'utf8')
   const content = textes[id].replaceAll('<!--ACTION-->','<p>Activez JavaScript pour commencer.</p>')
   s = s.replace(/<noscript>[\s\S]*?<\/noscript>/, '<noscript>'+content+'</noscript>')
-  const title = content.match(/<h1>(.*?)<\/h1>/)[1]
-  s = s.replace(/<title>[\s\S]*?<\/title>/,'<title>'+title+' · Cyrille Novou</title>')
+  // `<id>.titre` dans textes.json : titre servi distinct du h1 (SEO, 14/11/2026), sinon le h1.
+  const title = textes[id+'.titre'] ?? content.match(/<h1>(.*?)<\/h1>/)[1]+' · Cyrille Novou'
+  s = s.replace(/<title>[\s\S]*?<\/title>/,'<title>'+title+'</title>')
   writeFileSync(path,s)
 }
 // Same metadata in the initial HTML and in share previews.
 for (const [file, id] of [['index.html','tsa-accueil'],['retrouvez-vous.html','bilan-accueil'],['retrouvez-vous/index.html','bilan-accueil'],['rdv/index.html','rdv-accueil']]) {
   const path = new URL('../dist/'+file, import.meta.url)
   let s = readFileSync(path,'utf8')
-  const title = textes[id].match(/<h1>(.*?)<\/h1>/)[1]
+  const title = textes[id+'.titre'] ?? textes[id].match(/<h1>(.*?)<\/h1>/)[1]
   const paragraphs = [...textes[id].matchAll(/<p>(.*?)<\/p>/gs)].map(x=>x[1].replace(/<[^>]*>/g,''))
-  let description = paragraphs.find(x=>x.length>100)
+  let description = textes[id+'.description'] ?? paragraphs.find(x=>x.length>100)
   if(description.length>220)description=description.slice(0,220).replace(/\s+\S*$/,'')+'…'
   const escape=x=>x.replaceAll('&','&amp;').replaceAll('"','&quot;')
   for(const [attr,key,value] of [['property','og:title',title],['name','twitter:title',title],['name','description',description],['property','og:description',description],['name','twitter:description',description]]) {

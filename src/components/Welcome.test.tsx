@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { Welcome } from './Welcome'
+import textes from '../commercial/textes.json'
 
 describe('Accueil approuvé — parcours et information avant capture', () => {
   it('présente un seul titre, les quatre profils et le nombre de questions', () => {
@@ -11,6 +12,17 @@ describe('Accueil approuvé — parcours et information avant capture', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Reconnaissez votre façon de préserver le lien')
     for (const name of ['Mendiant de Luxe', 'Sauveur Épuisé', 'Contrôleur Anxieux', 'Fantôme Relationnel']) expect(screen.getByRole('heading', { name })).toBeInTheDocument()
     expect(screen.getAllByText('25 questions · Offert · Profil par email')).toHaveLength(2)
+  })
+  // Renommage du 14/11/2026 : nom public « Test de dépendance affective » à l'écran et dans les
+  // balises servies (titre et description tirés de textes.json par scripts/commercial-noscript.mjs).
+  it('nomme le Test « Test de dépendance affective », à l\'écran et dans le titre servi', () => {
+    const { container } = render(<Welcome onCommencer={() => {}} />)
+    expect(container.textContent).toContain('Le Test de dépendance affective vous montre lequel de quatre masques est le vôtre')
+    expect(container.textContent).toContain('Le Test de dépendance affective et le programme')
+    expect(container.textContent).not.toMatch(/survie affective/i)
+    for (const cle of ['tsa-accueil.titre', 'tsa-accueil.description'] as const) expect(textes[cle]).toMatch(/^Test de dépendance affective /)
+    expect(textes['tsa-accueil.titre'].length).toBeLessThanOrEqual(60)
+    expect(textes['tsa-accueil.description'].length).toBeLessThanOrEqual(160)
   })
   it.each(['haut', 'bas'])('le bouton %s commence et transmet son emplacement', async (emplacement) => {
     const onCommencer = vi.fn(), suivre = vi.fn()
@@ -39,9 +51,10 @@ describe('DEST-07 — pages statiques servies (public/*.html)', () => {
     expect(pages).toContain('iframe-test.html')
   })
 
-  it.each(pages)('%s n\'écrit jamais « Test de survie affective » en minuscules', (page) => {
+  // Renommage du 14/11/2026 : l'ancien nom public ne revient sous aucune casse.
+  it.each(pages)('%s n\'écrit plus « Test de Survie Affective », sous aucune casse', (page) => {
     const html = readFileSync(join(PUBLIC, page), 'utf-8')
-    expect(html).not.toMatch(/Test de survie affective/)
+    expect(html).not.toMatch(/Test de survie affective/i)
   })
 })
 

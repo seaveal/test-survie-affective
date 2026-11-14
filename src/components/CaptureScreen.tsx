@@ -7,7 +7,7 @@ import type { CaptureValues } from '../api/client'
 const TEXTES_CAPTURE = {
   "surtitre": "Votre profil offert par email",
   "titre": "Où voulez-vous recevoir votre profil ?",
-  "phrase": "Vous venez de répondre aux premières questions. Votre email sert à vous envoyer votre profil complet et à sauvegarder vos réponses, pour reprendre plus tard si vous le souhaitez. Une fois votre email enregistré, vous poursuivez le test, et votre masque s'affiche à l'écran à la fin du Test de Survie Affective.",
+  "phrase": "Vous venez de répondre aux premières questions. Votre email sert à vous envoyer votre profil complet et à sauvegarder vos réponses, pour reprendre plus tard si vous le souhaitez. Une fois votre email enregistré, vous poursuivez le test, et votre masque s'affiche à l'écran à la fin du Test de dépendance affective.",
   "bouton": "Sauvegarder et continuer",
   "sousBouton": "Profil complet et séance de descente dans le corps offerts. Sans carte bancaire.",
   "caseSuite": "Oui, je veux recevoir la suite par email : les textes de Cyrille Novou sur mon profil, ses séances guidées et ses propositions d'accompagnement. Je peux me désinscrire en un clic, en bas de chaque email.",
@@ -19,7 +19,7 @@ export type TextesCapture = Record<keyof typeof TEXTES_CAPTURE, string>
 
 interface Props {
   onSubmit: (values: CaptureValues) => void
-  /** Défaut : les textes du Test de Survie Affective. */
+  /** Défaut : les textes du Test de dépendance affective. */
   textes?: TextesCapture
   envoiEnCours?: boolean
   /** Refus de l'API (422, 410) : message affiché, l'email est redemandé. */

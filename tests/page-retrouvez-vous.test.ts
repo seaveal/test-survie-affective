@@ -20,7 +20,7 @@ test('titre, description, canonical, robots et aperçus de lien du bilan', () =>
   expect(attr('meta[name="twitter:title"]')).toBe(TEXTES_RV.meta.titre)
   expect(doc.querySelector('meta[property^="og:image"], meta[name="twitter:image"]')).toBeNull()
   expect(html).toContain('H3C-TRACKING:BEGIN')
-  expect(html).not.toMatch(/masque|Test de dépendance|Survie Affective/)
+  expect(html).not.toMatch(/masque|Test de dépendance|[Ss]urvie [Aa]ffective/)
 })
 
 test('données structurées : la page du bilan, son auteur et son livre, ni Quiz ni Service', () => {

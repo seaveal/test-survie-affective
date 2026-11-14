@@ -382,7 +382,7 @@ describe('e2e RETROUVEZ-VOUS', () => {
     expect(vers('/api/test-progression', 'PUT')[0].corps).toMatchObject({ jeton: 'cycle-lien', reponses: { jeu: 'rv' } })
   })
 
-  it('reprise : un cycle du Test de Survie Affective est ignoré, accueil normal', async () => {
+  it('reprise : un cycle du Test de dépendance affective est ignoré, accueil normal', async () => {
     window.h3cContact = () => JETON
     reglage.getC = { termine: false, reponses: { typage: { 1: 'A' }, intensite: {}, contexte: {}, v: 2 }, jeton: 'cycle-test' }
     render(<AppRV />)

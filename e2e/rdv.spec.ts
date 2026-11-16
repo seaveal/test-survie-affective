@@ -234,6 +234,9 @@ test('lien de Ficiel ou d’un email (prénom, nom, email, téléphone) : pré-r
   await page.getByRole('button', { name: 'Demander ce créneau' }).click()
   await expect(page.getByText('Votre demande est bien envoyée.', { exact: false })).toBeVisible()
   expect(j.reserver[0]).toMatchObject({ prenom: 'Jane', nom: 'Doe', email: 'jane@example.com', telephone: '+33612345678', sms_rappels: false, origine: 'fic01' })
+  // La vue de page part du <head> avant l'application : elle ne doit porter aucune coordonnée.
+  expect(j.vues.length).toBeGreaterThan(0)
+  expect(j.vues.join(' ')).not.toMatch(/Jane|Doe|jane|336/)
 })
 
 test('provenance encore inconnue du serveur (422) : la demande repart sans elle, jamais bloquée', async ({ page }) => {

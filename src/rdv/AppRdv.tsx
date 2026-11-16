@@ -10,7 +10,7 @@ import {
 import { lireJetonContact } from '../api/client'
 import { dejaDemande, emailDesJetons, jalon, lireCreneaux, reserver, signalerDemande } from './api'
 import {
-  CHOIX_ANCIENNETE, CHOIX_PROVENANCE, PARAMS_PREREMPLIS, PARIS, REPONSES_VIDES, chercherFuseaux,
+  CHOIX_ANCIENNETE, CHOIX_PROVENANCE, PARIS, REPONSES_VIDES, chercherFuseaux,
   creneauEnClair, erreurChamp, fuseauAppareil, grouperParJour, libelleFuseau, listeFuseaux,
   nouvelleCle, prerempliDepuis, villeFuseau, type Reponses,
 } from './logique'
@@ -144,16 +144,10 @@ export default function AppRdv() {
     }
     window.addEventListener('popstate', onPop)
 
-    // Coordonnées venues d'un lien (Test, bilan, email, Ficiel) : posées dans les seules cases vides,
-    // puis retirées de la barre d'adresse.
-    const q = new URLSearchParams(location.search)
-    const pre = prerempliDepuis(q)
+    // Coordonnées venues d'un lien (Ficiel, email), déjà retirées de l'adresse par le script placé avant
+    // le bloc de suivi (rdv/index.html) : posées dans les seules cases vides.
+    const pre = prerempliDepuis(new URLSearchParams(window.h3cPrerempli ?? {}))
     const lien = window.h3cEmailLien?.() || pre.email
-    if (PARAMS_PREREMPLIS.some((n) => q.has(n))) {
-      for (const n of PARAMS_PREREMPLIS) q.delete(n)
-      const s = q.toString()
-      history.replaceState(history.state, '', location.pathname + (s ? `?${s}` : '') + location.hash)
-    }
     const cycle = lireStockage('tsa.reprise') || lireStockage('rv.reprise')
     // Jeton du lien d'un courriel seulement, jamais celui d'un formulaire (lot C4).
     const contact = lireJetonContact()

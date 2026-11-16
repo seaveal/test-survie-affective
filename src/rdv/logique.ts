@@ -155,14 +155,13 @@ export const REPONSES_VIDES: Reponses = {
   sms: false, provenance: '', linkedin: '',
 }
 
-// Pré-remplissage par l'adresse (plan du 16/11/2026, lot 2) : liens du Test, du bilan, des emails
-// (noms YouCanBookMe hérités, FNAME…) et de Ficiel. Lus une fois à l'arrivée puis retirés de la barre
-// d'adresse ; jamais de réponse aux questions de qualification, qui restent à la personne.
+// Pré-remplissage par un lien (plan du 16/11/2026, lot 2) : emails (noms YouCanBookMe hérités, FNAME…)
+// et Ficiel. Paramètres lus et retirés de l'adresse par rdv/index.html AVANT le bloc de suivi ; jamais
+// de réponse aux questions de qualification, qui restent à la personne.
 const PARAMS_CONNUS: [keyof Reponses, string[]][] = [
   ['prenom', ['prenom', 'FNAME']], ['nom', ['nom', 'LNAME']],
   ['email', ['email', 'EMAIL']], ['telephone', ['telephone', 'tel', 'PHONE']],
 ]
-export const PARAMS_PREREMPLIS = PARAMS_CONNUS.flatMap(([, noms]) => noms)
 
 /** Coordonnées lisibles dans l'adresse ; une valeur invalide (ou trop longue) est ignorée. */
 export function prerempliDepuis(q: URLSearchParams): Partial<Reponses> {

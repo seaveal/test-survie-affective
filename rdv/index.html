@@ -2,6 +2,21 @@
 <html data-saq-theme="www" lang="fr">
   <head>
     <meta charset="UTF-8" />
+<script>
+  // Pré-remplissage de /rdv/ (plan du 16/11/2026, lot 2) : prénom, nom, email, téléphone d'un lien
+  // (Ficiel, email) lus ICI, avant le bloc de suivi, puis retirés de l'adresse : jamais dans une vue
+  // de page ni dans un évènement. `EMAIL` (majuscules) reste au bloc (EMAIL:DEBUT).
+  (function () {
+    try {
+      var u = new URL(location.href), p = {}, vu = false;
+      ['prenom', 'FNAME', 'nom', 'LNAME', 'email', 'telephone', 'tel', 'PHONE'].forEach(function (k) {
+        var v = u.searchParams.get(k);
+        if (v !== null) { p[k] = v.slice(0, 254); u.searchParams.delete(k); vu = true; }
+      });
+      if (vu) { window.h3cPrerempli = p; history.replaceState(history.state, '', u.pathname + u.search + u.hash); }
+    } catch (e) {}
+  })();
+</script>
 <!-- H3C-TRACKING:BEGIN cfg=d0871185e42f site=test/rdv/index.html (généré par 99-Meta/Scripts/tracking/propagate-tracking-config.py depuis 40-Knowledge/Pro/PHM/tracking-config.json — NE PAS ÉDITER À LA MAIN, relancer la propagation) -->
 <script>
 (function () {

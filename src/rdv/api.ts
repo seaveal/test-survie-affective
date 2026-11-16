@@ -7,6 +7,7 @@ import { extractUtmParams, retenirContact } from '../api/client'
 declare global {
   interface Window {
     h3cEmailLien?: () => string | undefined
+    h3cPrerempli?: Record<string, string>
     fbq?: (...args: unknown[]) => void
     __h3cPixelInitialized?: Record<string, boolean>
   }

@@ -238,13 +238,11 @@ export default function AppRdv() {
     aide?: string
     champs: (keyof Reponses)[]
     children: ReactNode
-    facultatif?: boolean
   }) => (
     <form id="rdv-formulaire" className="mx-auto max-w-lg" onSubmit={suivant(props.champs)} noValidate>
 
       {salut &&<p className="mb-2 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{salut}</p>}
       <h1 ref={titre} tabIndex={-1} id="rdv-question" className="text-2xl leading-snug outline-none">{props.question}</h1>
-      {props.facultatif && <p className="mt-1 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{T.objectif.facultatif}</p>}
       {props.aide && <p id="rdv-aide" className="mt-2 text-sm" style={{ color: 'var(--h3c-texte-secondaire)' }}>{props.aide}</p>}
       <div className="mt-6 space-y-4">{props.children}</div>
       <Erreurs erreurs={props.champs.filter((c) => !SOUS_LA_CASE.has(c)).map((c) => erreurs[c]).filter(Boolean) as string[]} />
@@ -294,9 +292,8 @@ export default function AppRdv() {
       contenu = ecranQuestion({
         question: T.objectif.question,
         aide: T.objectif.aide,
-        facultatif: true,
-        champs: [],
-        children: <Zone id="objectif" label={T.objectif.question} exemple={T.objectif.exemple} value={r.objectif} onChange={(v) => poser('objectif', v)} />,
+        champs: ['objectif'],
+        children: <Zone id="objectif" label={T.objectif.question} exemple={T.objectif.exemple} value={r.objectif} onChange={(v) => poser('objectif', v)} erreur={erreurs.objectif} />,
       })
       break
     case 'coordonnees':
@@ -328,8 +325,7 @@ export default function AppRdv() {
     case 'provenance':
       contenu = ecranQuestion({
         question: T.provenance.question,
-        facultatif: true,
-        champs: [],
+        champs: ['provenance'],
         children: (
           <Choix choix={CHOIX_PROVENANCE} valeur={r.provenance} onChoix={(v) => {
             poser('provenance', v)
@@ -435,7 +431,7 @@ function EcranCreneau({
       duree_ms: Date.now() - etat.debut,
     }
     let issue = await reserver(demande)
-    // Provenance facultative : un libellé que tsa-api servi ne connaît pas encore (bilan, YouTube,
+    // Provenance obligatoire sur la page, mais un libellé que tsa-api servi ne connaît pas encore (bilan, YouTube,
     // 16/11) ne bloque jamais la demande. Refus de validation (422) : rien n'a été posé, même clé.
     if (issue.etat === 'champ' && issue.champ === 'provenance') issue = await reserver({ ...demande, provenance: '' })
     enVol.current = false

@@ -121,6 +121,14 @@ describe('validation', () => {
     expect(erreurChamp('anciennete', 'plus de 2 ans')).not.toBe('')
   })
 
+  it('objectif et provenance obligatoires (Cyrille, 16/11/2026 : « 2:oui »)', () => {
+    expect(erreurChamp('objectif', '   ')).not.toBe('')
+    expect(erreurChamp('objectif', 'Ne plus me perdre dans mes relations')).toBe('')
+    expect(erreurChamp('provenance', '')).not.toBe('')
+    expect(erreurChamp('provenance', 'une vidéo YouTube')).toBe('')
+    expect(erreurChamp('provenance', 'une vidéo')).not.toBe('')
+  })
+
   it('LinkedIn (lot C4) : vide ou adresse de profil, rien d’autre', () => {
     expect(erreurChamp('linkedin', '')).toBe('')
     expect(erreurChamp('linkedin', 'https://www.linkedin.com/in/jean-dupont-1a2b3c/')).toBe('')

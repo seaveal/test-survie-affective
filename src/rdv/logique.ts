@@ -7,8 +7,9 @@ export const PARIS = 'Europe/Paris'
 
 // Libellés EXACTS acceptés par tsa-api (`PROVENANCE_ACCEPTEES` de `ycbm_booking.py`), apostrophes
 // typographiques comprises : le serveur refuse toute autre valeur (422). Renommage du Test du 14/11,
-// bilan et YouTube ajoutés le 16/11 (plan 100 k€, lot 2) ; tant que tsa-api servi ne les connaît pas,
-// la page renvoie la demande sans provenance (question facultative), jamais de blocage.
+// bilan et YouTube ajoutés le 16/11 (plan 100 k€, lot 2). La question est obligatoire sur la page
+// (Cyrille, 16/11/2026 : « 2:oui ») ; si tsa-api servi refuse un libellé qu'il ne connaît pas encore,
+// la page renvoie la demande sans provenance, jamais de blocage.
 export const CHOIX_ANCIENNETE = [
   'Moins de 6 mois',
   'Entre 6 mois et 2 ans',
@@ -189,6 +190,11 @@ export function erreurChamp(champ: keyof Reponses, v: string): string {
       return t ? '' : 'Quelques mots suffisent, mais cette réponse est nécessaire : c’est ce que Cyrille lit pour vous répondre.'
     case 'anciennete':
       return (CHOIX_ANCIENNETE as readonly string[]).includes(t) ? '' : 'Choisissez une réponse.'
+    // Objectif et provenance obligatoires : « on ne veut pas de touristes » (Cyrille, 16/11/2026).
+    case 'objectif':
+      return t ? '' : 'Quelques mots suffisent, mais cette réponse est nécessaire pour continuer.'
+    case 'provenance':
+      return (CHOIX_PROVENANCE as readonly string[]).includes(t) ? '' : 'Choisissez une réponse.'
     case 'email':
       return RE_EMAIL.test(t) ? '' : 'Cette adresse e-mail semble incomplète.'
     case 'telephone': {

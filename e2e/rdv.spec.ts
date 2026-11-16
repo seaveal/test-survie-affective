@@ -71,6 +71,7 @@ async function jusquAuCreneau(page: Page, { provenance = true, attendre = true }
   await continuer(page)
   await page.getByRole('radio', { name: 'Plus de 2 ans' }).click()
   await expect(page.getByRole('heading', { name: 'Qu’aimeriez-vous vivre autrement ?' })).toBeVisible()
+  await page.getByLabel('Qu’aimeriez-vous vivre autrement ?').fill('Ne plus rejouer la même histoire.')
   await continuer(page)
   await page.getByLabel('Votre nom').fill('Doe')
   await page.getByLabel('Votre adresse e-mail').fill('jane@example.com')
@@ -94,7 +95,7 @@ test('parcours complet à Paris : une demande, la confirmation, rien de redemand
   const c = j.reserver[0]
   expect(c).toMatchObject({
     prenom: 'Jane', nom: 'Doe', email: 'jane@example.com', telephone: '06 12 34 56 78',
-    situation: 'Je rejoue le même scénario.', anciennete: 'Plus de 2 ans', objectif: '',
+    situation: 'Je rejoue le même scénario.', anciennete: 'Plus de 2 ans', objectif: 'Ne plus rejouer la même histoire.',
     provenance: 'je ne sais plus', origine: '', creneau: CRENEAUX[0], fuseau: 'Europe/Paris',
     sms_rappels: false, site_web: '',
   })
@@ -189,6 +190,36 @@ test('téléphone refusé (422) : retour à l\'écran des coordonnées, puis dem
   expect(j.reserver[1]).toMatchObject({ telephone: '+33 6 98 76 54 32' })
 })
 
+// Cyrille, 16/11/2026 (« 2:oui ») : objectif et provenance obligatoires, aucune mention « Facultatif ».
+test('objectif et provenance : impossible de continuer sans répondre', async ({ page }) => {
+  const j = await simuler(page)
+  await ouvrir(page)
+  await page.getByLabel('Quel est votre prénom ?').fill('Jane')
+  await continuer(page)
+  await page.getByLabel('Quelle situation relationnelle souhaitez-vous travailler ?').fill('Je rejoue le même scénario.')
+  await continuer(page)
+  await page.getByRole('radio', { name: 'Plus de 2 ans' }).click()
+  await expect(page.getByRole('heading', { name: 'Qu’aimeriez-vous vivre autrement ?' })).toBeVisible()
+  await expect(page.getByText('Facultatif', { exact: true })).toHaveCount(0)
+  await page.getByLabel('Qu’aimeriez-vous vivre autrement ?').fill('   ')
+  await continuer(page)
+  await expect(page.getByText('cette réponse est nécessaire pour continuer', { exact: false })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Qu’aimeriez-vous vivre autrement ?' })).toBeVisible()
+  await page.getByLabel('Qu’aimeriez-vous vivre autrement ?').fill('Ne plus rejouer la même histoire.')
+  await continuer(page)
+  await page.getByLabel('Votre nom').fill('Doe')
+  await page.getByLabel('Votre adresse e-mail').fill('jane@example.com')
+  await page.getByLabel('Votre numéro de téléphone').fill('06 12 34 56 78')
+  await continuer(page)
+  await expect(page.getByRole('heading', { name: 'Comment avez-vous découvert cet appel ?' })).toBeVisible()
+  await continuer(page)
+  await expect(page.getByText('Choisissez une réponse.')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Comment avez-vous découvert cet appel ?' })).toBeVisible()
+  await page.getByRole('radio', { name: 'une vidéo YouTube' }).click()
+  await expect(page.getByRole('heading', { name: 'Choisissez le créneau de votre rendez-vous' })).toBeVisible()
+  expect(j.reserver).toHaveLength(0)
+})
+
 // Plan du 16/11/2026, lot 2 : plus jamais YouCanBookMe, plus aucune donnée dans une adresse.
 test('serveur injoignable : un message et l’adresse de contact, aucune autre page, rien dans l’adresse', async ({ page }) => {
   const j = await simuler(page, { creneaux: 'panne' })
@@ -224,6 +255,7 @@ test('lien de Ficiel ou d’un email (prénom, nom, email, téléphone) : pré-r
   await continuer(page)
   await page.getByRole('radio', { name: 'Plus de 2 ans' }).click()
   await expect(page.getByRole('heading', { name: 'Qu’aimeriez-vous vivre autrement ?' })).toBeVisible()
+  await page.getByLabel('Qu’aimeriez-vous vivre autrement ?').fill('Ne plus rejouer la même histoire.')
   await continuer(page)
   await expect(page.getByLabel('Votre nom')).toHaveValue('Doe')
   await expect(page.getByLabel('Votre adresse e-mail')).toHaveValue('jane@example.com')
@@ -289,6 +321,7 @@ test('adresse du lien (?EMAIL=) : pré-remplie, modifiable, retirée de l\'adres
   await continuer(page)
   await page.getByRole('radio', { name: 'Plus de 2 ans' }).click()
   await expect(page.getByRole('heading', { name: 'Qu’aimeriez-vous vivre autrement ?' })).toBeVisible()
+  await page.getByLabel('Qu’aimeriez-vous vivre autrement ?').fill('Ne plus rejouer la même histoire.')
   await continuer(page)
   await expect(page.getByLabel('Votre adresse e-mail')).toHaveValue('jane@example.com')
 })
@@ -305,6 +338,7 @@ test('jeton de contact (?c=) : l\'adresse vient du serveur', async ({ page }) =>
   await continuer(page)
   await page.getByRole('radio', { name: 'Plus de 2 ans' }).click()
   await expect(page.getByRole('heading', { name: 'Qu’aimeriez-vous vivre autrement ?' })).toBeVisible()
+  await page.getByLabel('Qu’aimeriez-vous vivre autrement ?').fill('Ne plus rejouer la même histoire.')
   await continuer(page)
   await expect(page.getByLabel('Votre adresse e-mail')).toHaveValue('connue@example.com')
 })
@@ -379,6 +413,7 @@ test('coordonnées incomplètes : chaque message sous sa case (audit du 04/11/20
   await continuer(page)
   await page.getByRole('radio', { name: 'Plus de 2 ans' }).click()
   await expect(page.getByRole('heading', { name: 'Qu’aimeriez-vous vivre autrement ?' })).toBeVisible()
+  await page.getByLabel('Qu’aimeriez-vous vivre autrement ?').fill('Ne plus rejouer la même histoire.')
   await continuer(page)
   await page.getByLabel('Votre nom').fill('Doe')
   await continuer(page)

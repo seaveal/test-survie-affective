@@ -27,7 +27,7 @@ export const T = {
   merci: (p: string) => `Merci, ${p}.`,
   situation: { question: 'Quelle situation relationnelle souhaitez-vous travailler ?', aide: AIDE_LIBRE, exemple: 'Ma situation, en quelques mots' },
   anciennete: { question: 'Depuis combien de temps cette difficulté est-elle présente ?' },
-  objectif: { question: 'Qu’aimeriez-vous vivre autrement ?', aide: AIDE_LIBRE, facultatif: 'Facultatif', exemple: 'Ce que j’aimerais vivre autrement' },
+  objectif: { question: 'Qu’aimeriez-vous vivre autrement ?', aide: AIDE_LIBRE, exemple: 'Ce que j’aimerais vivre autrement' },
   coordonnees: {
     question: 'Vos coordonnées',
     nom: 'Votre nom',

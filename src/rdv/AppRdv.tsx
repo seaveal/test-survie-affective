@@ -10,9 +10,9 @@ import {
 import { lireJetonContact } from '../api/client'
 import { dejaDemande, emailDesJetons, jalon, lireCreneaux, reserver, signalerDemande } from './api'
 import {
-  CHOIX_ANCIENNETE, CHOIX_PROVENANCE, PAGE_YCBM, PARIS, REPONSES_VIDES, chercherFuseaux,
+  CHOIX_ANCIENNETE, CHOIX_PROVENANCE, PARAMS_PREREMPLIS, PARIS, REPONSES_VIDES, chercherFuseaux,
   creneauEnClair, erreurChamp, fuseauAppareil, grouperParJour, libelleFuseau, listeFuseaux,
-  nouvelleCle, urlRepli, villeFuseau, type Reponses,
+  nouvelleCle, prerempliDepuis, villeFuseau, type Reponses,
 } from './logique'
 import { AVERTISSEMENT, T } from './textes'
 
@@ -38,6 +38,7 @@ const ECRAN_DU_CHAMP: Record<string, Ecran> = {
   prenom: 'prenom', situation: 'situation', anciennete: 'anciennete', objectif: 'objectif', nom: 'coordonnees',
   email: 'coordonnees', telephone: 'coordonnees', provenance: 'provenance', fuseau: 'creneau',
 }
+const CONTACT = 'cyrille@souverainauquotidien.com'
 const VIDEO = import.meta.env?.VITE_RDV_VIDEO_URL as string | undefined
 const AFFICHE = import.meta.env?.VITE_RDV_VIDEO_POSTER as string | undefined
 
@@ -108,7 +109,6 @@ export default function AppRdv() {
   const [presentation, setPresentation] = useState(() => etat.ecran === 'prenom' && !etat.r.prenom.trim())
   const [repli, setRepli] = useState(false)
   const [champLinkedin, setChampLinkedin] = useState(false) // lot C4 : le serveur l'annonce
-  const pageServeur = useRef('')
   const verification = useRef(false)
   const titre = useRef<HTMLHeadingElement>(null)
   useClavier()
@@ -127,16 +127,11 @@ export default function AppRdv() {
     }
   }, [etat])
 
-  const etatRef = useRef(etat)
-  useEffect(() => {
-    etatRef.current = etat
-  }, [etat])
-
-  const partirVersYcbm = useCallback((page?: string) => {
+  // Repli : un message et l'adresse de contact, jamais une autre page ni une donnée dans une adresse.
+  const montrerRepli = useCallback(() => {
     jalon('rdv_repli')
     setRepli(true)
-    const e = etatRef.current
-    location.assign(urlRepli(page || pageServeur.current || PAGE_YCBM, e.r, e.origine))
+    window.scrollTo(0, 0)
   }, [])
 
   // Arrivée : historique de l'écran courant, adresse pré-remplie, drapeau du serveur.
@@ -149,10 +144,13 @@ export default function AppRdv() {
     }
     window.addEventListener('popstate', onPop)
 
+    // Coordonnées venues d'un lien (Test, bilan, email, Ficiel) : posées dans les seules cases vides,
+    // puis retirées de la barre d'adresse.
     const q = new URLSearchParams(location.search)
-    const lien = window.h3cEmailLien?.() || q.get('EMAIL') || undefined
-    if (q.has('EMAIL')) {
-      q.delete('EMAIL')
+    const pre = prerempliDepuis(q)
+    const lien = window.h3cEmailLien?.() || pre.email
+    if (PARAMS_PREREMPLIS.some((n) => q.has(n))) {
+      for (const n of PARAMS_PREREMPLIS) q.delete(n)
       const s = q.toString()
       history.replaceState(history.state, '', location.pathname + (s ? `?${s}` : '') + location.hash)
     }
@@ -161,14 +159,17 @@ export default function AppRdv() {
     const contact = lireJetonContact()
     void emailDesJetons(cycle, contact).then((connu) => {
       const email = connu || lien
-      if (email) setEtat((e) => (e.r.email ? e : { ...e, r: { ...e.r, email } }))
+      setEtat((e) => {
+        const r = { ...e.r }
+        for (const [k, v] of Object.entries({ ...pre, email }) as [keyof Reponses, string | undefined][]) {
+          if (v && !String(r[k]).trim()) (r as Record<string, unknown>)[k] = v
+        }
+        return { ...e, r }
+      })
     })
     void lireCreneaux().then((issue) => {
-      if (issue.etat === 'ok') {
-        pageServeur.current = issue.page
-        setChampLinkedin(issue.linkedin)
-      }
-      if (issue.etat === 'inactive') partirVersYcbm(issue.page)
+      if (issue.etat === 'ok') setChampLinkedin(issue.linkedin)
+      if (issue.etat === 'inactive') montrerRepli()
     })
     return () => window.removeEventListener('popstate', onPop)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- une fois, à l'arrivée
@@ -215,7 +216,22 @@ export default function AppRdv() {
     })
   }
 
-  if (repli) return <Cadre><p className="py-16 text-center text-base" role="status">{T.repli}</p></Cadre>
+  if (repli) {
+    return (
+      <Cadre>
+        <div role="status">
+          <h1 className="text-2xl leading-snug">{T.repli.titre}</h1>
+          <p className="mt-4 text-base">
+            {T.repli.texte} <a className="underline" href={`mailto:${CONTACT}`}>{CONTACT}</a>.
+          </p>
+          <button type="button" onClick={() => location.reload()}
+            className="tsa-cta-terracotta mt-6 min-h-12 w-full rounded-xl px-6 text-base font-medium text-white">
+            {T.repli.reessayer}
+          </button>
+        </div>
+      </Cadre>
+    )
+  }
 
   const { r } = etat
   if (presentation && etat.ecran === 'prenom') return <Cadre large><PageCommerciale page="rdv-accueil" bouton="Demander un créneau" onAction={() => { setPresentation(false); window.scrollTo(0, 0) }} /></Cadre>
@@ -252,6 +268,7 @@ export default function AppRdv() {
     case 'prenom':
       contenu = ecranQuestion({
         question: T.prenom.question,
+        aide: T.prenom.aide,
         champs: ['prenom'],
         children: (
           <Champ id="prenom" label={T.prenom.question} exemple={T.prenom.exemple} cache value={r.prenom} onChange={(v) => poser('prenom', v)}
@@ -341,8 +358,7 @@ export default function AppRdv() {
             aller(ECRAN_DU_CHAMP[champ] ?? 'coordonnees')
             montrerErreur(champ)
           }}
-          partirVersYcbm={partirVersYcbm}
-          pageServeur={pageServeur}
+          montrerRepli={montrerRepli}
         />
       )
       break
@@ -355,7 +371,7 @@ export default function AppRdv() {
 }
 
 function EcranCreneau({
-  etat, titre, message, setMessage, setEtat, aller, erreurChampServeur, partirVersYcbm, pageServeur,
+  etat, titre, message, setMessage, setEtat, aller, erreurChampServeur, montrerRepli,
 }: {
   etat: Etat
   titre: RefObject<HTMLHeadingElement | null>
@@ -364,8 +380,7 @@ function EcranCreneau({
   setEtat: Dispatch<SetStateAction<Etat>>
   aller: (e: Ecran) => void
   erreurChampServeur: (champ: string, msg: string) => void
-  partirVersYcbm: (page?: string) => void
-  pageServeur: RefObject<string>
+  montrerRepli: () => void
 }) {
   const [creneaux, setCreneaux] = useState<number[] | null>(null)
   const [choix, setChoix] = useState<number | null>(null)
@@ -379,10 +394,8 @@ function EcranCreneau({
     let vivant = true
     void lireCreneaux().then((issue) => {
       if (!vivant) return
-      if (issue.etat === 'ok') {
-        pageServeur.current = issue.page
-        setCreneaux(issue.creneaux)
-      } else partirVersYcbm(issue.etat === 'inactive' ? issue.page : undefined)
+      if (issue.etat === 'ok') setCreneaux(issue.creneaux)
+      else montrerRepli()
     })
     return () => {
       vivant = false
@@ -420,13 +433,17 @@ function EcranCreneau({
       // la clé reste en mémoire
     }
     const r = etat.r
-    const issue = await reserver({
+    const demande = {
       cle, prenom: r.prenom.trim(), nom: r.nom.trim(), email: r.email.trim(), telephone: r.telephone.trim(),
       situation: r.situation.trim(), anciennete: r.anciennete, objectif: r.objectif.trim(), provenance: r.provenance,
       origine: etat.origine, linkedin: r.linkedin.trim(), creneau: choix, fuseau, sms_rappels: r.sms,
       site_web: (document.getElementById('site_web') as HTMLInputElement | null)?.value ?? '',
       duree_ms: Date.now() - etat.debut,
-    })
+    }
+    let issue = await reserver(demande)
+    // Provenance facultative : un libellé que tsa-api servi ne connaît pas encore (bilan, YouTube,
+    // 16/11) ne bloque jamais la demande. Refus de validation (422) : rien n'a été posé, même clé.
+    if (issue.etat === 'champ' && issue.champ === 'provenance') issue = await reserver({ ...demande, provenance: '' })
     enVol.current = false
     setEnvoi(false)
     switch (issue.etat) {
@@ -456,7 +473,7 @@ function EcranCreneau({
         setMessage(T.creneau.dejaDemande)
         return
       case 'panne':
-        partirVersYcbm()
+        montrerRepli()
         return
     }
   }
@@ -610,7 +627,7 @@ function Confirmation({ etat, titre }: { etat: Etat; titre: RefObject<HTMLHeadin
         <h2 className="text-lg">{T.confirmation.rienTitre}</h2>
       </div>
       <p className="mt-2 text-base">
-        {T.confirmation.rien} <a className="underline" href="mailto:cyrille@h3c.life">cyrille@h3c.life</a>.
+        {T.confirmation.rien} <a className="underline" href={`mailto:${CONTACT}`}>{CONTACT}</a>.
       </p>
     </div>
   )

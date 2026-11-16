@@ -1,15 +1,14 @@
 // Logique pure de la page /rdv/ (chantier RDV page maison, 03/11/2026) : fuseaux,
-// regroupement des créneaux par jour, URL de repli vers YouCanBookMe, validation.
+// regroupement des créneaux par jour, pré-remplissage, validation.
 // Règle des fuseaux (PLAN, « Heures et fuseaux ») : le fuseau de l'appareil, jamais l'IP ;
 // affichage créneau par créneau par Intl avec `timeZone` ; jamais getDate() ni toISOString().
 
-/** Page YouCanBookMe de repli quand le serveur ne répond pas (agenda de vente). */
-export const PAGE_YCBM = 'https://cyrillenovou-45mn.youcanbook.me/'
-
 export const PARIS = 'Europe/Paris'
 
-// Libellés EXACTS de `QUESTIONS_VENTE` (tsa-api `ycbm_booking.py`, relevé du 03/11/2026) :
-// YouCanBookMe garde la valeur choisie telle quelle, apostrophes typographiques comprises.
+// Libellés EXACTS acceptés par tsa-api (`PROVENANCE_ACCEPTEES` de `ycbm_booking.py`), apostrophes
+// typographiques comprises : le serveur refuse toute autre valeur (422). Renommage du Test du 14/11,
+// bilan et YouTube ajoutés le 16/11 (plan 100 k€, lot 2) ; tant que tsa-api servi ne les connaît pas,
+// la page renvoie la demande sans provenance (question facultative), jamais de blocage.
 export const CHOIX_ANCIENNETE = [
   'Moins de 6 mois',
   'Entre 6 mois et 2 ans',
@@ -19,7 +18,9 @@ export const CHOIX_ANCIENNETE = [
 
 export const CHOIX_PROVENANCE = [
   "le livre « Vous avez tout compris. Rien n'a changé. »",
-  'le Test de Survie Affective',
+  'le Test de dépendance affective',
+  'le bilan de RECONSTRUCTION AFFECTIVE',
+  'une vidéo YouTube',
   'un email Régénération',
   'la bio sur les réseaux sociaux',
   'Un réel instagram',
@@ -154,16 +155,23 @@ export const REPONSES_VIDES: Reponses = {
   sms: false, provenance: '', linkedin: '',
 }
 
-/** Repli (décision D8) : la page YouCanBookMe pré-remplie de tout ce qui est connu, rien de vide. */
-export function urlRepli(page: string, r: Partial<Reponses>, origine: string): string {
-  const u = new URL(page || PAGE_YCBM)
-  const champs: [string, string | undefined][] = [
-    ['FNAME', r.prenom], ['LNAME', r.nom], ['EMAIL', r.email], ['PHONE', r.telephone],
-    ['SITUATION', r.situation], ['Q6', r.anciennete], ['OBJECTIF', r.objectif],
-    ['PROVENANCE', r.provenance], ['ORIGINE', origine],
-  ]
-  for (const [k, v] of champs) if (v && v.trim()) u.searchParams.set(k, v.trim())
-  return u.toString()
+// Pré-remplissage par l'adresse (plan du 16/11/2026, lot 2) : liens du Test, du bilan, des emails
+// (noms YouCanBookMe hérités, FNAME…) et de Ficiel. Lus une fois à l'arrivée puis retirés de la barre
+// d'adresse ; jamais de réponse aux questions de qualification, qui restent à la personne.
+const PARAMS_CONNUS: [keyof Reponses, string[]][] = [
+  ['prenom', ['prenom', 'FNAME']], ['nom', ['nom', 'LNAME']],
+  ['email', ['email', 'EMAIL']], ['telephone', ['telephone', 'tel', 'PHONE']],
+]
+export const PARAMS_PREREMPLIS = PARAMS_CONNUS.flatMap(([, noms]) => noms)
+
+/** Coordonnées lisibles dans l'adresse ; une valeur invalide (ou trop longue) est ignorée. */
+export function prerempliDepuis(q: URLSearchParams): Partial<Reponses> {
+  const r: Partial<Reponses> = {}
+  for (const [champ, noms] of PARAMS_CONNUS) {
+    const v = noms.map((n) => q.get(n)?.trim()).find(Boolean)
+    if (v && v.length <= (champ === 'email' ? 254 : 80) && !erreurChamp(champ, v)) (r as Record<string, string>)[champ] = v
+  }
+  return r
 }
 
 export const RE_EMAIL = /^[^@\s]{1,64}@[^@\s]{1,190}\.[^@\s.]{2,}$/

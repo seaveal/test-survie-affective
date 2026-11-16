@@ -23,7 +23,7 @@ export const T = {
   continuer: 'Continuer',
   passer: 'Passer cette question',
   retour: 'Retour',
-  prenom: { question: 'Quel est votre prénom ?', exemple: 'Mon prénom' },
+  prenom: { question: 'Quel est votre prénom ?', exemple: 'Mon prénom', aide: 'Quelques questions courtes, environ trois minutes, puis vous choisissez votre créneau.' },
   merci: (p: string) => `Merci, ${p}.`,
   situation: { question: 'Quelle situation relationnelle souhaitez-vous travailler ?', aide: AIDE_LIBRE, exemple: 'Ma situation, en quelques mots' },
   anciennete: { question: 'Depuis combien de temps cette difficulté est-elle présente ?' },
@@ -38,8 +38,10 @@ export const T = {
     telephone: 'Votre numéro de téléphone',
     telephoneExemple: 'Mon numéro de téléphone',
     telephoneAide: 'Pour vous joindre si la visio se coupe.',
-    sms: 'Recevoir aussi les rappels du rendez-vous par SMS',
-    smsAide: 'Cette case ne concerne que les rappels. Si votre demande est acceptée, un SMS vous le confirme sur ce numéro.',
+    // Plan 100 k€ du 16/11/2026, lot 2 (2) et lot 2 bis (porte 1) : la case couvre les rappels, le lien
+    // de l'appel et les trois vidéos, par SMS ou WhatsApp. Jamais cochée d'avance.
+    sms: 'Recevoir sur ce numéro, par SMS ou WhatsApp, les rappels du rendez-vous, le lien de l’appel et trois vidéos pour le préparer',
+    smsAide: 'Sans cette case, tout vous arrive par e-mail.',
     linkedin: 'Votre profil LinkedIn (facultatif)',
     linkedinExemple: 'linkedin.com/in/…',
   },
@@ -57,7 +59,7 @@ export const T = {
     sous: 'Votre demande n’est confirmée qu’après la réponse de Cyrille, sous 24 heures.',
     pris: 'Ce créneau vient d’être pris. Choisissez-en un autre : vos réponses sont gardées.',
     dejaDemande:
-      'Une demande est déjà enregistrée pour cette adresse e-mail. L’e-mail reçu après cette demande contient les liens pour la reprogrammer ou l’annuler. Vous ne le trouvez pas ? Écrivez à cyrille@h3c.life.',
+      'Une demande est déjà enregistrée pour cette adresse e-mail. L’e-mail reçu après cette demande contient les liens pour la reprogrammer ou l’annuler. Vous ne le trouvez pas ? Écrivez à cyrille@souverainauquotidien.com.',
   },
   fuseau: {
     question: 'Dans quel fuseau horaire êtes-vous ?',
@@ -83,7 +85,13 @@ export const T = {
     rienTitre: 'Vous ne recevez rien ?',
     rien: 'Regardez d’abord dans vos courriers indésirables. Toujours rien 24 heures après votre demande ? Écrivez à',
   },
-  repli: 'Un instant, nous vous redirigeons vers l’agenda de Cyrille…',
+  // Plus jamais YouCanBookMe, plus aucune donnée dans une adresse (plan du 16/11/2026, lot 2) :
+  // quand le serveur ne répond pas, un message et l'adresse de contact, les réponses restent dans l'onglet.
+  repli: {
+    titre: 'La demande ne peut pas partir pour le moment',
+    texte: 'Le service des rendez-vous ne répond pas. Vos réponses sont gardées sur cette page : revenez dans quelques minutes, ou écrivez à Cyrille à',
+    reessayer: 'Réessayer',
+  },
 } as const
 
 // Avertissement de la Règle 12, texte canonique (CLAUDE.md), décision D7.

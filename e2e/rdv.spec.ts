@@ -189,29 +189,65 @@ test('téléphone refusé (422) : retour à l\'écran des coordonnées, puis dem
   expect(j.reserver[1]).toMatchObject({ telephone: '+33 6 98 76 54 32' })
 })
 
-test('serveur injoignable : repli vers YouCanBookMe pré-rempli de tout', async ({ page }) => {
+// Plan du 16/11/2026, lot 2 : plus jamais YouCanBookMe, plus aucune donnée dans une adresse.
+test('serveur injoignable : un message et l’adresse de contact, aucune autre page, rien dans l’adresse', async ({ page }) => {
   const j = await simuler(page, { creneaux: 'panne' })
   await ouvrir(page, '/rdv/?h3c=zRH7M')
-  await jusquAuCreneau(page, { provenance: false })
-  await expect(page.getByText('Agenda YouCanBookMe')).toBeVisible({ timeout: 20_000 })
-  const u = new URL(j.ycbm.at(-1)!)
-  expect(u.origin + u.pathname).toBe('https://cyrillenovou-45mn.youcanbook.me/')
-  expect(Object.fromEntries(u.searchParams)).toEqual({
-    FNAME: 'Jane', LNAME: 'Doe', EMAIL: 'jane@example.com', PHONE: '06 12 34 56 78',
-    SITUATION: 'Je rejoue le même scénario.', Q6: 'Plus de 2 ans', ORIGINE: 'zRH7M',
-  })
+  await jusquAuCreneau(page, { provenance: false, attendre: false })
+  await expect(page.getByRole('heading', { name: 'La demande ne peut pas partir pour le moment' })).toBeVisible({ timeout: 20_000 })
+  await expect(page.getByRole('link', { name: 'cyrille@souverainauquotidien.com' })).toHaveAttribute('href', 'mailto:cyrille@souverainauquotidien.com')
+  expect(j.ycbm).toHaveLength(0)
   expect(j.reserver).toHaveLength(0)
+  expect(page.url()).not.toMatch(/Jane|Doe|example|0612|youcanbook/i)
+  // Les réponses restent dans l'onglet : « Réessayer » recharge sans rien perdre.
+  expect(await page.evaluate(() => sessionStorage.getItem('rdv.etat'))).toContain('Je rejoue le même scénario.')
 })
 
-test('drapeau éteint : la page renvoie aussitôt vers l\'agenda indiqué par le serveur', async ({ page }) => {
+test('drapeau éteint : le message tout de suite, jamais une autre page, l’adresse nettoyée', async ({ page }) => {
   const j = await simuler(page, {
     creneaux: { status: 503, body: { detail: { code: 'inactive', page: 'https://cyrillenovou-45mn.youcanbook.me/' } } },
   })
-  await ouvrir(page, '/rdv/?h3c=abc&EMAIL=jane%40example.com')
-  await expect(page.getByText('Agenda YouCanBookMe')).toBeVisible()
-  const u = new URL(j.ycbm.at(-1)!)
-  expect(u.hostname).toBe('cyrillenovou-45mn.youcanbook.me')
-  expect(u.searchParams.get('ORIGINE')).toBe('abc')
+  await page.goto('/rdv/?h3c=abc&EMAIL=jane%40example.com')
+  await expect(page.getByRole('heading', { name: 'La demande ne peut pas partir pour le moment' })).toBeVisible()
+  expect(j.ycbm).toHaveLength(0)
+  expect(page.url()).not.toContain('jane')
+})
+
+test('lien de Ficiel ou d’un email (prénom, nom, email, téléphone) : pré-remplis, retirés de l’adresse, case jamais cochée', async ({ page }) => {
+  const j = await simuler(page)
+  await ouvrir(page, '/rdv/?FNAME=Jane&LNAME=Doe&EMAIL=jane%40example.com&PHONE=%2B33612345678&h3c=fic01')
+  await expect.poll(() => page.url()).not.toMatch(/Jane|Doe|jane|336/)
+  expect(new URL(page.url()).searchParams.get('h3c')).toBe('fic01')
+  await expect(page.getByLabel('Quel est votre prénom ?')).toHaveValue('Jane')
+  await continuer(page)
+  await page.getByLabel('Quelle situation relationnelle souhaitez-vous travailler ?').fill('x')
+  await continuer(page)
+  await page.getByRole('radio', { name: 'Plus de 2 ans' }).click()
+  await expect(page.getByRole('heading', { name: 'Qu’aimeriez-vous vivre autrement ?' })).toBeVisible()
+  await continuer(page)
+  await expect(page.getByLabel('Votre nom')).toHaveValue('Doe')
+  await expect(page.getByLabel('Votre adresse e-mail')).toHaveValue('jane@example.com')
+  await expect(page.getByLabel('Votre numéro de téléphone')).toHaveValue('+33612345678')
+  await expect(page.getByRole('checkbox')).not.toBeChecked()
+  await continuer(page)
+  await page.getByRole('radio', { name: '18:30' }).click()
+  await page.getByRole('button', { name: 'Demander ce créneau' }).click()
+  await expect(page.getByText('Votre demande est bien envoyée.', { exact: false })).toBeVisible()
+  expect(j.reserver[0]).toMatchObject({ prenom: 'Jane', nom: 'Doe', email: 'jane@example.com', telephone: '+33612345678', sms_rappels: false, origine: 'fic01' })
+})
+
+test('provenance encore inconnue du serveur (422) : la demande repart sans elle, jamais bloquée', async ({ page }) => {
+  const j = await simuler(page, {
+    reserver: [{ status: 422, body: { detail: { code: 'champ_refuse', champ: 'provenance', message: 'Choisissez une réponse dans la liste.' } } }, { status: 200 }],
+  })
+  await ouvrir(page)
+  await jusquAuCreneau(page, { provenance: false, attendre: false })
+  await page.getByRole('radio', { name: 'une vidéo YouTube' }).click()
+  await page.getByRole('radio', { name: '18:30' }).click()
+  await page.getByRole('button', { name: 'Demander ce créneau' }).click()
+  await expect(page.getByText('Votre demande est bien envoyée.', { exact: false })).toBeVisible()
+  expect(j.reserver.map((c) => c.provenance)).toEqual(['une vidéo YouTube', ''])
+  expect(j.reserver[1].cle).toBe(j.reserver[0].cle)
 })
 
 test('double clic : une seule demande envoyée', async ({ page }) => {

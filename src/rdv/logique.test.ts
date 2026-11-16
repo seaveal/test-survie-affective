@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
-  CHOIX_ANCIENNETE, canonique, chercherFuseaux, creneauEnClair, erreurChamp, fuseauUtile, grouperParJour,
-  libelleFuseau, listeFuseaux, urlRepli,
+  canonique, chercherFuseaux, creneauEnClair, erreurChamp, fuseauUtile, grouperParJour,
+  libelleFuseau, listeFuseaux, prerempliDepuis, CHOIX_PROVENANCE,
 } from './logique'
 
 const ms = (iso: string) => Date.parse(iso)
@@ -82,23 +82,26 @@ describe('regroupement par jour, dans le fuseau choisi', () => {
   })
 })
 
-describe('repli vers YouCanBookMe', () => {
-  it('pré-remplit tout ce qui est connu et rien de vide', () => {
-    const u = new URL(urlRepli('https://cyrillenovou-45mn.youcanbook.me/', {
-      prenom: 'Jane', nom: 'Doe', email: 'jane@example.com', telephone: '+33 6 12 34 56 78',
-      situation: 'Ma situation', anciennete: CHOIX_ANCIENNETE[3], objectif: '', provenance: '',
-    }, 'zRH7M'))
-    expect(u.origin).toBe('https://cyrillenovou-45mn.youcanbook.me')
-    expect(u.searchParams.get('FNAME')).toBe('Jane')
-    expect(u.searchParams.get('Q6')).toBe('Depuis très longtemps / “toujours”')
-    expect(u.searchParams.get('PHONE')).toBe('+33 6 12 34 56 78')
-    expect(u.searchParams.get('ORIGINE')).toBe('zRH7M')
-    expect(u.searchParams.has('OBJECTIF')).toBe(false)
-    expect(u.searchParams.has('PROVENANCE')).toBe(false)
+describe('pré-remplissage par l’adresse (plan du 16/11)', () => {
+  it('prend prénom, nom, email, téléphone, noms hérités compris', () => {
+    expect(prerempliDepuis(new URLSearchParams('FNAME=Jane&LNAME=Doe&EMAIL=jane@example.com&PHONE=%2B33612345678'))).toEqual({
+      prenom: 'Jane', nom: 'Doe', email: 'jane@example.com', telephone: '+33612345678',
+    })
+    expect(prerempliDepuis(new URLSearchParams('prenom=Jane&tel=06%2012%2034%2056%2078'))).toEqual({ prenom: 'Jane', telephone: '06 12 34 56 78' })
   })
 
-  it('page vide : agenda de vente par défaut', () => {
-    expect(urlRepli('', {}, '')).toBe('https://cyrillenovou-45mn.youcanbook.me/')
+  it('ignore les valeurs invalides et ne touche jamais aux questions de qualification', () => {
+    expect(prerempliDepuis(new URLSearchParams('EMAIL=pas-une-adresse&PHONE=12&prenom=&situation=x&anciennete=Plus%20de%202%20ans'))).toEqual({})
+    expect(prerempliDepuis(new URLSearchParams(`prenom=${'a'.repeat(81)}`))).toEqual({})
+  })
+})
+
+describe('provenance', () => {
+  it('libellés à jour : Test renommé, bilan et YouTube, plus l’ancien nom', () => {
+    expect(CHOIX_PROVENANCE).toContain('le Test de dépendance affective')
+    expect(CHOIX_PROVENANCE).toContain('le bilan de RECONSTRUCTION AFFECTIVE')
+    expect(CHOIX_PROVENANCE).toContain('une vidéo YouTube')
+    expect(CHOIX_PROVENANCE).not.toContain('le Test de Survie Affective')
   })
 })
 

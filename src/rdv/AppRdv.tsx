@@ -137,11 +137,13 @@ export default function AppRdv() {
 
   // Arrivée : historique de l'écran courant, adresse pré-remplie, drapeau du serveur.
   useEffect(() => {
-    history.replaceState({ rdv: etat.ecran }, '')
+    // L'accueil a sa place dans l'historique : « retour » depuis le prénom y revient au lieu de quitter la page.
+    history.replaceState({ rdv: presentation ? 'accueil' : etat.ecran }, '')
     const onPop = (ev: PopStateEvent) => {
-      const vers = (ev.state as { rdv?: Ecran } | null)?.rdv
+      const vers = (ev.state as { rdv?: Ecran | 'accueil' } | null)?.rdv
       setMessage('')
-      setEtat((e) => (e.fini ? { ...e, ecran: 'confirmation' } : { ...e, ecran: vers ?? 'prenom' }))
+      setPresentation(vers === 'accueil')
+      setEtat((e) => (e.fini ? { ...e, ecran: 'confirmation' } : { ...e, ecran: !vers || vers === 'accueil' ? 'prenom' : vers }))
     }
     window.addEventListener('popstate', onPop)
 
@@ -175,6 +177,8 @@ export default function AppRdv() {
     titre.current?.focus({ preventScroll: etat.ecran === 'prenom' })
     const nom = JALON_ECRAN[etat.ecran]
     if (nom) compterEcran(nom)
+    // `rdv_arrivee` compte l'accueil ; l'écran du prénom a son compteur à lui (plan unique, lot 2, 19/11/2026).
+    if (etat.ecran === 'prenom' && !presentation) compterEcran('rdv_prenom')
   }, [etat.ecran, presentation])
 
   const aller = useCallback((ecran: Ecran) => {
@@ -229,7 +233,14 @@ export default function AppRdv() {
   }
 
   const { r } = etat
-  if (presentation && etat.ecran === 'prenom') return <Cadre large><PageCommerciale page="rdv-accueil" bouton="Demander un créneau" onAction={() => { setPresentation(false); window.scrollTo(0, 0) }} /></Cadre>
+  // Prénom déjà connu (lien de Ficiel, d'un email) : jamais redemandé, on passe à la question suivante.
+  const quitterAccueil = () => {
+    setPresentation(false)
+    history.pushState({ rdv: 'prenom' }, '') // « retour » depuis la question suivante rouvre le prénom, modifiable
+    if (!erreurChamp('prenom', etat.r.prenom)) return aller('situation')
+    window.scrollTo(0, 0)
+  }
+  if (presentation && etat.ecran === 'prenom') return <Cadre large><PageCommerciale page="rdv-accueil" bouton="Demander un créneau" onAction={quitterAccueil} /></Cadre>
 
   const salut = r.prenom.trim() && etat.ecran !== 'prenom' ? T.merci(r.prenom.trim()) : ''
   const premier = etat.ecran === 'prenom'

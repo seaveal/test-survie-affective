@@ -15,10 +15,10 @@ interface Options {
   email?: string | null
   doublon?: boolean
 }
-interface Journal { reserver: Record<string, unknown>[]; creneaux: number; email: Record<string, unknown>[]; ycbm: string[]; verifier: Record<string, unknown>[]; vues: string[] }
+interface Journal { reserver: Record<string, unknown>[]; creneaux: number; email: Record<string, unknown>[]; ycbm: string[]; verifier: Record<string, unknown>[]; vues: string[]; jalons: string[] }
 
 async function simuler(page: Page, o: Options = {}): Promise<Journal> {
-  const j: Journal = { reserver: [], creneaux: 0, email: [], ycbm: [], verifier: [], vues: [] }
+  const j: Journal = { reserver: [], creneaux: 0, email: [], ycbm: [], verifier: [], vues: [], jalons: [] }
   const reponses = [...(o.reserver ?? [{ status: 200 }])]
   await page.route(/^https?:\/\/(?!localhost)/, async (route, req: Request) => {
     const u = new URL(req.url())
@@ -51,6 +51,7 @@ async function simuler(page: Page, o: Options = {}): Promise<Journal> {
       return route.fulfill({ status: 200, json: { email: o.email ?? null } })
     }
     if (u.pathname.startsWith('/api/capi/')) j.vues.push(req.postData() ?? '') // page-view, page-vue du bloc de suivi
+    if (u.pathname === '/api/test-jalon') j.jalons.push((req.postDataJSON() as { jalon: string }).jalon)
     return route.fulfill({ status: 204, body: '' }) // jalons, page-view
   })
   return j
@@ -254,6 +255,10 @@ test('lien de Ficiel ou d’un email (prénom, nom, email, téléphone) : pré-r
   await ouvrir(page, '/rdv/?FNAME=Jane&LNAME=Doe&EMAIL=jane%40example.com&PHONE=%2B33612345678&h3c=fic01')
   await expect.poll(() => page.url()).not.toMatch(/Jane|Doe|jane|336/)
   expect(new URL(page.url()).searchParams.get('h3c')).toBe('fic01')
+  // Prénom connu : l'écran du prénom est sauté (jamais de double saisie), « Retour » le rouvre, modifiable.
+  await expect(page.getByRole('heading', { name: 'Quelle situation relationnelle souhaitez-vous travailler ?' })).toBeVisible()
+  await expect(page.getByText('Merci, Jane.')).toBeVisible()
+  await page.getByRole('button', { name: 'Retour' }).click()
   await expect(page.getByLabel('Quel est votre prénom ?')).toHaveValue('Jane')
   await continuer(page)
   await page.getByLabel('Quelle situation relationnelle souhaitez-vous travailler ?').fill('x')
@@ -314,6 +319,38 @@ test('rechargement en cours de parcours et geste retour : rien n\'est perdu', as
   await expect(page.getByLabel('Quelle situation relationnelle souhaitez-vous travailler ?')).toHaveValue('Ma situation')
   await page.goBack()
   await expect(page.getByLabel('Quel est votre prénom ?')).toHaveValue('Jane')
+  await page.goBack() // l'accueil, jamais une sortie de la page
+  await expect(page.getByTestId('cta-haut')).toBeVisible()
+  await page.getByTestId('cta-haut').click() // prénom déjà donné : pas redemandé
+  await expect(page.getByLabel('Quelle situation relationnelle souhaitez-vous travailler ?')).toHaveValue('Ma situation')
+})
+
+test('accueil : le bouton suit le titre, retour depuis le prénom revient à l’accueil, un compteur pour chacun (19/11/2026)', async ({ page }) => {
+  const j = await simuler(page)
+  await page.goto('/rdv/')
+  await page.locator('#h3c-refuse').click({ timeout: 3000 }).catch(() => {})
+  const haut = page.getByTestId('cta-haut')
+  await expect(haut).toBeVisible()
+  // Le premier bouton vient avant le premier paragraphe : visible sans défiler sur un téléphone.
+  const avant = await haut.evaluate((b) => {
+    const p = [...document.querySelectorAll('article p')].find((x) => x.textContent?.startsWith('Vous voulez aimer sans vous perdre'))
+    return !!p && !!(b.compareDocumentPosition(p) & Node.DOCUMENT_POSITION_FOLLOWING)
+  })
+  expect(avant).toBe(true)
+  await expect(page.getByText('Appel offert · 45 minutes · en visio sur Zoom')).toHaveCount(0)
+  await expect.poll(() => j.jalons).toContain('rdv_arrivee')
+  expect(j.jalons).not.toContain('rdv_prenom')
+  await haut.click()
+  await expect(page.getByRole('heading', { name: 'Quel est votre prénom ?' })).toBeVisible()
+  await expect.poll(() => j.jalons).toContain('rdv_prenom')
+  await page.getByLabel('Quel est votre prénom ?').fill('Jane')
+  await page.goBack()
+  await expect(haut).toBeVisible()
+  await haut.click() // prénom donné avant le retour : pas redemandé
+  await expect(page.getByText('Merci, Jane.')).toBeVisible()
+  await page.getByRole('button', { name: 'Retour' }).click()
+  await expect(page.getByLabel('Quel est votre prénom ?')).toHaveValue('Jane')
+  expect(j.jalons.filter((x) => x === 'rdv_prenom')).toHaveLength(1) // une fois par visite
 })
 
 test('adresse du lien (?EMAIL=) : pré-remplie, modifiable, retirée de l\'adresse', async ({ page }) => {

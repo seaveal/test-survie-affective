@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { lireJetonContact, lireOrientationRv, lienSuiteRv } from '../api/client'
 import { DisclaimerFooter } from '../components/DisclaimerFooter'
+import { PorteWhatsApp } from '../components/PorteWhatsApp'
 import { niveau } from '../domain/rv/scoring'
 import { DIMENSIONS_RV, type ResultatRv } from '../domain/rv/types'
 import type { ReponseSecurite } from './questions'
@@ -207,14 +208,18 @@ export function SuiteDuBilan() {
     return () => { actif = false }
   }, [contact])
   if (suite === 'chargement') return <p className="mx-6 mt-6" role="status">{T.suiteChargement}</p>
-  if (suite === 'email' || !contact) return (
+  // Porte WhatsApp vers le 07 (Ficiel), sous l'appel (plan unique du 16/11/2026, lot 2 bis) ; jamais pour
+  // un membre (un client écrit au 06) ni avec le bloc d'urgence (cette suite n'est alors pas rendue).
+  const porte = <PorteWhatsApp code="wa-bilan" invite={T.whatsapp} />
+  if (suite === 'email' || !contact) return (<>
     <section className="mx-6 mt-6" data-testid="suite-bilan-email">
       <h2 className="text-xl">{T.suiteTitre}</h2>
       <p className="mt-3 text-base leading-relaxed">{T.suiteEmail}</p>
     </section>
-  )
+    {porte}
+  </>)
   const membre = suite === 'programme'
-  return (
+  return (<>
     <section className="mx-6 mt-6" data-testid={membre ? 'suite-programme' : 'appel'}>
       <p className="text-base leading-relaxed">{membre ? T.suiteProgramme : T.demande}</p>
       <a href={lienSuiteRv(contact)} referrerPolicy="no-referrer"
@@ -224,5 +229,6 @@ export function SuiteDuBilan() {
       </a>
       {!membre && <p className="mt-3 text-sm" style={secondaire}>{T.sousBouton}</p>}
     </section>
-  )
+    {!membre && porte}
+  </>)
 }

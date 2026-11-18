@@ -91,6 +91,11 @@ test('parcours complet à Paris : une demande, la confirmation, rien de redemand
   await page.getByRole('button', { name: 'Demander ce créneau' }).click()
   await expect(page.getByText('Votre demande est bien envoyée.', { exact: false })).toBeVisible()
   await expect(page.getByText('vendredi 6 novembre à 18:30 (heure de Paris)')).toBeVisible()
+  // Porte WhatsApp vers le 06 (lot 2 bis) : sur la confirmation, sous les étapes, jamais une case cochée.
+  const wa = page.getByRole('link', { name: 'Écrivez-moi sur WhatsApp' })
+  await expect(wa).toBeVisible()
+  await expect(wa).toHaveAttribute('href', 'https://h3c.fr/wa-rdv-confirm')
+  await expect(wa).toHaveAttribute('target', '_blank')
   expect(j.reserver).toHaveLength(1)
   const c = j.reserver[0]
   expect(c).toMatchObject({

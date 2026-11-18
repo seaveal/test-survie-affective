@@ -248,6 +248,7 @@ describe('e2e RETROUVEZ-VOUS', () => {
     await parcours(user, 'Oui')
     const urgence = await screen.findByTestId('urgence')
     expect(screen.queryByTestId('rdv-bouton')).toBeNull()
+    expect(screen.queryByTestId('porte-whatsapp')).toBeNull()  // ni porte WhatsApp vers Ficiel avec le bloc d'urgence
     for (const n of ['17', '112', '114', '3919', '116 006']) expect(urgence).toHaveTextContent(n)
     expect(screen.getByRole('link', { name: '3919' })).toHaveAttribute('href', 'tel:3919')
     expect(screen.getByRole('link', { name: '114' })).toHaveAttribute('href', 'sms:114')

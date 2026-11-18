@@ -15,6 +15,7 @@ describe('Suite du bilan selon une identité vérifiée', () => {
     render(<SuiteDuBilan />)
     expect(screen.getByTestId('suite-bilan-email')).toBeInTheDocument()
     expect(screen.queryByTestId('rdv-bouton')).toBeNull()
+    expect(screen.getByTestId('porte-whatsapp-lien').getAttribute('href')).toBe('https://h3c.fr/wa-bilan')
     expect(fetch).not.toHaveBeenCalled()
     localStorage.clear()
   })
@@ -27,6 +28,13 @@ describe('Suite du bilan selon une identité vérifiée', () => {
     expect(bouton.getAttribute('href')).toContain('/api/rv-suite?c=h1.courriel')
     expect(bouton).toHaveAttribute('referrerpolicy', 'no-referrer')
     if (suite === 'programme') expect(screen.queryByTestId('rdv-bouton')).toBeNull()
+    // Porte WhatsApp vers le 07 (lot 2 bis) : sous l'appel ; jamais pour un membre, qui écrit au 06.
+    const wa = screen.queryByTestId('porte-whatsapp-lien')
+    if (suite === 'programme') expect(wa).toBeNull()
+    else {
+      expect(wa?.getAttribute('href')).toBe('https://h3c.fr/wa-bilan')
+      expect(bouton.compareDocumentPosition(wa!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    }
     expect(vi.mocked(fetch).mock.calls[0][0]).toContain('/api/rv-orientation?c=h1.courriel')
   })
   it('n’affiche pas de RDV par défaut quand la vérification échoue', async () => {

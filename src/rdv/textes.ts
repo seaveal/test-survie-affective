@@ -82,6 +82,8 @@ export const T = {
       ['Maintenant', 'Un e-mail vous confirme que votre demande est bien reçue.'],
       ['Sous 24 heures', 'La réponse de Cyrille, par e-mail. S’il valide le créneau, cet e-mail vous donne le lien de la visio Zoom.'],
     ] as [string, string][],
+    // Porte WhatsApp vers le 06, la personne ayant réservé (plan unique du 16/11/2026, lot 2 bis, porte 1).
+    whatsapp: 'Une question d’ici l’appel ?',
     rienTitre: 'Vous ne recevez rien ?',
     rien: 'Regardez d’abord dans vos courriers indésirables. Toujours rien 24 heures après votre demande ? Écrivez à',
   },

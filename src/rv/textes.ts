@@ -93,6 +93,8 @@ export const TEXTES_RV = {
     demande: 'Choisissez le créneau qui vous convient pour mettre des mots sur ce qui se rejoue.',
     bouton: 'Réserver mon appel de 45 minutes',
     sousBouton: 'Offert, 45 minutes, en visio.',
+    /** Porte WhatsApp vers le 07, sous l'appel (plan unique du 16/11/2026, lot 2 bis). */
+    whatsapp: 'Vous préférez en parler d’abord ?',
     pied: "Comprendre l'autre, vous savez déjà le faire. Se détendre dans son corps s'apprend par l'expérience, pas par l'explication.",
     recommencer: 'Recommencer le bilan',
   },

@@ -14,6 +14,7 @@ import { useState } from 'react'
 import { getProfil } from '../domain/result'
 import type { Resultat } from '../domain/types'
 import { DisclaimerFooter } from './DisclaimerFooter'
+import { PorteWhatsApp } from './PorteWhatsApp'
 
 interface Props {
   resultat: Pick<Resultat, 'profilDominant'>
@@ -180,6 +181,10 @@ export function ResultPreview({ resultat, envoiReussi, apercu = false, envoiEnCo
           (décision Cyrille du 18/10/2026). Le kit (vidéo + bloc) a été retiré ce jour ;
           la vente du kit vit sur sa propre page. */}
       <RdvBloc />
+
+      {/* Porte WhatsApp vers le 07 (Ficiel), sous l'appel (plan unique du 16/11/2026, lot 2 bis).
+          Pas sur l'aperçu : la personne n'a pas fait le Test. */}
+      {!apercu && <PorteWhatsApp code="wa-test" invite="Vous préférez en parler d’abord ?" />}
 
       <DisclaimerFooter />
     </article>

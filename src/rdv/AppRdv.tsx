@@ -8,6 +8,7 @@ import {
   type Dispatch, type FormEvent, type ReactNode, type RefObject, type SetStateAction,
 } from 'react'
 import { lireJetonContact } from '../api/client'
+import { PorteWhatsApp } from '../components/PorteWhatsApp'
 import { dejaDemande, emailDesJetons, jalon, lireCreneaux, reserver, signalerDemande } from './api'
 import {
   CHOIX_ANCIENNETE, CHOIX_PROVENANCE, PARIS, REPONSES_VIDES, chercherFuseaux,
@@ -613,6 +614,9 @@ function Confirmation({ etat, titre }: { etat: Etat; titre: RefObject<HTMLHeadin
           </li>
         ))}
       </ol>
+      {/* Porte WhatsApp vers le 06 : la personne a réservé, Cyrille répond lui-même (plan unique du 16/11/2026,
+          lot 2 bis, porte 1). En plus de la case des rappels, qui reste jamais cochée d'avance. */}
+      <PorteWhatsApp code="wa-rdv-confirm" invite={T.confirmation.whatsapp} classe="mt-8" />
       <div className="mt-8">
         <h2 className="text-lg">{T.confirmation.rienTitre}</h2>
       </div>

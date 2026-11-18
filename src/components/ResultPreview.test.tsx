@@ -92,3 +92,23 @@ describe('<ResultPreview> — bloc rendez-vous, seule proposition', () => {
     expect(screen.getByTestId('rdv-bouton')).toBeTruthy()
   })
 })
+
+// Plan unique du 16/11/2026, lot 2 bis : une porte WhatsApp vers le 07 (Ficiel), sous l'appel, jamais au-dessus.
+describe('<ResultPreview> — porte WhatsApp', () => {
+  it('ouvre le lien court wa-test, sous le bouton de l’appel', () => {
+    render(<ResultPreview resultat={RESULTAT} envoiReussi />)
+    const wa = screen.getByTestId('porte-whatsapp-lien')
+    expect(wa.getAttribute('href')).toBe('https://h3c.fr/wa-test')
+    expect(wa.textContent).toBe('Écrivez-moi sur WhatsApp')
+    expect(wa.getAttribute('target')).toBe('_blank')
+    expect(wa.getAttribute('referrerpolicy')).toBe('no-referrer')
+    const rdv = screen.getByTestId('rdv-bouton')
+    expect(rdv.compareDocumentPosition(wa) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getAllByTestId('porte-whatsapp')).toHaveLength(1)
+  })
+
+  it('absente de l’aperçu : la personne n’a pas fait le Test', () => {
+    render(<ResultPreview resultat={RESULTAT} envoiReussi apercu />)
+    expect(screen.queryByTestId('porte-whatsapp')).toBeNull()
+  })
+})

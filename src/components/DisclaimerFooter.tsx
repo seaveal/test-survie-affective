@@ -61,10 +61,9 @@ export function DisclaimerFooter({ nomTest = 'Le Test de dépendance affective' 
       <p className="text-xs leading-relaxed">
         <strong>Avertissement.</strong> {nomTest} et le programme
         Régénération relèvent du coaching. Ils ne
-        constituent pas un soin médical, ni une psychothérapie au sens de la loi
-        du 25 juillet 1985. Ils ne se substituent pas à un suivi par un
+        constituent pas un soin médical, ni une psychothérapie. Ils ne se substituent pas à un suivi par un
         professionnel de santé habilité (médecin, psychiatre, psychologue,
-        psychothérapeute reconnu ARS). Si vous traversez une situation nécessitant
+        psychothérapeute inscrit au registre national des psychothérapeutes). Cyrille Novou est coach : il ne fait pas usage du titre de psychothérapeute, encadré par l’article 52 de la loi n° 2004-806 du 9 août 2004. Si vous traversez une situation nécessitant
         un accompagnement médical (idées suicidaires, dépression sévère,
         troubles psychiatriques actifs, addictions sévères), consultez un
         professionnel de santé ou appelez le <strong>3114</strong> (numéro

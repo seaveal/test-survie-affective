@@ -103,6 +103,36 @@ function useClavier() {
   }, [])
 }
 
+/**
+ * Hauteur du bandeau de consentement (#h3c-cmp) tant qu'il est affiché, dans `--rdv-bandeau` : la barre
+ * se pose au-dessus au lieu d'être recouverte (26/11/2026). Mesurée ici et non dans removeBanner() :
+ * le bandeau vient du bloc de suivi généré (rdv/index.html, « NE PAS ÉDITER À LA MAIN »), qu'une
+ * propagation réécrirait. Suit l'ouverture, « Personnaliser », le redimensionnement et la fermeture.
+ */
+function useBandeau() {
+  useEffect(() => {
+    const racine = document.documentElement.style
+    const mesure = new ResizeObserver(([e]) => racine.setProperty('--rdv-bandeau', `${Math.ceil(e.target.getBoundingClientRect().height)}px`))
+    let suivi: Element | null = null
+    const voir = () => {
+      const b = document.getElementById('h3c-cmp')
+      if (b === suivi) return
+      if (suivi) mesure.unobserve(suivi)
+      suivi = b
+      if (b) mesure.observe(b, { box: 'border-box' })
+      else racine.removeProperty('--rdv-bandeau')
+    }
+    const veille = new MutationObserver(voir) // le bandeau s'ajoute et se retire directement sous <body>
+    veille.observe(document.body, { childList: true })
+    voir()
+    return () => {
+      veille.disconnect()
+      mesure.disconnect()
+      racine.removeProperty('--rdv-bandeau')
+    }
+  }, [])
+}
+
 export default function AppRdv() {
   const [etat, setEtat] = useState<Etat>(etatInitial)
   const [erreurs, setErreurs] = useState<Partial<Record<string, string>>>({})
@@ -113,6 +143,7 @@ export default function AppRdv() {
   const verification = useRef(false)
   const titre = useRef<HTMLHeadingElement>(null)
   useClavier()
+  useBandeau()
 
   const ordre = useMemo<Ecran[]>(
     () => ['prenom', 'situation', 'anciennete', 'objectif', 'coordonnees', ...(etat.origine ? [] : ['provenance' as Ecran]), 'creneau'],
@@ -670,12 +701,13 @@ function Cadre({ children, large = false }: { children: ReactNode; large?: boole
   )
 }
 
-/** Barre d'action fixe, au-dessus du clavier ouvert et de la barre d'accueil. */
+/** Barre d'action fixe, au-dessus du clavier ouvert, du bandeau de consentement et de la barre d'accueil. */
 function Barre({ children }: { children: ReactNode }) {
   return (
     <div className="fixed inset-x-0 z-10 border-t px-4 pt-3"
       style={{
-        bottom: 'var(--rdv-clavier, 0px)', background: 'var(--h3c-fond-principal)', borderColor: 'var(--h3c-bordure)',
+        // max et non somme : bandeau et clavier partent tous deux du bas de l'écran, le plus haut des deux suffit.
+        bottom: 'max(var(--rdv-clavier, 0px), var(--rdv-bandeau, 0px))', background: 'var(--h3c-fond-principal)', borderColor: 'var(--h3c-bordure)',
         paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))',
       }}>
       <div className="mx-auto flex max-w-lg items-start gap-3">{children}</div>

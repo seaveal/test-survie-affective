@@ -130,10 +130,6 @@
   --h3c-accent-terracotta: #A8432B;
   --h3c-accent-terracotta-hover: #943B26;
   --h3c-accent-terracotta-active: #833422;
-  /* Lilas poudré (charte du 27/11/2026) : boutons des « oui » gratuits qui nous servent ;
-     texte toujours à l'encre, jamais blanc (1,7:1). */
-  --h3c-lilas: #D4C2DE;
-  --h3c-encre-lilas: #2B2722;
   --h3c-erreur: #c0392b;
   --h3c-succes: #5d8a66;
   --h3c-bordure: #e8e2d8;
@@ -196,20 +192,20 @@ h1, h2, h3 {
   .tsa-cta-terracotta:hover { transform: none; }
 }
 
-/* Porte WhatsApp (lot 2 bis, 18/11/2026) : en lilas cerné d'encre depuis le 27/11/2026
-   (Cyrille : « passe aussi le bouton WhatsApp du Test en lilas ») ; contour épaissi au survol. */
+/* Porte WhatsApp (lot 2 bis, 18/11/2026) : bouton sobre, au trait, pour ne pas
+   rivaliser avec l'appel à l'action principal ; plein au survol. */
 .tsa-porte-whatsapp {
-  border: 1.5px solid var(--h3c-encre-lilas);
-  background-color: var(--h3c-lilas);
-  color: var(--h3c-encre-lilas);
+  border: 2px solid var(--h3c-accent-terracotta);
+  color: var(--h3c-accent-terracotta);
   min-height: 3rem;
 }
 .tsa-porte-whatsapp:hover {
-  box-shadow: 0 0 0 1.5px var(--h3c-encre-lilas);
+  background-color: var(--h3c-accent-terracotta);
+  color: #fff;
 }
 .tsa-porte-whatsapp:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--h3c-fond-principal), 0 0 0 5px var(--h3c-encre-lilas);
+  box-shadow: 0 0 0 3px var(--h3c-fond-principal), 0 0 0 5px var(--h3c-accent-terracotta);
 }
 
 /* Apparition des blocs sous la ligne de flottaison — audit 2026-08-27.
